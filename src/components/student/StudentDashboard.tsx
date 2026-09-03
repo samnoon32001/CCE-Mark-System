@@ -105,32 +105,32 @@ export const StudentDashboard: React.FC<{ onNavigate: (section: NavSection) => v
       {/* Summary Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Class Details */}
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs border-l-4 border-l-indigo-500 flex flex-col justify-between">
+        <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs border-l-4 border-l-indigo-500 flex flex-col justify-between">
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-500">My Class</span>
-            <span className="text-slate-400"><School className="w-4 h-4" /></span>
+            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">My Class</span>
+            <span className="text-slate-400 dark:text-slate-500"><School className="w-4 h-4" /></span>
           </div>
           <div>
-            <div className="text-xl font-bold font-mono text-slate-900">
+            <div className="text-xl font-bold font-mono text-slate-900 dark:text-white">
               {studentClass?.name || 'Class 10A'}
             </div>
-            <div className="text-[11px] text-slate-400 mt-1">
+            <div className="text-[11px] text-slate-400 dark:text-slate-500 mt-1">
               Year: {studentClass?.academicYear || state.currentAcademicYear}
             </div>
           </div>
         </div>
 
         {/* Class Teacher */}
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs border-l-4 border-l-amber-500 flex flex-col justify-between">
+        <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs border-l-4 border-l-amber-500 flex flex-col justify-between">
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-500">Class Teacher</span>
-            <span className="text-slate-400"><ShieldCheck className="w-4 h-4" /></span>
+            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Class Teacher</span>
+            <span className="text-slate-400 dark:text-slate-500"><ShieldCheck className="w-4 h-4" /></span>
           </div>
           <div>
-            <div className="text-base font-bold text-slate-900 truncate">
+            <div className="text-base font-bold text-slate-900 dark:text-white truncate">
               {classTeacher?.name || 'Assigned Faculty'}
             </div>
-            <div className="text-[11px] text-slate-400 mt-1 truncate">
+            <div className="text-[11px] text-slate-400 dark:text-slate-500 mt-1 truncate">
               {classTeacher?.email || 'Teacher in charge'}
             </div>
           </div>
@@ -139,35 +139,35 @@ export const StudentDashboard: React.FC<{ onNavigate: (section: NavSection) => v
         {/* Total Subjects */}
         <div
           onClick={() => onNavigate('student-subjects')}
-          className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs hover:border-slate-300 transition cursor-pointer border-l-4 border-l-purple-500 flex flex-col justify-between"
+          className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs hover:border-slate-300 dark:hover:border-slate-700 transition cursor-pointer border-l-4 border-l-purple-500 flex flex-col justify-between"
         >
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-500">Subjects</span>
-            <span className="text-slate-400"><BookOpen className="w-4 h-4" /></span>
+            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Subjects</span>
+            <span className="text-slate-400 dark:text-slate-500"><BookOpen className="w-4 h-4" /></span>
           </div>
           <div>
-            <div className="text-2xl font-bold font-mono text-slate-900">
+            <div className="text-2xl font-bold font-mono text-slate-900 dark:text-white">
               {classSubjects.length < 10 ? `0${classSubjects.length}` : classSubjects.length}
             </div>
-            <div className="text-[11px] text-slate-400 mt-1">Curriculum Courses</div>
+            <div className="text-[11px] text-slate-400 dark:text-slate-500 mt-1">Curriculum Courses</div>
           </div>
         </div>
 
         {/* CCE Overall Total */}
         <div
           onClick={() => onNavigate('student-marks')}
-          className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs hover:border-slate-300 transition cursor-pointer border-l-4 border-l-emerald-500 flex flex-col justify-between"
+          className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs hover:border-slate-300 dark:hover:border-slate-700 transition cursor-pointer border-l-4 border-l-emerald-500 flex flex-col justify-between"
         >
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-500">Overall CCE Score</span>
-            <span className="text-slate-400"><TrendingUp className="w-4 h-4" /></span>
+            <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Overall CCE Score</span>
+            <span className="text-slate-400 dark:text-slate-500"><TrendingUp className="w-4 h-4" /></span>
           </div>
           <div>
-            <div className="text-2xl font-bold font-mono text-emerald-600">
+            <div className="text-2xl font-bold font-mono text-emerald-600 dark:text-emerald-400">
               {totalFinalScore30.toFixed(1)}{' '}
-              <span className="text-xs text-slate-400 font-normal">/ {maxTotalScore30}</span>
+              <span className="text-xs text-slate-400 dark:text-slate-500 font-normal">/ {maxTotalScore30}</span>
             </div>
-            <div className="text-[11px] text-slate-500 mt-1 font-mono font-semibold">
+            <div className="text-[11px] text-slate-500 dark:text-slate-400 mt-1 font-mono font-semibold">
               {overallPercentage}% Average
             </div>
           </div>
@@ -175,19 +175,19 @@ export const StudentDashboard: React.FC<{ onNavigate: (section: NavSection) => v
       </div>
 
       {/* Subject Performance Cards */}
-      <div className="bg-white rounded-xl p-6 border border-slate-200 shadow-xs">
+      <div className="bg-white dark:bg-slate-900 rounded-xl p-6 border border-slate-200 dark:border-slate-800 shadow-xs">
         <div className="flex items-center justify-between mb-5">
           <div>
-            <h2 className="text-base font-semibold text-slate-900">
+            <h2 className="text-base font-semibold text-slate-900 dark:text-white">
               Subject CCE Performance Breakdown
             </h2>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               Final Marks converted out of 30 for each enrolled subject
             </p>
           </div>
           <button
             onClick={() => onNavigate('student-marks')}
-            className="text-xs text-indigo-600 font-semibold flex items-center gap-1 hover:text-indigo-700"
+            className="text-xs text-indigo-600 dark:text-indigo-400 font-semibold flex items-center gap-1 hover:text-indigo-700 dark:hover:text-indigo-300 cursor-pointer"
           >
             Full Mark Sheet <ArrowRight className="w-3.5 h-3.5" />
           </button>
@@ -200,50 +200,50 @@ export const StudentDashboard: React.FC<{ onNavigate: (section: NavSection) => v
             return (
               <div
                 key={subject.id}
-                className="p-4 rounded-lg bg-slate-50 border border-slate-200 flex flex-col justify-between hover:border-slate-300 transition"
+                className="p-4 rounded-lg bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 flex flex-col justify-between hover:border-slate-300 dark:hover:border-slate-600 transition"
               >
                 <div>
                   <div className="flex items-center justify-between mb-1">
-                    <span className="font-mono text-xs font-bold text-indigo-600">
+                    <span className="font-mono text-xs font-bold text-indigo-600 dark:text-indigo-400">
                       {subject.code}
                     </span>
-                    <span className="text-[11px] text-slate-400">
+                    <span className="text-[11px] text-slate-400 dark:text-slate-500">
                       Instructor: {teacher ? teacher.name.split(' ')[0] : 'Faculty'}
                     </span>
                   </div>
-                  <h3 className="font-bold text-slate-900 text-base">
+                  <h3 className="font-bold text-slate-900 dark:text-white text-base">
                     {subject.name}
                   </h3>
 
                   <div className="mt-4 flex items-baseline justify-between">
                     <div>
-                      <span className="text-xs text-slate-500 block">Final Subject Mark:</span>
-                      <span className="text-2xl font-black text-slate-900 font-mono">
+                      <span className="text-xs text-slate-500 dark:text-slate-400 block">Final Subject Mark:</span>
+                      <span className="text-2xl font-black text-slate-900 dark:text-white font-mono">
                         {cce.finalMarkOutOf30}
-                        <span className="text-xs text-slate-400 font-normal"> / 30</span>
+                        <span className="text-xs text-slate-400 dark:text-slate-500 font-normal"> / 30</span>
                       </span>
                     </div>
 
                     <div className="text-right">
-                      <span className="text-xs text-slate-500 block">Percentage:</span>
-                      <span className="text-sm font-bold text-indigo-600 font-mono">
+                      <span className="text-xs text-slate-500 dark:text-slate-400 block">Percentage:</span>
+                      <span className="text-sm font-bold text-indigo-600 dark:text-indigo-400 font-mono">
                         {cce.percentage}%
                       </span>
                     </div>
                   </div>
 
                   {/* Progress Bar */}
-                  <div className="w-full h-1.5 bg-slate-200 rounded-full mt-3 overflow-hidden">
+                  <div className="w-full h-1.5 bg-slate-200 dark:bg-slate-700 rounded-full mt-3 overflow-hidden">
                     <div
-                      className="h-full bg-indigo-600 rounded-full transition-all duration-500"
+                      className="h-full bg-indigo-600 dark:bg-indigo-500 rounded-full transition-all duration-500"
                       style={{ width: `${Math.min(cce.percentage, 100)}%` }}
                     />
                   </div>
                 </div>
 
-                <div className="mt-4 pt-3 border-t border-slate-200 flex items-center justify-between text-[11px] text-slate-500">
+                <div className="mt-4 pt-3 border-t border-slate-200 dark:border-slate-700 flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400">
                   <span>{levels.length} Evaluation Levels</span>
-                  <span className="font-semibold text-slate-700 font-mono">
+                  <span className="font-semibold text-slate-700 dark:text-slate-300 font-mono">
                     {cce.totalObtained} / {cce.totalMaximum} Raw Total
                   </span>
                 </div>

@@ -135,7 +135,7 @@ export const ClassTeacherView: React.FC = () => {
         <h2 className="text-lg font-bold text-slate-800 dark:text-slate-200">
           No Class Teacher Assignment
         </h2>
-        <p className="text-sm text-slate-500 max-w-md mx-auto mt-1">
+        <p className="text-sm text-slate-500 dark:text-slate-400 max-w-md mx-auto mt-1">
           You are currently not appointed as Class Teacher for any grade section. Please contact Super Admin to assign your Class Teacher responsibility.
         </p>
       </div>
@@ -164,14 +164,14 @@ export const ClassTeacherView: React.FC = () => {
         <div className="flex items-center gap-2">
           <button
             onClick={handleExportConsolidated}
-            className="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-xs transition"
+            className="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-xs transition cursor-pointer"
           >
             <Download className="w-4 h-4" />
             Export Class Excel
           </button>
           <button
             onClick={() => window.print()}
-            className="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 rounded-xl shadow-xs transition"
+            className="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700 rounded-xl shadow-xs transition cursor-pointer"
           >
             <Printer className="w-4 h-4" />
             Print Report

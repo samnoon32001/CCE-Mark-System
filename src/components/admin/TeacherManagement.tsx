@@ -270,7 +270,7 @@ export const TeacherManagement: React.FC = () => {
                   return (
                     <tr
                       key={teacher.id}
-                      className="hover:bg-slate-50/60 dark:hover:bg-slate-750/50 transition-colors"
+                      className="hover:bg-slate-50/60 dark:hover:bg-slate-800/60 transition-colors"
                     >
                       <td className="py-3.5 px-4 text-center font-mono text-xs text-slate-500">
                         {idx + 1}

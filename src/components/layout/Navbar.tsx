@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { dataService } from '../../services/db';
+import { ThemeToggle } from '../common/ThemeToggle';
 import {
   Calendar,
   KeyRound,
@@ -145,31 +146,31 @@ export const Navbar: React.FC<NavbarProps> = ({ currentSection = 'admin-dashboar
   };
 
   return (
-    <header className="h-16 bg-white border-b border-slate-200 px-6 sm:px-8 flex items-center justify-between shrink-0 z-20">
-      {/* Breadcrumb Hierarchy matching Professional Polish Design */}
-      <div className="flex items-center gap-2.5 text-sm font-medium text-slate-500 min-w-0">
-        <span className="hover:text-indigo-600 cursor-pointer hidden sm:inline text-slate-500 font-semibold tracking-tight">
+    <header className="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 sm:px-6 lg:px-8 flex items-center justify-between shrink-0 z-20 transition-colors duration-200">
+      {/* Breadcrumb Hierarchy */}
+      <div className="flex items-center gap-2.5 text-sm font-medium text-slate-500 dark:text-slate-400 min-w-0">
+        <span className="hover:text-indigo-600 dark:hover:text-indigo-400 cursor-pointer hidden sm:inline text-slate-500 dark:text-slate-400 font-semibold tracking-tight">
           EduMark Pro
         </span>
-        <ChevronRight className="w-4 h-4 text-slate-400 hidden sm:inline shrink-0" />
-        <span className="text-slate-900 font-semibold truncate text-sm sm:text-base">
+        <ChevronRight className="w-4 h-4 text-slate-400 dark:text-slate-600 hidden sm:inline shrink-0" />
+        <span className="text-slate-900 dark:text-white font-semibold truncate text-sm sm:text-base">
           {getSectionTitle(currentSection)}
         </span>
       </div>
 
       {/* Action Controls & Fast Demo Switcher */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3">
         {/* Academic Year Selector */}
-        <div className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-md text-xs font-semibold text-slate-700">
-          <Calendar className="w-3.5 h-3.5 text-slate-400" />
-          <span className="text-slate-400 text-[11px] uppercase font-bold tracking-wider hidden md:inline">Year:</span>
+        <div className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-md text-xs font-semibold text-slate-700 dark:text-slate-200">
+          <Calendar className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
+          <span className="text-slate-400 dark:text-slate-500 text-[11px] uppercase font-bold tracking-wider hidden md:inline">Year:</span>
           <select
             value={activeAcademicYear}
             onChange={(e) => setActiveAcademicYear(e.target.value)}
-            className="bg-transparent border-none text-xs font-bold focus:ring-0 cursor-pointer text-slate-800 outline-none"
+            className="bg-transparent border-none text-xs font-bold focus:ring-0 cursor-pointer text-slate-800 dark:text-slate-100 outline-none"
           >
             {academicYears.map((ay) => (
-              <option key={ay.id} value={ay.year}>
+              <option key={ay.id} value={ay.year} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                 {ay.year}
               </option>
             ))}
@@ -180,7 +181,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentSection = 'admin-dashboar
         <div className="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-xs">
           {role === 'super_admin' ? (
             <div className="flex items-center gap-1.5 text-purple-700 dark:text-purple-300 font-semibold">
-              <ShieldCheck className="w-3.5 h-3.5 text-purple-600" />
+              <ShieldCheck className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
               <span>Super Admin</span>
               <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-100 dark:bg-purple-900/50 text-purple-700 dark:text-purple-200">
                 All Access
@@ -188,12 +189,12 @@ export const Navbar: React.FC<NavbarProps> = ({ currentSection = 'admin-dashboar
             </div>
           ) : role === 'teacher' ? (
             <div className="flex items-center gap-1.5 text-blue-700 dark:text-blue-300 font-semibold">
-              <User className="w-3.5 h-3.5 text-blue-600" />
+              <User className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
               <span>Faculty: {currentUser?.name}</span>
             </div>
           ) : (
             <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-300 font-semibold">
-              <GraduationCap className="w-3.5 h-3.5 text-emerald-600" />
+              <GraduationCap className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
               <span>Student: {currentUser?.name}</span>
               {currentUser?.admissionNumber && (
                 <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-200">
@@ -207,22 +208,25 @@ export const Navbar: React.FC<NavbarProps> = ({ currentSection = 'admin-dashboar
         {/* Firebase Cloud Status Indicator */}
         <button
           onClick={() => setIsFirebaseModalOpen(true)}
-          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-emerald-50 border border-emerald-200 hover:bg-emerald-100 text-emerald-800 text-xs font-semibold transition"
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/80 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300 text-xs font-semibold transition cursor-pointer"
           title="Firebase Firestore Cloud Connected - Click for details"
         >
           <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
           </span>
-          <Database className="w-3.5 h-3.5 text-emerald-600" />
-          <span className="hidden lg:inline">Firebase Connected</span>
+          <Database className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+          <span className="hidden xl:inline">Firebase Connected</span>
         </button>
 
+        {/* Light / Dark Mode Toggle Button */}
+        <ThemeToggle showLabel={false} />
+
         {/* User Badges & Action Buttons */}
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-1">
           <button
             onClick={() => setIsPasswordModalOpen(true)}
-            className="p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-md transition"
+            className="p-2 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition cursor-pointer"
             title="Change Security Password"
           >
             <KeyRound className="w-4 h-4" />
@@ -231,7 +235,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentSection = 'admin-dashboar
           {role === 'super_admin' && (
             <button
               onClick={handleResetSeed}
-              className="p-2 text-slate-400 hover:text-amber-600 hover:bg-slate-100 rounded-md transition"
+              className="p-2 text-slate-400 hover:text-amber-600 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition cursor-pointer"
               title="Reset Data to Seed Demo (Admin Only)"
             >
               <RotateCcw className="w-4 h-4" />
@@ -240,7 +244,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentSection = 'admin-dashboar
 
           <button
             onClick={logout}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200 rounded-md transition"
+            className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 dark:hover:bg-rose-900/50 border border-rose-200 dark:border-rose-800/80 rounded-md transition cursor-pointer"
             title="Sign Out to Login Portal"
           >
             <LogOut className="w-3.5 h-3.5" />
@@ -278,7 +282,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentSection = 'admin-dashboar
           )}
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">
               New Password
             </label>
             <input
@@ -286,13 +290,13 @@ export const Navbar: React.FC<NavbarProps> = ({ currentSection = 'admin-dashboar
               value={newPassword}
               onChange={(e) => setNewPassword(e.target.value)}
               placeholder="Enter new password"
-              className="w-full px-3 py-2 border border-slate-200 rounded-md text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+              className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-md text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:ring-2 focus:ring-indigo-500 outline-none"
               required
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-1">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">
               Confirm Password
             </label>
             <input
@@ -300,22 +304,22 @@ export const Navbar: React.FC<NavbarProps> = ({ currentSection = 'admin-dashboar
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               placeholder="Re-enter new password"
-              className="w-full px-3 py-2 border border-slate-200 rounded-md text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+              className="w-full px-3 py-2 border border-slate-300 dark:border-slate-700 rounded-md text-sm bg-white dark:bg-slate-800 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:ring-2 focus:ring-indigo-500 outline-none"
               required
             />
           </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-slate-200">
+          <div className="flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
             <button
               type="button"
               onClick={() => setIsPasswordModalOpen(false)}
-              className="px-4 py-2 border border-slate-200 text-slate-600 hover:bg-slate-50 rounded-md text-xs font-semibold transition"
+              className="px-4 py-2 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-md text-xs font-semibold transition"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-4 py-2 bg-indigo-600 text-white hover:bg-indigo-700 rounded-md text-xs font-semibold transition shadow-xs"
+              className="px-4 py-2 bg-indigo-600 text-white hover:bg-indigo-700 rounded-md text-xs font-semibold transition shadow-xs cursor-pointer"
             >
               Update Password
             </button>
@@ -349,26 +353,26 @@ export const Navbar: React.FC<NavbarProps> = ({ currentSection = 'admin-dashboar
           </div>
 
           <div className="space-y-2.5 text-xs">
-            <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-md flex justify-between items-center">
-              <span className="font-semibold text-slate-500 uppercase tracking-wider text-[10px]">Database ID:</span>
-              <span className="font-mono font-bold text-indigo-700 text-right truncate max-w-[220px]" title={firebaseInfo.databaseId}>
+            <div className="p-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-md flex justify-between items-center">
+              <span className="font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-[10px]">Database ID:</span>
+              <span className="font-mono font-bold text-indigo-700 dark:text-indigo-400 text-right truncate max-w-[220px]" title={firebaseInfo.databaseId}>
                 {firebaseInfo.databaseId}
               </span>
             </div>
 
-            <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-md flex justify-between items-center">
-              <span className="font-semibold text-slate-500 uppercase tracking-wider text-[10px]">Project ID:</span>
-              <span className="font-mono text-slate-700">{firebaseInfo.projectId}</span>
+            <div className="p-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-md flex justify-between items-center">
+              <span className="font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-[10px]">Project ID:</span>
+              <span className="font-mono text-slate-700 dark:text-slate-200">{firebaseInfo.projectId}</span>
             </div>
 
-            <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-md flex justify-between items-center">
-              <span className="font-semibold text-slate-500 uppercase tracking-wider text-[10px]">Last Synced:</span>
-              <span className="font-mono text-slate-700">{firebaseInfo.lastSyncTime || 'Just now'}</span>
+            <div className="p-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-md flex justify-between items-center">
+              <span className="font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-[10px]">Last Synced:</span>
+              <span className="font-mono text-slate-700 dark:text-slate-200">{firebaseInfo.lastSyncTime || 'Just now'}</span>
             </div>
 
-            <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-md flex justify-between items-center">
-              <span className="font-semibold text-slate-500 uppercase tracking-wider text-[10px]">Security Rules:</span>
-              <span className="font-semibold text-emerald-600 flex items-center gap-1">
+            <div className="p-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-md flex justify-between items-center">
+              <span className="font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-[10px]">Security Rules:</span>
+              <span className="font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
                 <ShieldCheck className="w-3.5 h-3.5" /> Deployed & Verified
               </span>
             </div>

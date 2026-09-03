@@ -561,11 +561,11 @@ export const MarkEntryView: React.FC = () => {
       {/* Page Title & Class/Subject Selection Header matching Professional Polish */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight flex items-center gap-2.5">
-            <CheckSquare className="w-6 h-6 text-indigo-600" />
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2.5">
+            <CheckSquare className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
             CCE Mark Entry & Assessment Matrix
           </h1>
-          <p className="text-sm text-slate-500 mt-0.5">
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
             Record evaluations across dynamic syllabus levels with real-time 30-mark CCE factor calculation
           </p>
         </div>
@@ -575,26 +575,26 @@ export const MarkEntryView: React.FC = () => {
           <button
             onClick={handleExportStandardSubjectExcel}
             disabled={!selectedSubject || classStudents.length === 0}
-            className="flex items-center gap-1.5 px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-md text-xs font-semibold hover:bg-slate-50 transition-colors shadow-xs disabled:opacity-50"
+            className="flex items-center gap-1.5 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-200 rounded-md text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-xs disabled:opacity-50 cursor-pointer"
             title="Export standard format: SI. No | Ad.No | Name | Mark"
           >
-            <Download className="w-4 h-4 text-emerald-600" />
+            <Download className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
             Export 30-Mark Sheet
           </button>
 
           <button
             onClick={handleExportFullBreakdownExcel}
             disabled={!selectedSubject || classStudents.length === 0}
-            className="hidden sm:flex items-center gap-1.5 px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-md text-xs font-semibold hover:bg-slate-50 transition-colors shadow-xs disabled:opacity-50"
+            className="hidden sm:flex items-center gap-1.5 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-200 rounded-md text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-xs disabled:opacity-50 cursor-pointer"
             title="Export full CCE breakdown across all evaluation levels"
           >
-            <FileSpreadsheet className="w-4 h-4 text-indigo-600" />
+            <FileSpreadsheet className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
             Full Breakdown
           </button>
 
           {canEditMarks && (
-            <label className="flex items-center gap-1.5 px-4 py-2 bg-white border border-slate-200 text-slate-600 rounded-md text-xs font-semibold hover:bg-slate-50 transition-colors shadow-xs cursor-pointer">
-              <Upload className="w-4 h-4 text-slate-500" />
+            <label className="flex items-center gap-1.5 px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-200 rounded-md text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-xs cursor-pointer">
+              <Upload className="w-4 h-4 text-slate-500 dark:text-slate-400" />
               Import Excel
               <input
                 type="file"
@@ -609,10 +609,10 @@ export const MarkEntryView: React.FC = () => {
             <button
               onClick={handleSaveMarks}
               disabled={!hasUnsavedChanges || hasValidationErrors}
-              className={`flex items-center gap-2 px-5 py-2 text-xs font-semibold rounded-md shadow-sm transition-colors ${
+              className={`flex items-center gap-2 px-5 py-2 text-xs font-semibold rounded-md shadow-sm transition-colors cursor-pointer ${
                 hasUnsavedChanges && !hasValidationErrors
                   ? 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-indigo-500/20'
-                  : 'bg-slate-300 text-slate-500 cursor-not-allowed'
+                  : 'bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-400 cursor-not-allowed'
               }`}
             >
               <Save className="w-4 h-4" />
@@ -623,20 +623,20 @@ export const MarkEntryView: React.FC = () => {
       </div>
 
       {/* Selectors Bar */}
-      <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex flex-wrap items-center gap-4">
           {/* Class Select */}
           <div className="flex items-center gap-2 text-xs">
-            <label className="font-semibold text-slate-600 uppercase tracking-wider text-[11px]">
+            <label className="font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider text-[11px]">
               Class:
             </label>
             <select
               value={selectedClassId}
               onChange={(e) => setSelectedClassId(e.target.value)}
-              className="px-3 py-1.5 font-semibold text-sm border border-slate-200 rounded-md bg-slate-50 focus:ring-2 focus:ring-indigo-500 outline-none"
+              className="px-3 py-1.5 font-semibold text-sm border border-slate-200 dark:border-slate-700 rounded-md bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
             >
               {availableClasses.map((c) => (
-                <option key={c.id} value={c.id}>
+                <option key={c.id} value={c.id} className="bg-white dark:bg-slate-800 text-slate-900 dark:text-white">
                   {c.name} ({c.academicYear})
                 </option>
               ))}
@@ -645,16 +645,16 @@ export const MarkEntryView: React.FC = () => {
 
           {/* Subject Select */}
           <div className="flex items-center gap-2 text-xs">
-            <label className="font-semibold text-slate-600 uppercase tracking-wider text-[11px]">
+            <label className="font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider text-[11px]">
               Subject:
             </label>
             <select
               value={selectedSubjectId}
               onChange={(e) => setSelectedSubjectId(e.target.value)}
-              className="px-3 py-1.5 font-semibold text-sm border border-slate-200 rounded-md bg-slate-50 focus:ring-2 focus:ring-indigo-500 outline-none"
+              className="px-3 py-1.5 font-semibold text-sm border border-slate-200 dark:border-slate-700 rounded-md bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
             >
               {availableSubjects.map((s) => (
-                <option key={s.id} value={s.id}>
+                <option key={s.id} value={s.id} className="bg-white dark:bg-slate-800 text-slate-900 dark:text-white">
                   {s.name} ({s.code})
                 </option>
               ))}
@@ -665,12 +665,12 @@ export const MarkEntryView: React.FC = () => {
         {/* Permission & Status Indicators */}
         <div className="flex items-center gap-3">
           {canEditMarks ? (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
               <CheckCircle2 className="w-3.5 h-3.5" />
               Edit Access Granted
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-amber-50 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
               <Lock className="w-3.5 h-3.5" />
               Read-Only Mode
             </span>
@@ -679,7 +679,7 @@ export const MarkEntryView: React.FC = () => {
           {canEditMarks && (
             <button
               onClick={handleFillUnenteredZeros}
-              className="px-3 py-1 text-xs font-medium text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 rounded-md transition"
+              className="px-3 py-1 text-xs font-medium text-slate-600 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 rounded-md transition cursor-pointer"
               title="Fill remaining empty cells with 0"
             >
               Fill Empty with 0
@@ -690,39 +690,39 @@ export const MarkEntryView: React.FC = () => {
 
       {/* 4 Stat Cards matching Professional Polish Design */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
-          <div className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">
+        <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs">
+          <div className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">
             Total Students
           </div>
-          <div className="text-2xl font-bold font-mono text-slate-900">
+          <div className="text-2xl font-bold font-mono text-slate-900 dark:text-white">
             {classStudents.length < 10 ? `0${classStudents.length}` : classStudents.length}
-            <span className="text-xs font-normal text-slate-400 ml-1.5">Enrolled</span>
+            <span className="text-xs font-normal text-slate-400 dark:text-slate-500 ml-1.5">Enrolled</span>
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs">
-          <div className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">
+        <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs">
+          <div className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">
             Subject Code
           </div>
-          <div className="text-2xl font-bold font-mono text-slate-900">
+          <div className="text-2xl font-bold font-mono text-slate-900 dark:text-white">
             {selectedSubject?.code || '—'}
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs border-l-4 border-l-amber-500">
-          <div className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">
+        <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs border-l-4 border-l-amber-500">
+          <div className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">
             Pending Marks
           </div>
-          <div className="text-2xl font-bold font-mono text-amber-600">
+          <div className="text-2xl font-bold font-mono text-amber-600 dark:text-amber-400">
             {pendingMarksCount < 10 ? `0${pendingMarksCount}` : pendingMarksCount}
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs border-l-4 border-l-indigo-500">
-          <div className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">
+        <div className="bg-white dark:bg-slate-900 p-5 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs border-l-4 border-l-indigo-500">
+          <div className="text-slate-500 dark:text-slate-400 text-xs font-bold uppercase tracking-wider mb-1">
             Weightage Factor
           </div>
-          <div className="text-2xl font-bold font-mono text-indigo-600">
+          <div className="text-2xl font-bold font-mono text-indigo-600 dark:text-indigo-400">
             30.00
           </div>
         </div>
@@ -733,28 +733,28 @@ export const MarkEntryView: React.FC = () => {
         <div
           className={`p-4 rounded-xl border flex items-center gap-3 text-xs font-semibold ${
             statusMessage.type === 'success'
-              ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-              : 'bg-rose-50 text-rose-800 border-rose-200'
+              ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800'
+              : 'bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 border-rose-200 dark:border-rose-800'
           }`}
         >
           {statusMessage.type === 'success' ? (
-            <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+            <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
           ) : (
-            <AlertTriangle className="w-5 h-5 text-rose-600 flex-shrink-0" />
+            <AlertTriangle className="w-5 h-5 text-rose-600 dark:text-rose-400 flex-shrink-0" />
           )}
           {statusMessage.text}
         </div>
       )}
 
       {hasUnsavedChanges && !statusMessage && (
-        <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-800 flex items-center justify-between">
+        <div className="p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-xl text-xs text-amber-800 dark:text-amber-300 flex items-center justify-between">
           <span className="flex items-center gap-1.5 font-medium">
-            <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
+            <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
             You have unsaved changes in the marks matrix. Click "Save Marks" to persist your edits.
           </span>
           <button
             onClick={handleSaveMarks}
-            className="px-3 py-1 bg-amber-600 text-white rounded-md font-semibold hover:bg-amber-700 transition shadow-xs"
+            className="px-3 py-1 bg-amber-600 hover:bg-amber-700 text-white rounded-md font-semibold transition shadow-xs cursor-pointer"
           >
             Save Now
           </button>
@@ -762,20 +762,20 @@ export const MarkEntryView: React.FC = () => {
       )}
 
       {/* Main Mark Entry Table Container matching Professional Polish */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-xs overflow-hidden flex flex-col">
+      <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden flex flex-col">
         {/* Component Header / Tabs */}
-        <div className="bg-slate-50 px-6 py-3.5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="bg-slate-50 dark:bg-slate-800/60 px-6 py-3.5 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-700">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-700 dark:text-slate-200">
               Evaluation Structure:
             </span>
-            <span className="text-xs text-slate-500">
+            <span className="text-xs text-slate-500 dark:text-slate-400">
               {evaluationLevels.length} Components Configured
             </span>
             {canEditMarks && (
               <button
                 onClick={openAddLevelModal}
-                className="flex items-center gap-1 ml-1 px-2.5 py-1 text-xs font-semibold text-indigo-600 hover:text-indigo-700 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 rounded-md transition"
+                className="flex items-center gap-1 ml-1 px-2.5 py-1 text-xs font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/50 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 border border-indigo-200 dark:border-indigo-800 rounded-md transition cursor-pointer"
                 title="Add new evaluation level component"
               >
                 <Plus className="w-3.5 h-3.5" /> Add Level
@@ -786,24 +786,24 @@ export const MarkEntryView: React.FC = () => {
             {evaluationLevels.map((lvl) => (
               <div
                 key={lvl.id}
-                className="group flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-semibold rounded bg-white border border-slate-200 text-slate-700 whitespace-nowrap shadow-xs"
+                className="group flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-semibold rounded bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 whitespace-nowrap shadow-xs"
               >
                 <span>{lvl.name}</span>
-                <span className="font-mono text-indigo-600 font-bold bg-indigo-50 px-1 rounded">
+                <span className="font-mono text-indigo-600 dark:text-indigo-400 font-bold bg-indigo-50 dark:bg-indigo-950/60 px-1 rounded">
                   Max: {lvl.maxMark || lvl.maximumMark}
                 </span>
                 {canEditMarks && (
-                  <div className="flex items-center gap-0.5 ml-1 border-l border-slate-200 pl-1">
+                  <div className="flex items-center gap-0.5 ml-1 border-l border-slate-200 dark:border-slate-700 pl-1">
                     <button
                       onClick={() => openEditLevelModal(lvl)}
-                      className="p-0.5 text-slate-400 hover:text-indigo-600 rounded transition"
+                      className="p-0.5 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 rounded transition cursor-pointer"
                       title={`Edit ${lvl.name}`}
                     >
                       <Edit2 className="w-3 h-3" />
                     </button>
                     <button
                       onClick={() => setDeletingLevel(lvl)}
-                      className="p-0.5 text-slate-400 hover:text-rose-600 rounded transition"
+                      className="p-0.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 rounded transition cursor-pointer"
                       title={`Delete ${lvl.name}`}
                     >
                       <Trash2 className="w-3 h-3" />
@@ -816,32 +816,32 @@ export const MarkEntryView: React.FC = () => {
         </div>
 
         {evaluationLevels.length === 0 ? (
-          <div className="p-12 text-center text-slate-400">
+          <div className="p-12 text-center text-slate-400 dark:text-slate-500">
             <AlertTriangle className="w-8 h-8 text-amber-500 mx-auto mb-2" />
-            <p className="font-semibold text-slate-700">
+            <p className="font-semibold text-slate-700 dark:text-slate-200">
               No Evaluation Levels Configured for this Subject
             </p>
-            <p className="text-xs text-slate-400 mt-1 max-w-md mx-auto">
+            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1 max-w-md mx-auto">
               Create your evaluation components (e.g. Unit Test 1, Mid Term Exam, Seminar, Project) to start entering student marks.
             </p>
             {canEditMarks && (
               <button
                 onClick={openAddLevelModal}
-                className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-md shadow-xs transition"
+                className="mt-4 inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-md shadow-xs transition cursor-pointer"
               >
                 <Plus className="w-4 h-4" /> Add First Evaluation Level
               </button>
             )}
           </div>
         ) : classStudents.length === 0 ? (
-          <div className="p-12 text-center text-slate-400">
+          <div className="p-12 text-center text-slate-400 dark:text-slate-500">
             No students enrolled in {selectedClass?.name || 'this class'}.
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-slate-200 bg-slate-50 text-[10px] font-bold uppercase text-slate-400 tracking-wider">
+                <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/80 text-[10px] font-bold uppercase text-slate-400 dark:text-slate-400 tracking-wider">
                   <th className="py-3.5 px-4 w-12 text-center">SI. No</th>
                   <th className="py-3.5 px-4 w-24">Ad.No</th>
                   <th className="py-3.5 px-4 min-w-[160px]">Student Name</th>
@@ -850,22 +850,22 @@ export const MarkEntryView: React.FC = () => {
                   {evaluationLevels.map((lvl) => (
                     <th
                       key={lvl.id}
-                      className="group/col py-3.5 px-3 text-center min-w-[110px] bg-slate-100/50 border-l border-slate-200 relative"
+                      className="group/col py-3.5 px-3 text-center min-w-[110px] bg-slate-100/50 dark:bg-slate-800/50 border-l border-slate-200 dark:border-slate-800 relative"
                     >
-                      <div className="flex items-center justify-center gap-1 font-bold text-slate-700">
+                      <div className="flex items-center justify-center gap-1 font-bold text-slate-700 dark:text-slate-200">
                         <span className="truncate">{lvl.name}</span>
                         {canEditMarks && (
                           <div className="flex items-center opacity-0 group-hover/col:opacity-100 transition-opacity">
                             <button
                               onClick={() => openEditLevelModal(lvl)}
-                              className="p-0.5 text-slate-400 hover:text-indigo-600 rounded"
+                              className="p-0.5 text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 rounded cursor-pointer"
                               title={`Edit ${lvl.name}`}
                             >
                               <Edit2 className="w-3 h-3" />
                             </button>
                             <button
                               onClick={() => setDeletingLevel(lvl)}
-                              className="p-0.5 text-slate-400 hover:text-rose-600 rounded"
+                              className="p-0.5 text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 rounded cursor-pointer"
                               title={`Delete ${lvl.name}`}
                             >
                               <Trash2 className="w-3 h-3" />
@@ -873,14 +873,14 @@ export const MarkEntryView: React.FC = () => {
                           </div>
                         )}
                       </div>
-                      <div className="text-[10px] text-indigo-600 font-mono font-medium">
+                      <div className="text-[10px] text-indigo-600 dark:text-indigo-400 font-mono font-medium">
                         Max: {lvl.maxMark || lvl.maximumMark}
                       </div>
                     </th>
                   ))}
 
                   {/* Calculated summary columns */}
-                  <th className="py-3.5 px-3 text-center min-w-[90px] border-l border-slate-200">
+                  <th className="py-3.5 px-3 text-center min-w-[90px] border-l border-slate-200 dark:border-slate-800">
                     Total Obt.
                   </th>
                   <th className="py-3.5 px-3 text-center min-w-[80px]">
@@ -889,13 +889,13 @@ export const MarkEntryView: React.FC = () => {
                   <th className="py-3.5 px-3 text-center min-w-[80px]">
                     Percentage
                   </th>
-                  <th className="py-3.5 px-4 text-center min-w-[130px] bg-indigo-50/50 text-indigo-950 font-bold border-l border-indigo-100">
+                  <th className="py-3.5 px-4 text-center min-w-[130px] bg-indigo-50/50 dark:bg-indigo-950/40 text-indigo-950 dark:text-indigo-200 font-bold border-l border-indigo-100 dark:border-indigo-900/50">
                     Final Mark (30)
                   </th>
                 </tr>
               </thead>
 
-              <tbody className="divide-y divide-slate-100 text-xs">
+              <tbody className="divide-y divide-slate-100 dark:divide-slate-800/80 text-xs">
                 {classStudents.map((std, idx) => {
                   const levelCalculations = evaluationLevels.map((lvl) => {
                     const rawVal = marksMatrix[std.id]?.[lvl.id];
@@ -912,20 +912,20 @@ export const MarkEntryView: React.FC = () => {
                   return (
                     <tr
                       key={std.id}
-                      className="hover:bg-indigo-50/30 transition-colors"
+                      className="hover:bg-indigo-50/30 dark:hover:bg-slate-800/50 transition-colors"
                     >
                       {/* SI. No */}
-                      <td className="py-3 px-4 text-center font-mono text-slate-400">
+                      <td className="py-3 px-4 text-center font-mono text-slate-400 dark:text-slate-500">
                         {idx + 1}
                       </td>
 
                       {/* Admission No */}
-                      <td className="py-3 px-4 font-mono font-semibold text-indigo-600">
+                      <td className="py-3 px-4 font-mono font-semibold text-indigo-600 dark:text-indigo-400">
                         {std.admissionNumber}
                       </td>
 
                       {/* Student Name */}
-                      <td className="py-3 px-4 font-semibold text-slate-800">
+                      <td className="py-3 px-4 font-semibold text-slate-800 dark:text-slate-200">
                         {std.name}
                       </td>
 
@@ -937,7 +937,7 @@ export const MarkEntryView: React.FC = () => {
                         return (
                           <td
                             key={lvl.id}
-                            className="py-2 px-2 text-center border-l border-slate-100"
+                            className="py-2 px-2 text-center border-l border-slate-100 dark:border-slate-800"
                           >
                             <div className="relative flex justify-center">
                               <input
@@ -953,10 +953,10 @@ export const MarkEntryView: React.FC = () => {
                                 placeholder="—"
                                 className={`w-20 text-center font-mono text-xs font-semibold py-1.5 px-2 rounded-md border transition ${
                                   !validation.isValid
-                                    ? 'border-rose-500 bg-rose-50 text-rose-700 ring-2 ring-rose-300'
+                                    ? 'border-rose-500 dark:border-rose-600 bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 ring-2 ring-rose-300 dark:ring-rose-800'
                                     : rawVal !== ''
-                                    ? 'border-slate-300 bg-white text-slate-900'
-                                    : 'border-slate-200 bg-slate-50/60 text-slate-400'
+                                    ? 'border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-slate-900 dark:text-white'
+                                    : 'border-slate-200 dark:border-slate-700 bg-slate-50/60 dark:bg-slate-800/40 text-slate-400 dark:text-slate-500'
                                 } focus:outline-hidden focus:ring-2 focus:ring-indigo-500 disabled:opacity-75 disabled:cursor-not-allowed`}
                                 title={
                                   validation.error ||
@@ -965,7 +965,7 @@ export const MarkEntryView: React.FC = () => {
                               />
                             </div>
                             {!validation.isValid && (
-                              <div className="text-[10px] text-rose-600 font-medium mt-0.5">
+                              <div className="text-[10px] text-rose-600 dark:text-rose-400 font-medium mt-0.5">
                                 {validation.error}
                               </div>
                             )}
@@ -974,12 +974,12 @@ export const MarkEntryView: React.FC = () => {
                       })}
 
                       {/* Calculated Total Obtained */}
-                      <td className="py-3 px-3 text-center font-mono font-bold text-slate-800 border-l border-slate-100">
+                      <td className="py-3 px-3 text-center font-mono font-bold text-slate-800 dark:text-slate-200 border-l border-slate-100 dark:border-slate-800">
                         {cceResult.totalObtained}
                       </td>
 
                       {/* Calculated Total Maximum */}
-                      <td className="py-3 px-3 text-center font-mono text-slate-500">
+                      <td className="py-3 px-3 text-center font-mono text-slate-500 dark:text-slate-400">
                         {cceResult.totalMaximum}
                       </td>
 
@@ -988,10 +988,10 @@ export const MarkEntryView: React.FC = () => {
                         <span
                           className={`font-semibold ${
                             cceResult.percentage >= 75
-                              ? 'text-emerald-600'
+                              ? 'text-emerald-600 dark:text-emerald-400'
                               : cceResult.percentage >= 40
-                              ? 'text-indigo-600'
-                              : 'text-rose-600'
+                              ? 'text-indigo-600 dark:text-indigo-400'
+                              : 'text-rose-600 dark:text-rose-400'
                           }`}
                         >
                           {cceResult.percentage}%
@@ -999,10 +999,10 @@ export const MarkEntryView: React.FC = () => {
                       </td>
 
                       {/* Final Subject Mark (out of 30) */}
-                      <td className="py-3 px-4 text-center border-l border-indigo-100 bg-indigo-50/20">
-                        <div className="inline-flex items-center gap-1 font-mono font-extrabold text-sm text-indigo-700 bg-indigo-100/70 px-2.5 py-1 rounded-md">
+                      <td className="py-3 px-4 text-center border-l border-indigo-100 dark:border-indigo-900/40 bg-indigo-50/20 dark:bg-indigo-950/20">
+                        <div className="inline-flex items-center gap-1 font-mono font-extrabold text-sm text-indigo-700 dark:text-indigo-300 bg-indigo-100/70 dark:bg-indigo-950/80 px-2.5 py-1 rounded-md border border-indigo-200 dark:border-indigo-800/60">
                           {cceResult.finalMarkOutOf30}
-                          <span className="text-[10px] text-indigo-500 font-normal">
+                          <span className="text-[10px] text-indigo-500 dark:text-indigo-400 font-normal">
                             / 30
                           </span>
                         </div>
@@ -1073,14 +1073,14 @@ export const MarkEntryView: React.FC = () => {
       >
         <form onSubmit={handleSaveLevel} className="space-y-4">
           {levelFormError && (
-            <div className="p-3 rounded-md text-xs bg-rose-50 text-rose-700 border border-rose-200 flex items-center gap-2">
+            <div className="p-3 rounded-md text-xs bg-rose-50 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 flex items-center gap-2">
               <AlertCircle className="w-4 h-4 flex-shrink-0" />
               {levelFormError}
             </div>
           )}
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">
               Evaluation Level Name *
             </label>
             <input
@@ -1089,13 +1089,13 @@ export const MarkEntryView: React.FC = () => {
               value={levelFormName}
               onChange={(e) => setLevelFormName(e.target.value)}
               placeholder="e.g. Unit Test 1, Mid Term Exam, Project Work, Seminar"
-              className="w-full px-3 py-2 text-xs border border-slate-200 rounded-md bg-white focus:ring-2 focus:ring-indigo-500 outline-none"
+              className="w-full px-3 py-2 text-xs border border-slate-200 dark:border-slate-700 rounded-md bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">
                 Maximum Mark *
               </label>
               <input
@@ -1105,13 +1105,13 @@ export const MarkEntryView: React.FC = () => {
                 max={1000}
                 value={levelFormMaxMark}
                 onChange={(e) => setLevelFormMaxMark(Number(e.target.value))}
-                className="w-full px-3 py-2 text-xs font-mono font-semibold border border-slate-200 rounded-md bg-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                className="w-full px-3 py-2 text-xs font-mono font-semibold border border-slate-200 dark:border-slate-700 rounded-md bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
               />
               <span className="text-[11px] text-slate-400 mt-0.5 block">e.g. 20, 25, 50, 100</span>
             </div>
 
             <div>
-              <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
+              <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">
                 Display Order *
               </label>
               <input
@@ -1120,36 +1120,36 @@ export const MarkEntryView: React.FC = () => {
                 min={1}
                 value={levelFormOrder}
                 onChange={(e) => setLevelFormOrder(Number(e.target.value))}
-                className="w-full px-3 py-2 text-xs font-mono font-semibold border border-slate-200 rounded-md bg-white focus:ring-2 focus:ring-indigo-500 outline-none"
+                className="w-full px-3 py-2 text-xs font-mono font-semibold border border-slate-200 dark:border-slate-700 rounded-md bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 mb-1">
+            <label className="block text-xs font-bold uppercase tracking-wider text-slate-600 dark:text-slate-300 mb-1">
               Status
             </label>
             <select
               value={levelFormStatus}
               onChange={(e) => setLevelFormStatus(e.target.value as 'active' | 'inactive')}
-              className="w-full px-3 py-2 text-xs border border-slate-200 rounded-md bg-white focus:ring-2 focus:ring-indigo-500 outline-none"
+              className="w-full px-3 py-2 text-xs border border-slate-200 dark:border-slate-700 rounded-md bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 outline-none"
             >
               <option value="active">Active</option>
               <option value="inactive">Inactive</option>
             </select>
           </div>
 
-          <div className="flex justify-end gap-3 pt-4 border-t border-slate-200">
+          <div className="flex justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-700">
             <button
               type="button"
               onClick={() => setIsLevelModalOpen(false)}
-              className="px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-md transition"
+              className="px-4 py-2 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md transition cursor-pointer"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="px-5 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-md shadow-xs transition"
+              className="px-5 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-md shadow-xs transition cursor-pointer"
             >
               {editingLevel ? 'Save Changes' : 'Create Level'}
             </button>

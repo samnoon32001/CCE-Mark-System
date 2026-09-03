@@ -119,11 +119,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
 
     if (!user) {
-      return { success: false, error: 'No user account found with the provided credentials.' };
+      return { success: false, error: 'No account found with this username or admission number.' };
     }
 
     if (user.status !== 'active') {
-      return { success: false, error: 'This user account is inactive. Please contact administrator.' };
+      return { success: false, error: 'This account is currently inactive. Please contact your administrator.' };
     }
 
     // Role-specific Systematic Authentication
@@ -153,7 +153,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (!isMatch) {
         return {
           success: false,
-          error: 'Invalid Super Admin password. Access restricted to authorized system administrators only.',
+          error: 'Invalid password. Please check your credentials.',
         };
       }
       // Guarantee password is set and synced
@@ -168,7 +168,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       if (!isMatch) {
         return {
           success: false,
-          error: 'Invalid password. Please enter the password created for you by the Super Admin.',
+          error: 'Invalid password. Please check your credentials.',
         };
       }
       if (user.password !== password) {

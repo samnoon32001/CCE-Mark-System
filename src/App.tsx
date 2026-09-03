@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 import { Navbar } from './components/layout/Navbar';
 import { Sidebar, type NavSection } from './components/layout/Sidebar';
 import { LoginView } from './components/auth/LoginView';
@@ -48,7 +49,7 @@ const MainLayout: React.FC = () => {
   }
 
   return (
-    <div className="flex h-screen bg-slate-50 font-sans text-slate-900 overflow-hidden">
+    <div className="flex h-screen bg-slate-50 dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-100 overflow-hidden transition-colors duration-200">
       {/* Fixed Full Height Sidebar */}
       <Sidebar currentSection={currentSection} onSelectSection={setCurrentSection} />
 
@@ -58,7 +59,7 @@ const MainLayout: React.FC = () => {
         <Navbar currentSection={currentSection} />
 
         {/* Scrollable Dynamic Main Content Area */}
-        <main className="flex-1 overflow-y-auto p-6 sm:p-8 bg-slate-50">
+        <main className="flex-1 overflow-y-auto p-6 sm:p-8 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
           <div className="max-w-7xl w-full mx-auto">
             {/* Admin Views */}
             {currentSection === 'admin-dashboard' && (
@@ -104,8 +105,10 @@ const MainLayout: React.FC = () => {
 
 export default function App() {
   return (
-    <AuthProvider>
-      <MainLayout />
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <MainLayout />
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
