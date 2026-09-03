@@ -47,7 +47,7 @@ const INITIAL_STATE: DatabaseState = {
       id: 'user-admin',
       username: 'admin',
       role: 'super_admin',
-      name: 'Dr. Evelyn Reed (Super Admin)',
+      name: 'Ashiq CP Hudawi',
       email: 'admin@school.edu',
       phone: '(555) 100-0001',
       status: 'active',
@@ -830,7 +830,7 @@ const INITIAL_STATE: DatabaseState = {
     {
       id: 'log-1',
       userId: 'user-admin',
-      userName: 'Dr. Evelyn Reed (Super Admin)',
+      userName: 'Ashiq CP Hudawi',
       role: 'super_admin',
       action: 'System Initialized',
       entity: 'System',
@@ -939,7 +939,7 @@ class DataService {
         id: 'user-admin',
         username: 'admin',
         role: 'super_admin',
-        name: 'Dr. Evelyn Reed (Super Admin)',
+        name: 'Ashiq CP Hudawi',
         email: 'admin@school.edu',
         phone: '(555) 100-0001',
         status: 'active',
@@ -947,6 +947,9 @@ class DataService {
         createdAt: new Date().toISOString(),
       });
     } else {
+      if (adminUser.name === 'Dr. Evelyn Reed (Super Admin)' || !adminUser.name) {
+        adminUser.name = 'Ashiq CP Hudawi';
+      }
       if (!adminUser.password) {
         adminUser.password = 'admin123';
       }
@@ -1074,7 +1077,7 @@ class DataService {
               id: 'user-admin',
               username: 'admin',
               role: 'super_admin',
-              name: 'Dr. Evelyn Reed (Super Admin)',
+              name: 'Ashiq CP Hudawi',
               email: 'admin@school.edu',
               phone: '(555) 100-0001',
               status: 'active',
@@ -1085,9 +1088,15 @@ class DataService {
             setDoc(doc(db, 'users', 'user-admin'), defaultAdmin, { merge: true }).catch(() => {});
           } else {
             const adminDoc = this.state.users.find((u) => u.role === 'super_admin' || u.username === 'admin');
-            if (adminDoc && !adminDoc.password) {
-              adminDoc.password = 'admin123';
-              setDoc(doc(db, 'users', adminDoc.id), { password: 'admin123' }, { merge: true }).catch(() => {});
+            if (adminDoc) {
+              if (adminDoc.name === 'Dr. Evelyn Reed (Super Admin)' || !adminDoc.name) {
+                adminDoc.name = 'Ashiq CP Hudawi';
+                setDoc(doc(db, 'users', adminDoc.id), { name: 'Ashiq CP Hudawi' }, { merge: true }).catch(() => {});
+              }
+              if (!adminDoc.password) {
+                adminDoc.password = 'admin123';
+                setDoc(doc(db, 'users', adminDoc.id), { password: 'admin123' }, { merge: true }).catch(() => {});
+              }
             }
           }
         }

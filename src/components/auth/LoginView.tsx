@@ -66,7 +66,7 @@ export const LoginView: React.FC = () => {
             <GraduationCap className="w-7 h-7" />
           </div>
           <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
-            CCE Evaluation Portal
+            DHDC CCE Portal
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1.5">
             Sign in to access your dashboard

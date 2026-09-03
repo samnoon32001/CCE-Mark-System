@@ -247,7 +247,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentSection, onSelectSectio
           <BookOpen className="w-5 h-5" />
         </div>
         <div className="flex flex-col">
-          <span className="text-white font-bold text-lg tracking-tight">EduMark Pro</span>
+          <span className="text-white font-bold text-lg tracking-tight">DHDC CCE Portal</span>
           <span className="text-[10px] text-slate-400 font-medium tracking-wide">CCE Evaluation</span>
         </div>
       </div>

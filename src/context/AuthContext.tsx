@@ -22,7 +22,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [currentUser, setCurrentUser] = useState<User | null>(() => {
     try {
       const stored = localStorage.getItem(AUTH_STORAGE_KEY);
-      if (stored) return JSON.parse(stored);
+      if (stored) {
+        const u = JSON.parse(stored);
+        if (u && (u.role === 'super_admin' || u.username === 'admin')) {
+          if (u.name === 'Dr. Evelyn Reed (Super Admin)' || !u.name) {
+            u.name = 'Ashiq CP Hudawi';
+            localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(u));
+          }
+        }
+        return u;
+      }
     } catch (e) {
       console.error(e);
     }
@@ -107,7 +116,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         id: 'user-admin',
         username: 'admin',
         role: 'super_admin',
-        name: 'Dr. Evelyn Reed (Super Admin)',
+        name: 'Ashiq CP Hudawi',
         email: 'admin@school.edu',
         phone: '(555) 100-0001',
         status: 'active',
@@ -116,6 +125,13 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       };
       state.users.unshift(user);
       dataService.saveLocalState();
+    }
+
+    if (user && (user.role === 'super_admin' || user.username === 'admin')) {
+      if (user.name === 'Dr. Evelyn Reed (Super Admin)' || !user.name) {
+        user.name = 'Ashiq CP Hudawi';
+        dataService.saveLocalState();
+      }
     }
 
     if (!user) {
