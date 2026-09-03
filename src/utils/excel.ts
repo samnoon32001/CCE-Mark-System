@@ -333,14 +333,56 @@ export function exportSubjectFullBreakdownExcel(
 }
 
 /**
+ * Helper to safely extract a value from a row using flexible case-insensitive header aliases
+ */
+export function extractValue(row: Record<string, any>, possibleKeys: string[]): string {
+  if (!row || typeof row !== 'object') return '';
+
+  // 1. Direct key lookup
+  for (const k of possibleKeys) {
+    if (row[k] !== undefined && row[k] !== null && String(row[k]).trim() !== '') {
+      return String(row[k]).trim();
+    }
+  }
+
+  // 2. Normalized check (ignoring casing, spaces, underscores, periods, hyphens)
+  const normPossible = possibleKeys.map((k) => k.toLowerCase().replace(/[^a-z0-9]/g, ''));
+  for (const [key, val] of Object.entries(row)) {
+    if (val === undefined || val === null) continue;
+    const strVal = String(val).trim();
+    if (strVal === '') continue;
+    const normKey = key.toLowerCase().replace(/[^a-z0-9]/g, '');
+    if (normPossible.includes(normKey)) {
+      return strVal;
+    }
+  }
+
+  return '';
+}
+
+/**
+ * Check if an imported spreadsheet row is completely blank
+ */
+export function isRowEmpty(row: Record<string, any>): boolean {
+  if (!row || typeof row !== 'object') return true;
+  return Object.values(row).every((val) => val === null || val === undefined || String(val).trim() === '');
+}
+
+/**
  * Asynchronously parse any Excel file into JSON rows
  */
 export async function parseExcelFile(file: File): Promise<any[]> {
   const data = await file.arrayBuffer();
   const workbook = XLSX.read(data, { type: 'array' });
+  if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
+    throw new Error('No worksheets found in the uploaded workbook.');
+  }
   const firstSheetName = workbook.SheetNames[0];
   const worksheet = workbook.Sheets[firstSheetName];
-  return XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+  const rawRows: Record<string, any>[] = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+
+  // Filter out trailing or completely blank rows
+  return rawRows.filter((r) => !isRowEmpty(r));
 }
 
 export function generateStudentTemplate() {
@@ -361,183 +403,332 @@ export function generateSubjectTemplate() {
 
 export function validateStudentRows(rows: any[], existingContext: any) {
   const validRows: any[] = [];
-  const invalidRows: { rowNumber: number; reason: string; data: any }[] = [];
+  const invalidRows: { rowNumber: number; field: string; reason: string; data: any }[] = [];
   const seenAdmissions = new Set<string>();
   const seenUsernames = new Set<string>();
 
-  rows.forEach((row, idx) => {
+  // Prepare normalized class lookup
+  const classNamesNormalized = new Set<string>();
+  if (existingContext?.classNames) {
+    existingContext.classNames.forEach((cn: string) => {
+      classNamesNormalized.add(cn.trim().toLowerCase());
+      classNamesNormalized.add(cn.replace(/\s+/g, '').toLowerCase());
+    });
+  }
+
+  // Filter out empty rows first
+  const nonEmptyRows = rows.filter((r) => !isRowEmpty(r));
+
+  nonEmptyRows.forEach((row, idx) => {
     const rowNum = idx + 2;
     const errors: string[] = [];
-    const admissionNumber = String(row['Admission Number'] || row['Admission No'] || row['Ad.No'] || '').trim();
-    const name = String(row['Full Name'] || row['Name'] || '').trim();
-    const className = String(row['Class Name'] || row['Class'] || '').trim();
-    const username = String(row['Username'] || '').trim();
+
+    const admissionNumber = extractValue(row, [
+      'Admission Number',
+      'Admission No',
+      'Admission No.',
+      'Ad.No',
+      'Ad No',
+      'AdmissionNumber',
+      'AdNo',
+      'admission_no',
+      'Student ID',
+      'ID',
+      'admission',
+    ]);
+
+    const name = extractValue(row, [
+      'Full Name',
+      'Name',
+      'Student Name',
+      'StudentName',
+      'FullName',
+      'student_name',
+      'Student',
+    ]);
+
+    const className = extractValue(row, [
+      'Class Name',
+      'Class',
+      'ClassName',
+      'Grade',
+      'Standard',
+      'class_name',
+      'Section',
+    ]);
+
+    const username = extractValue(row, [
+      'Username',
+      'User Name',
+      'Login ID',
+      'user_name',
+      'User',
+    ]);
+
+    const phone = extractValue(row, ['Phone', 'Phone Number', 'Mobile', 'Contact', 'phone_number', 'Cell']);
+    const email = extractValue(row, ['Email', 'Email Address', 'Email ID', 'Mail', 'email_address']);
+    const password = extractValue(row, ['Password', 'Pass', 'temp_password', 'pwd']);
 
     if (!admissionNumber) errors.push('Admission Number is required');
     if (!name) errors.push('Student Name is required');
     if (!className) errors.push('Class Name is required');
 
     if (admissionNumber) {
-      if (existingContext.admissionNumbers?.has(admissionNumber)) {
+      const cleanAdm = admissionNumber.toLowerCase();
+      if (existingContext?.admissionNumbers?.has(cleanAdm)) {
         errors.push(`Admission number "${admissionNumber}" already exists in system`);
-      } else if (seenAdmissions.has(admissionNumber)) {
+      } else if (seenAdmissions.has(cleanAdm)) {
         errors.push(`Duplicate admission number "${admissionNumber}" in file`);
       } else {
-        seenAdmissions.add(admissionNumber);
+        seenAdmissions.add(cleanAdm);
       }
     }
 
     if (username) {
-      if (existingContext.usernames?.has(username)) {
+      const cleanUser = username.toLowerCase();
+      if (existingContext?.usernames?.has(cleanUser)) {
         errors.push(`Username "${username}" already taken`);
-      } else if (seenUsernames.has(username)) {
+      } else if (seenUsernames.has(cleanUser)) {
         errors.push(`Duplicate username "${username}" in file`);
       } else {
-        seenUsernames.add(username);
+        seenUsernames.add(cleanUser);
       }
     }
 
-    if (className && existingContext.classNames && !existingContext.classNames.has(className)) {
-      errors.push(`Class "${className}" does not exist in system`);
+    // Class existence check (flexible matching)
+    if (className && classNamesNormalized.size > 0) {
+      const normClass = className.trim().toLowerCase();
+      const normNoSpace = className.replace(/\s+/g, '').toLowerCase();
+      if (!classNamesNormalized.has(normClass) && !classNamesNormalized.has(normNoSpace)) {
+        // If class not in system, note that it will be auto-created upon import
+        // or check if we want to treat it as non-blocking
+      }
     }
 
     if (errors.length > 0) {
-      invalidRows.push({ rowNumber: rowNum, reason: errors.join('; '), data: row });
+      invalidRows.push({
+        rowNumber: rowNum,
+        field: !admissionNumber ? 'Admission Number' : !name ? 'Name' : 'Class Name',
+        reason: errors.join('; '),
+        data: row,
+      });
     } else {
       validRows.push({
         admissionNumber,
         name,
         className,
-        phone: String(row['Phone'] || '').trim(),
-        email: String(row['Email'] || '').trim(),
-        username: username || `std_${admissionNumber}`,
-        password: String(row['Password'] || 'student123').trim(),
+        phone,
+        email,
+        username: username || admissionNumber,
+        password: password || `${admissionNumber}${admissionNumber}${admissionNumber}`,
       });
     }
   });
 
   return {
-    totalRows: rows.length,
+    totalRows: nonEmptyRows.length,
     validCount: validRows.length,
     invalidCount: invalidRows.length,
     validRows,
     invalidRows,
+    errors: invalidRows.map((inv) => ({
+      row: inv.rowNumber,
+      field: inv.field || 'Student Row',
+      message: inv.reason,
+    })),
   };
 }
 
 export function validateTeacherRows(rows: any[], existingContext: any) {
   const validRows: any[] = [];
-  const invalidRows: { rowNumber: number; reason: string; data: any }[] = [];
+  const invalidRows: { rowNumber: number; field: string; reason: string; data: any }[] = [];
   const seenUsernames = new Set<string>();
 
-  rows.forEach((row, idx) => {
+  const nonEmptyRows = rows.filter((r) => !isRowEmpty(r));
+
+  nonEmptyRows.forEach((row, idx) => {
     const rowNum = idx + 2;
     const errors: string[] = [];
-    const name = String(row['Full Name'] || row['Name'] || '').trim();
-    const username = String(row['Username'] || '').trim();
+
+    const name = extractValue(row, [
+      'Full Name',
+      'Name',
+      'Teacher Name',
+      'TeacherName',
+      'Faculty Name',
+      'Teacher',
+    ]);
+
+    const username = extractValue(row, [
+      'Username',
+      'User Name',
+      'Login ID',
+      'user_name',
+      'User',
+    ]);
+
+    const phone = extractValue(row, ['Phone', 'Phone Number', 'Mobile', 'Contact', 'phone_number']);
+    const email = extractValue(row, ['Email', 'Email Address', 'Email ID', 'Mail']);
+    const password = extractValue(row, ['Password', 'Pass', 'pwd']);
+    const assignedClassesRaw = extractValue(row, ['Assigned Classes', 'Classes', 'Class', 'Assigned Class']);
+    const assignedSubjectsRaw = extractValue(row, ['Assigned Subjects', 'Subjects', 'Subject', 'Assigned Subject']);
 
     if (!name) errors.push('Teacher Name is required');
-    if (!username) errors.push('Username is required');
 
-    if (username) {
-      if (existingContext.usernames?.has(username)) {
-        errors.push(`Username "${username}" already exists`);
-      } else if (seenUsernames.has(username)) {
-        errors.push(`Duplicate username "${username}" in file`);
+    // Auto-generate username from email or name if not provided
+    const effectiveUsername =
+      username ||
+      (email ? email.split('@')[0] : name.toLowerCase().replace(/[^a-z0-9]/g, ''));
+
+    if (effectiveUsername) {
+      const cleanUser = effectiveUsername.toLowerCase();
+      if (existingContext?.usernames?.has(cleanUser)) {
+        errors.push(`Username "${effectiveUsername}" already exists`);
+      } else if (seenUsernames.has(cleanUser)) {
+        errors.push(`Duplicate username "${effectiveUsername}" in file`);
       } else {
-        seenUsernames.add(username);
+        seenUsernames.add(cleanUser);
       }
+    } else {
+      errors.push('Username is required');
     }
 
     if (errors.length > 0) {
-      invalidRows.push({ rowNumber: rowNum, reason: errors.join('; '), data: row });
+      invalidRows.push({
+        rowNumber: rowNum,
+        field: !name ? 'Teacher Name' : 'Username',
+        reason: errors.join('; '),
+        data: row,
+      });
     } else {
       validRows.push({
         name,
-        phone: String(row['Phone'] || '').trim(),
-        email: String(row['Email'] || '').trim(),
-        username,
-        password: String(row['Password'] || 'teacher123').trim(),
-        assignedClasses: String(row['Assigned Classes'] || '').split(',').map((s) => s.trim()).filter(Boolean),
-        assignedSubjects: String(row['Assigned Subjects'] || '').split(',').map((s) => s.trim()).filter(Boolean),
+        phone,
+        email,
+        username: effectiveUsername,
+        password: password || 'teacher123',
+        assignedClasses: assignedClassesRaw ? assignedClassesRaw.split(',').map((s) => s.trim()).filter(Boolean) : [],
+        assignedSubjects: assignedSubjectsRaw ? assignedSubjectsRaw.split(',').map((s) => s.trim()).filter(Boolean) : [],
       });
     }
   });
 
   return {
-    totalRows: rows.length,
+    totalRows: nonEmptyRows.length,
     validCount: validRows.length,
     invalidCount: invalidRows.length,
     validRows,
     invalidRows,
+    errors: invalidRows.map((inv) => ({
+      row: inv.rowNumber,
+      field: inv.field || 'Teacher Row',
+      message: inv.reason,
+    })),
   };
 }
 
 export function validateClassRows(rows: any[], existingContext: any) {
   const validRows: any[] = [];
-  const invalidRows: { rowNumber: number; reason: string; data: any }[] = [];
+  const invalidRows: { rowNumber: number; field: string; reason: string; data: any }[] = [];
+  const seenClassNames = new Set<string>();
 
-  rows.forEach((row, idx) => {
+  const nonEmptyRows = rows.filter((r) => !isRowEmpty(r));
+
+  nonEmptyRows.forEach((row, idx) => {
     const rowNum = idx + 2;
     const errors: string[] = [];
-    const name = String(row['Class Name'] || row['Name'] || '').trim();
-    const academicYear = String(row['Academic Year'] || '').trim();
+
+    const name = extractValue(row, ['Class Name', 'Class', 'Name', 'Grade', 'Standard']);
+    const academicYear = extractValue(row, ['Academic Year', 'Year', 'Session', 'AcademicYear']);
+    const classTeacher = extractValue(row, ['Class Teacher', 'Teacher', 'Class In Charge', 'Faculty']);
 
     if (!name) errors.push('Class Name is required');
-    if (!academicYear) errors.push('Academic Year is required');
+
+    if (name) {
+      const normName = name.toLowerCase();
+      if (seenClassNames.has(normName)) {
+        errors.push(`Duplicate class "${name}" in file`);
+      } else {
+        seenClassNames.add(normName);
+      }
+    }
 
     if (errors.length > 0) {
-      invalidRows.push({ rowNumber: rowNum, reason: errors.join('; '), data: row });
+      invalidRows.push({
+        rowNumber: rowNum,
+        field: !name ? 'Class Name' : 'Academic Year',
+        reason: errors.join('; '),
+        data: row,
+      });
     } else {
       validRows.push({
         name,
-        academicYear,
-        classTeacher: String(row['Class Teacher'] || '').trim(),
+        academicYear: academicYear || '2025-2026',
+        classTeacher,
       });
     }
   });
 
   return {
-    totalRows: rows.length,
+    totalRows: nonEmptyRows.length,
     validCount: validRows.length,
     invalidCount: invalidRows.length,
     validRows,
     invalidRows,
+    errors: invalidRows.map((inv) => ({
+      row: inv.rowNumber,
+      field: inv.field || 'Class Row',
+      message: inv.reason,
+    })),
   };
 }
 
 export function validateSubjectRows(rows: any[], existingContext: any) {
   const validRows: any[] = [];
-  const invalidRows: { rowNumber: number; reason: string; data: any }[] = [];
+  const invalidRows: { rowNumber: number; field: string; reason: string; data: any }[] = [];
 
-  rows.forEach((row, idx) => {
+  const nonEmptyRows = rows.filter((r) => !isRowEmpty(r));
+
+  nonEmptyRows.forEach((row, idx) => {
     const rowNum = idx + 2;
     const errors: string[] = [];
-    const name = String(row['Subject Name'] || row['Name'] || '').trim();
-    const code = String(row['Subject Code'] || row['Code'] || '').trim();
-    const className = String(row['Class Name'] || row['Class'] || '').trim();
+
+    const name = extractValue(row, ['Subject Name', 'Subject', 'Name', 'Course']);
+    const code = extractValue(row, ['Subject Code', 'Code', 'SubjectCode', 'Course Code']);
+    const className = extractValue(row, ['Class Name', 'Class', 'Grade']);
+    const assignedTeacher = extractValue(row, ['Assigned Teacher', 'Teacher', 'Faculty', 'Instructor']);
 
     if (!name) errors.push('Subject Name is required');
     if (!code) errors.push('Subject Code is required');
     if (!className) errors.push('Class Name is required');
 
     if (errors.length > 0) {
-      invalidRows.push({ rowNumber: rowNum, reason: errors.join('; '), data: row });
+      invalidRows.push({
+        rowNumber: rowNum,
+        field: !name ? 'Subject Name' : !code ? 'Subject Code' : 'Class Name',
+        reason: errors.join('; '),
+        data: row,
+      });
     } else {
       validRows.push({
         name,
         code,
         className,
-        assignedTeacher: String(row['Assigned Teacher'] || '').trim(),
+        assignedTeacher,
       });
     }
   });
 
   return {
-    totalRows: rows.length,
+    totalRows: nonEmptyRows.length,
     validCount: validRows.length,
     invalidCount: invalidRows.length,
     validRows,
     invalidRows,
+    errors: invalidRows.map((inv) => ({
+      row: inv.rowNumber,
+      field: inv.field || 'Subject Row',
+      message: inv.reason,
+    })),
   };
 }

@@ -28,6 +28,7 @@ import { StudentDashboard } from './components/student/StudentDashboard';
 import { StudentProfileView } from './components/student/StudentProfileView';
 import { StudentSubjectsView } from './components/student/StudentSubjectsView';
 import { StudentMarksView } from './components/student/StudentMarksView';
+import { ErrorBoundary } from './components/common/ErrorBoundary';
 
 const MainLayout: React.FC = () => {
   const { currentUser, role } = useAuth();
@@ -61,41 +62,43 @@ const MainLayout: React.FC = () => {
         {/* Scrollable Dynamic Main Content Area */}
         <main className="flex-1 overflow-y-auto p-6 sm:p-8 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
           <div className="max-w-7xl w-full mx-auto">
-            {/* Admin Views */}
-            {currentSection === 'admin-dashboard' && (
-              <AdminDashboard onNavigate={setCurrentSection} />
-            )}
-            {currentSection === 'students' && <StudentManagement />}
-            {currentSection === 'teachers' && <TeacherManagement />}
-            {currentSection === 'classes' && <ClassManagement />}
-            {currentSection === 'subjects' && <SubjectManagement />}
-            {currentSection === 'evaluation-levels' && (
-              <EvaluationLevelManagement onNavigate={setCurrentSection} />
-            )}
-            {currentSection === 'excel-import' && <ExcelImportView />}
-            {currentSection === 'reports' && <ReportsView />}
-            {currentSection === 'audit-logs' && <AuditLogView />}
+            <ErrorBoundary>
+              {/* Admin Views */}
+              {currentSection === 'admin-dashboard' && (
+                <AdminDashboard onNavigate={setCurrentSection} />
+              )}
+              {currentSection === 'students' && <StudentManagement />}
+              {currentSection === 'teachers' && <TeacherManagement />}
+              {currentSection === 'classes' && <ClassManagement />}
+              {currentSection === 'subjects' && <SubjectManagement />}
+              {currentSection === 'evaluation-levels' && (
+                <EvaluationLevelManagement onNavigate={setCurrentSection} />
+              )}
+              {currentSection === 'excel-import' && <ExcelImportView />}
+              {currentSection === 'reports' && <ReportsView />}
+              {currentSection === 'audit-logs' && <AuditLogView />}
 
-            {/* Teacher Views */}
-            {currentSection === 'teacher-dashboard' && (
-              <TeacherDashboard onNavigate={setCurrentSection} />
-            )}
-            {currentSection === 'teacher-classes' && <TeacherClassesView />}
-            {currentSection === 'teacher-subjects' && (
-              <TeacherSubjectsView onNavigate={setCurrentSection} />
-            )}
-            {currentSection === 'mark-entry' && <MarkEntryView />}
-            {currentSection === 'class-teacher-view' && <ClassTeacherView />}
+              {/* Teacher Views */}
+              {currentSection === 'teacher-dashboard' && (
+                <TeacherDashboard onNavigate={setCurrentSection} />
+              )}
+              {currentSection === 'teacher-classes' && <TeacherClassesView />}
+              {currentSection === 'teacher-subjects' && (
+                <TeacherSubjectsView onNavigate={setCurrentSection} />
+              )}
+              {currentSection === 'mark-entry' && <MarkEntryView />}
+              {currentSection === 'class-teacher-view' && <ClassTeacherView />}
 
-            {/* Student Views */}
-            {currentSection === 'student-dashboard' && (
-              <StudentDashboard onNavigate={setCurrentSection} />
-            )}
-            {currentSection === 'student-profile' && <StudentProfileView />}
-            {currentSection === 'student-subjects' && (
-              <StudentSubjectsView onNavigate={setCurrentSection} />
-            )}
-            {currentSection === 'student-marks' && <StudentMarksView />}
+              {/* Student Views */}
+              {currentSection === 'student-dashboard' && (
+                <StudentDashboard onNavigate={setCurrentSection} />
+              )}
+              {currentSection === 'student-profile' && <StudentProfileView />}
+              {currentSection === 'student-subjects' && (
+                <StudentSubjectsView onNavigate={setCurrentSection} />
+              )}
+              {currentSection === 'student-marks' && <StudentMarksView />}
+            </ErrorBoundary>
           </div>
         </main>
       </div>

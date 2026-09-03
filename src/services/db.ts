@@ -1717,89 +1717,223 @@ class DataService {
   }
 
   // --- BULK IMPORT ---
-  public bulkImportStudents(students: any[], actor: { id: string; name: string; role: string }) {
+  public bulkImportStudents(students: any[], actor?: { id: string; name: string; role: string }) {
     let imported = 0;
+    const defaultActor = actor || { id: 'admin', name: 'Administrator', role: 'super_admin' };
+
     students.forEach((s) => {
-      // Find class ID by name
-      const classRoom = this.state.classes.find((c) => c.name.toLowerCase() === s.className.toLowerCase());
-      if (classRoom) {
-        this.addStudent({
-          admissionNumber: s.admissionNumber,
-          name: s.name,
-          classId: classRoom.id,
-          phone: s.phone,
-          email: s.email,
-          username: s.username,
+      const targetClassName = String(s.className || '').trim();
+      if (!targetClassName) return;
+
+      // Find class ID by name (case-insensitive and whitespace-insensitive)
+      let classRoom = this.state.classes.find(
+        (c) =>
+          c.name.trim().toLowerCase() === targetClassName.toLowerCase() ||
+          c.name.replace(/\s+/g, '').toLowerCase() === targetClassName.replace(/\s+/g, '').toLowerCase()
+      );
+
+      // Auto-create class if it does not yet exist
+      if (!classRoom) {
+        classRoom = this.addClass({
+          name: targetClassName,
+          academicYear: this.state.currentAcademicYear || '2025-2026',
           status: 'active',
-        }, s.password, actor);
-        imported++;
+        }, defaultActor);
+      }
+
+      if (classRoom) {
+        const cleanAdmission = String(s.admissionNumber || '').trim();
+        if (!cleanAdmission) return;
+
+        // Skip if student already exists with this admission number
+        const existingStudent = this.state.students.find(
+          (std) => std.admissionNumber.trim().toLowerCase() === cleanAdmission.toLowerCase()
+        );
+
+        if (!existingStudent) {
+          this.addStudent({
+            admissionNumber: cleanAdmission,
+            name: String(s.name || '').trim(),
+            classId: classRoom.id,
+            phone: String(s.phone || '').trim(),
+            email: String(s.email || '').trim(),
+            username: String(s.username || cleanAdmission).trim(),
+            status: 'active',
+          }, s.password, defaultActor);
+          imported++;
+        }
       }
     });
+
+    this.saveLocal();
     return imported;
   }
 
-  public bulkImportTeachers(teachers: any[], actor: { id: string; name: string; role: string }) {
+  public bulkImportTeachers(teachers: any[], actor?: { id: string; name: string; role: string }) {
     let imported = 0;
+    const defaultActor = actor || { id: 'admin', name: 'Administrator', role: 'super_admin' };
+
     teachers.forEach((t) => {
-      this.addTeacher({
-        name: t.name,
-        phone: t.phone,
-        email: t.email,
-        username: t.username,
-        status: 'active',
-        assignedSubjectIds: [],
-        assignedClassIds: [],
-        classTeacherOfClassIds: [],
-      }, t.password, actor);
-      imported++;
-    });
-    return imported;
-  }
+      const name = String(t.name || '').trim();
+      if (!name) return;
 
-  public bulkImportClasses(classes: any[], actor: { id: string; name: string; role: string }) {
-    let imported = 0;
-    classes.forEach((c) => {
-      this.addClass({
-        name: c.name,
-        academicYear: c.academicYear,
-        status: 'active',
-      }, actor);
-      imported++;
-    });
-    return imported;
-  }
+      // Map assigned class names to IDs if provided
+      const assignedClassIds: string[] = [];
+      if (Array.isArray(t.assignedClasses)) {
+        t.assignedClasses.forEach((cName: string) => {
+          const target = String(cName).trim();
+          const c = this.state.classes.find(
+            (cls) =>
+              cls.name.trim().toLowerCase() === target.toLowerCase() ||
+              cls.name.replace(/\s+/g, '').toLowerCase() === target.replace(/\s+/g, '').toLowerCase()
+          );
+          if (c) assignedClassIds.push(c.id);
+        });
+      }
 
-  public bulkImportSubjects(subjects: any[], actor: { id: string; name: string; role: string }) {
-    let imported = 0;
-    subjects.forEach((s) => {
-      const classRoom = this.state.classes.find((c) => c.name.toLowerCase() === s.className.toLowerCase());
-      if (classRoom) {
-        this.addSubject({
-          name: s.name,
-          code: s.code,
-          classId: classRoom.id,
+      // Check if teacher already exists by username or email
+      const username = String(t.username || t.email?.split('@')[0] || `teacher_${Date.now()}`).trim();
+      const existing = this.state.teachers.find(
+        (teach) =>
+          teach.username.toLowerCase() === username.toLowerCase() ||
+          (t.email && teach.email && teach.email.toLowerCase() === String(t.email).trim().toLowerCase())
+      );
+
+      if (!existing) {
+        this.addTeacher({
+          name,
+          phone: String(t.phone || '').trim(),
+          email: String(t.email || '').trim(),
+          username,
           status: 'active',
-        }, actor);
+          assignedSubjectIds: [],
+          assignedClassIds,
+          classTeacherOfClassIds: [],
+        }, t.password, defaultActor);
         imported++;
       }
     });
+
+    this.saveLocal();
+    return imported;
+  }
+
+  public bulkImportClasses(classes: any[], actor?: { id: string; name: string; role: string }) {
+    let imported = 0;
+    const defaultActor = actor || { id: 'admin', name: 'Administrator', role: 'super_admin' };
+
+    classes.forEach((c) => {
+      const className = String(c.name || '').trim();
+      if (!className) return;
+
+      // Skip if class already exists
+      const existing = this.state.classes.find(
+        (cls) =>
+          cls.name.trim().toLowerCase() === className.toLowerCase() ||
+          cls.name.replace(/\s+/g, '').toLowerCase() === className.replace(/\s+/g, '').toLowerCase()
+      );
+
+      if (!existing) {
+        let teacherId: string | undefined;
+        if (c.classTeacher) {
+          const teacherTarget = String(c.classTeacher).trim().toLowerCase();
+          const teacher = this.state.teachers.find(
+            (t) =>
+              t.name.trim().toLowerCase() === teacherTarget ||
+              t.email.trim().toLowerCase() === teacherTarget
+          );
+          if (teacher) teacherId = teacher.id;
+        }
+
+        this.addClass({
+          name: className,
+          academicYear: String(c.academicYear || this.state.currentAcademicYear || '2025-2026').trim(),
+          classTeacherId: teacherId,
+          status: 'active',
+        }, defaultActor);
+        imported++;
+      }
+    });
+
+    this.saveLocal();
+    return imported;
+  }
+
+  public bulkImportSubjects(subjects: any[], actor?: { id: string; name: string; role: string }) {
+    let imported = 0;
+    const defaultActor = actor || { id: 'admin', name: 'Administrator', role: 'super_admin' };
+
+    subjects.forEach((s) => {
+      const targetClassName = String(s.className || '').trim();
+      const subjectName = String(s.name || '').trim();
+      const code = String(s.code || '').trim();
+      if (!subjectName || !code) return;
+
+      // Find class or auto-create
+      let classRoom = this.state.classes.find(
+        (c) =>
+          c.name.trim().toLowerCase() === targetClassName.toLowerCase() ||
+          c.name.replace(/\s+/g, '').toLowerCase() === targetClassName.replace(/\s+/g, '').toLowerCase()
+      );
+
+      if (!classRoom && targetClassName) {
+        classRoom = this.addClass({
+          name: targetClassName,
+          academicYear: this.state.currentAcademicYear || '2025-2026',
+          status: 'active',
+        }, defaultActor);
+      }
+
+      if (classRoom) {
+        // Skip duplicate subject in same class
+        const existing = this.state.subjects.find(
+          (sub) =>
+            sub.classId === classRoom!.id &&
+            (sub.code.toLowerCase() === code.toLowerCase() || sub.name.toLowerCase() === subjectName.toLowerCase())
+        );
+
+        if (!existing) {
+          let teacherId: string | undefined;
+          if (s.assignedTeacher) {
+            const teacherTarget = String(s.assignedTeacher).trim().toLowerCase();
+            const teacher = this.state.teachers.find(
+              (t) =>
+                t.name.trim().toLowerCase() === teacherTarget ||
+                t.email.trim().toLowerCase() === teacherTarget
+            );
+            if (teacher) teacherId = teacher.id;
+          }
+
+          this.addSubject({
+            name: subjectName,
+            code,
+            classId: classRoom.id,
+            assignedTeacherId: teacherId,
+            status: 'active',
+          }, defaultActor);
+          imported++;
+        }
+      }
+    });
+
+    this.saveLocal();
     return imported;
   }
 
   // Alias methods for import
-  public importStudents(students: any[], actor: { id: string; name: string; role: string }) {
+  public importStudents(students: any[], actor?: { id: string; name: string; role: string }) {
     return this.bulkImportStudents(students, actor);
   }
 
-  public importTeachers(teachers: any[], actor: { id: string; name: string; role: string }) {
+  public importTeachers(teachers: any[], actor?: { id: string; name: string; role: string }) {
     return this.bulkImportTeachers(teachers, actor);
   }
 
-  public importClasses(classes: any[], actor: { id: string; name: string; role: string }) {
+  public importClasses(classes: any[], actor?: { id: string; name: string; role: string }) {
     return this.bulkImportClasses(classes, actor);
   }
 
-  public importSubjects(subjects: any[], actor: { id: string; name: string; role: string }) {
+  public importSubjects(subjects: any[], actor?: { id: string; name: string; role: string }) {
     return this.bulkImportSubjects(subjects, actor);
   }
 
