@@ -1,0 +1,7 @@
+{
+  "name": "Student Mark Management System",
+  "description": "A comprehensive Continuous and Comprehensive Evaluation (CCE) mark management and reporting system for schools, teachers, and students.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
