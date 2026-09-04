@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { dataService } from '../../services/db';
 import { useAuth } from '../../context/AuthContext';
 import type { Subject } from '../../types';
@@ -22,6 +22,13 @@ export const SubjectManagement: React.FC<{ onNavigate?: (section: NavSection) =>
   const { currentUser } = useAuth();
   const state = dataService.getState();
   const [, setRerender] = useState(0);
+
+  useEffect(() => {
+    const unsubscribe = dataService.subscribe(() => {
+      setRerender((v) => v + 1);
+    });
+    return () => unsubscribe();
+  }, []);
 
   const [selectedClassFilter, setSelectedClassFilter] = useState('ALL');
 

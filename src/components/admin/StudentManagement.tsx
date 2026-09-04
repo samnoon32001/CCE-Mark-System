@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { dataService } from '../../services/db';
 import { useAuth } from '../../context/AuthContext';
 import type { Student } from '../../types';
@@ -27,6 +27,13 @@ export const StudentManagement: React.FC = () => {
   const { currentUser } = useAuth();
   const state = dataService.getState();
   const [, setRerender] = useState(0);
+
+  useEffect(() => {
+    const unsubscribe = dataService.subscribe(() => {
+      setRerender((v) => v + 1);
+    });
+    return () => unsubscribe();
+  }, []);
 
   // Search, Filter, Pagination
   const [searchQuery, setSearchQuery] = useState('');

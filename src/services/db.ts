@@ -901,6 +901,16 @@ class DataService {
     // System rule: ensure every student has a user account with username = admissionNumber
     // and password = admissionNumber repeated 3 times (e.g., '1001' -> '100110011001')
     if (state.students && state.users) {
+      // First, ensure students list in local state is strictly deduplicated by admission number
+      const seenAdmissions = new Set<string>();
+      state.students = state.students.filter((s) => {
+        const adm = String(s.admissionNumber || '').trim().toLowerCase();
+        if (!adm) return true;
+        if (seenAdmissions.has(adm)) return false;
+        seenAdmissions.add(adm);
+        return true;
+      });
+
       state.students.forEach((s) => {
         const expectedStudentPass = `${s.admissionNumber}${s.admissionNumber}${s.admissionNumber}`;
         const existingUserIdx = state.users.findIndex(
@@ -966,6 +976,17 @@ class DataService {
       }
     });
 
+    // Deduplicate student user accounts
+    const seenUserKeys = new Set<string>();
+    state.users = state.users.filter((u) => {
+      const key = u.role === 'student' && u.admissionNumber
+        ? `std-adm-${u.admissionNumber.trim().toLowerCase()}`
+        : `usr-${u.username.trim().toLowerCase()}`;
+      if (seenUserKeys.has(key)) return false;
+      seenUserKeys.add(key);
+      return true;
+    });
+
     return state;
   }
 
@@ -999,6 +1020,49 @@ class DataService {
       databaseId: 'ai-studio-studentmarkmanag-a28635d8-791b-4e42-96e4-02e2dcc4ecd6',
       projectId: 'astute-runway-96shk',
     };
+  }
+
+  // Helper methods for robust batch Firestore operations
+  private async batchDeleteFirestoreDocs(collectionName: string, docIds: string[]): Promise<void> {
+    if (!docIds || docIds.length === 0) return;
+    for (let i = 0; i < docIds.length; i += 400) {
+      const chunk = docIds.slice(i, i + 400);
+      const batch = writeBatch(db);
+      chunk.forEach((id) => batch.delete(doc(db, collectionName, id)));
+      try {
+        await batch.commit();
+      } catch (e) {
+        console.warn(`Batch delete error in ${collectionName}:`, e);
+      }
+    }
+  }
+
+  private async batchDeleteFirestoreItems(items: { collection: string; id: string }[]): Promise<void> {
+    if (!items || items.length === 0) return;
+    for (let i = 0; i < items.length; i += 400) {
+      const chunk = items.slice(i, i + 400);
+      const batch = writeBatch(db);
+      chunk.forEach((item) => batch.delete(doc(db, item.collection, item.id)));
+      try {
+        await batch.commit();
+      } catch (e) {
+        console.warn('Batch delete items error:', e);
+      }
+    }
+  }
+
+  private async batchSetFirestoreItems(items: { collection: string; id: string; data: any }[]): Promise<void> {
+    if (!items || items.length === 0) return;
+    for (let i = 0; i < items.length; i += 400) {
+      const chunk = items.slice(i, i + 400);
+      const batch = writeBatch(db);
+      chunk.forEach((item) => batch.set(doc(db, item.collection, item.id), item.data, { merge: true }));
+      try {
+        await batch.commit();
+      } catch (e) {
+        console.warn('Batch set items error:', e);
+      }
+    }
   }
 
   public async syncWithFirestore(): Promise<boolean> {
@@ -1062,7 +1126,10 @@ class DataService {
         ]);
 
         if (!usersSnap.empty) {
-          this.state.users = usersSnap.docs.map((d) => {
+          const uniqueUsersMap = new Map<string, User>();
+          const duplicateUserDocIds: string[] = [];
+
+          usersSnap.docs.forEach((d) => {
             const u = d.data() as User;
             if (u.role === 'super_admin' && !u.password) {
               u.password = 'admin123';
@@ -1071,8 +1138,23 @@ class DataService {
             } else if (u.role === 'student' && !u.password) {
               u.password = u.admissionNumber ? `${u.admissionNumber}${u.admissionNumber}${u.admissionNumber}` : 'student123';
             }
-            return u;
+
+            const key = u.role === 'student' && u.admissionNumber
+              ? `student-adm-${u.admissionNumber.trim().toLowerCase()}`
+              : `user-${u.username?.trim().toLowerCase() || d.id}`;
+
+            if (!uniqueUsersMap.has(key)) {
+              uniqueUsersMap.set(key, { ...u, id: u.id || d.id });
+            } else {
+              duplicateUserDocIds.push(d.id);
+            }
           });
+
+          this.state.users = Array.from(uniqueUsersMap.values());
+
+          if (duplicateUserDocIds.length > 0) {
+            this.batchDeleteFirestoreDocs('users', duplicateUserDocIds).catch(() => {});
+          }
 
           // Guarantee super_admin user exists
           const hasAdmin = this.state.users.some((u) => u.role === 'super_admin' || u.username === 'admin');
@@ -1104,12 +1186,35 @@ class DataService {
             }
           }
         }
+
         if (!classesSnap.empty) {
           this.state.classes = classesSnap.docs.map((d) => d.data() as ClassRoom);
         }
+
         if (!studentsSnap.empty) {
-          this.state.students = studentsSnap.docs.map((d) => d.data() as Student);
+          // Strictly deduplicate students by admission number
+          const uniqueStudentsMap = new Map<string, Student>();
+          const duplicateStudentDocIds: string[] = [];
+
+          studentsSnap.docs.forEach((d) => {
+            const student = d.data() as Student;
+            const adm = String(student.admissionNumber || '').trim().toLowerCase();
+            const key = adm || d.id;
+
+            if (!uniqueStudentsMap.has(key)) {
+              uniqueStudentsMap.set(key, { ...student, id: student.id || d.id });
+            } else {
+              duplicateStudentDocIds.push(d.id);
+            }
+          });
+
+          this.state.students = Array.from(uniqueStudentsMap.values());
+
+          if (duplicateStudentDocIds.length > 0) {
+            this.batchDeleteFirestoreDocs('students', duplicateStudentDocIds).catch(() => {});
+          }
         }
+
         if (!teachersSnap.empty) {
           this.state.teachers = teachersSnap.docs.map((d) => d.data() as Teacher);
         }
@@ -1226,10 +1331,49 @@ class DataService {
   public bulkDeleteStudents(ids: string[], actor?: { id: string; name: string; role: string }) {
     if (!ids.length) return;
     const count = ids.length;
-    this.state.students = this.state.students.filter((s) => !ids.includes(s.id));
-    this.state.users = this.state.users.filter((u) => !ids.some((id) => u.id === `user-${id}`));
-    this.state.marks = this.state.marks.filter((m) => !ids.includes(m.studentId));
+    const idsSet = new Set(ids);
+
+    // Identify targeted students and their admission numbers
+    const targetStudents = this.state.students.filter((s) => idsSet.has(s.id));
+    const targetAdmissions = new Set(
+      targetStudents.map((s) => s.admissionNumber?.trim().toLowerCase()).filter(Boolean) as string[]
+    );
+
+    // Filter local state
+    this.state.students = this.state.students.filter(
+      (s) => !idsSet.has(s.id) && (!s.admissionNumber || !targetAdmissions.has(s.admissionNumber.trim().toLowerCase()))
+    );
+
+    const userIdsToDelete: string[] = [];
+    this.state.users = this.state.users.filter((u) => {
+      const isIdMatch = idsSet.has(u.id.replace('user-', '')) || ids.some((id) => u.id === `user-${id}`);
+      const adm = u.admissionNumber?.trim().toLowerCase();
+      const isAdmMatch = !!adm && targetAdmissions.has(adm);
+      const isMatch = isIdMatch || isAdmMatch;
+      if (isMatch) userIdsToDelete.push(u.id);
+      return !isMatch;
+    });
+
+    const markIdsToDelete: string[] = [];
+    this.state.marks = this.state.marks.filter((m) => {
+      const isMatch = idsSet.has(m.studentId);
+      if (isMatch) markIdsToDelete.push(m.id);
+      return !isMatch;
+    });
+
     this.saveLocal();
+    this.notify();
+
+    // Prepare robust Firestore deletions
+    const firestoreDeletions: { collection: string; id: string }[] = [];
+    ids.forEach((id) => firestoreDeletions.push({ collection: 'students', id }));
+    userIdsToDelete.forEach((id) => firestoreDeletions.push({ collection: 'users', id }));
+    markIdsToDelete.forEach((id) => firestoreDeletions.push({ collection: 'marks', id }));
+
+    this.batchDeleteFirestoreItems(firestoreDeletions).catch((err) => {
+      console.warn('Firestore bulk delete error:', err);
+    });
+
     if (actor) {
       this.addAuditLog({
         userId: actor.id,
@@ -1237,11 +1381,10 @@ class DataService {
         role: actor.role,
         action: 'Bulk Deleted Students',
         entity: 'Students',
-        entityId: ids.join(','),
+        entityId: ids.slice(0, 5).join(',') + (ids.length > 5 ? ` +${ids.length - 5} more` : ''),
         details: `Bulk deleted ${count} students and associated records`,
       });
     }
-    this.notify();
   }
 
   public bulkUpdateStudentsStatus(
@@ -1250,17 +1393,26 @@ class DataService {
     actor?: { id: string; name: string; role: string }
   ) {
     if (!ids.length) return;
+    const idsSet = new Set(ids);
+    const updatedItems: { collection: string; id: string; data: any }[] = [];
+
     this.state.students.forEach((s) => {
-      if (ids.includes(s.id)) {
+      if (idsSet.has(s.id)) {
         s.status = status;
+        updatedItems.push({ collection: 'students', id: s.id, data: { status } });
       }
     });
     this.state.users.forEach((u) => {
-      if (ids.some((id) => u.id === `user-${id}`)) {
+      if (ids.some((id) => u.id === `user-${id}`) || idsSet.has(u.id.replace('user-', ''))) {
         u.status = status;
+        updatedItems.push({ collection: 'users', id: u.id, data: { status } });
       }
     });
+
     this.saveLocal();
+    this.notify();
+    this.batchSetFirestoreItems(updatedItems).catch(() => {});
+
     if (actor) {
       this.addAuditLog({
         userId: actor.id,
@@ -1268,11 +1420,10 @@ class DataService {
         role: actor.role,
         action: `Bulk Status: ${status.toUpperCase()}`,
         entity: 'Students',
-        entityId: ids.join(','),
+        entityId: ids.slice(0, 5).join(',') + (ids.length > 5 ? ` +${ids.length - 5} more` : ''),
         details: `Updated status to ${status} for ${ids.length} students`,
       });
     }
-    this.notify();
   }
 
   public bulkAssignStudentsClass(
@@ -1281,13 +1432,21 @@ class DataService {
     actor?: { id: string; name: string; role: string }
   ) {
     if (!ids.length) return;
+    const idsSet = new Set(ids);
     const targetClass = this.state.classes.find((c) => c.id === classId);
+    const updatedStudents: { collection: string; id: string; data: any }[] = [];
+
     this.state.students.forEach((s) => {
-      if (ids.includes(s.id)) {
+      if (idsSet.has(s.id)) {
         s.classId = classId;
+        updatedStudents.push({ collection: 'students', id: s.id, data: { classId } });
       }
     });
+
     this.saveLocal();
+    this.notify();
+    this.batchSetFirestoreItems(updatedStudents).catch(() => {});
+
     if (actor) {
       this.addAuditLog({
         userId: actor.id,
@@ -1295,28 +1454,42 @@ class DataService {
         role: actor.role,
         action: 'Bulk Class Reassignment',
         entity: 'Students',
-        entityId: ids.join(','),
+        entityId: ids.slice(0, 5).join(',') + (ids.length > 5 ? ` +${ids.length - 5} more` : ''),
         details: `Reassigned ${ids.length} students to class ${targetClass?.name || classId}`,
       });
     }
-    this.notify();
   }
 
   public bulkDeleteTeachers(ids: string[], actor?: { id: string; name: string; role: string }) {
     if (!ids.length) return;
-    this.state.teachers = this.state.teachers.filter((t) => !ids.includes(t.id));
-    this.state.users = this.state.users.filter((u) => !ids.some((id) => u.id === `user-${id}`));
+    const idsSet = new Set(ids);
+    this.state.teachers = this.state.teachers.filter((t) => !idsSet.has(t.id));
+    const userIdsToDelete: string[] = [];
+    this.state.users = this.state.users.filter((u) => {
+      const isMatch = ids.some((id) => u.id === `user-${id}`) || idsSet.has(u.id.replace('user-', ''));
+      if (isMatch) userIdsToDelete.push(u.id);
+      return !isMatch;
+    });
     this.state.subjects.forEach((s) => {
-      if (s.assignedTeacherId && ids.includes(s.assignedTeacherId)) {
+      if (s.assignedTeacherId && idsSet.has(s.assignedTeacherId)) {
         s.assignedTeacherId = undefined;
       }
     });
     this.state.classes.forEach((c) => {
-      if (c.classTeacherId && ids.includes(c.classTeacherId)) {
+      if (c.classTeacherId && idsSet.has(c.classTeacherId)) {
         c.classTeacherId = undefined;
       }
     });
+
     this.saveLocal();
+    this.notify();
+
+    const firestoreDeletions = [
+      ...ids.map((id) => ({ collection: 'teachers', id })),
+      ...userIdsToDelete.map((id) => ({ collection: 'users', id })),
+    ];
+    this.batchDeleteFirestoreItems(firestoreDeletions).catch(() => {});
+
     if (actor) {
       this.addAuditLog({
         userId: actor.id,
@@ -1328,7 +1501,6 @@ class DataService {
         details: `Bulk deleted ${ids.length} teachers`,
       });
     }
-    this.notify();
   }
 
   public bulkUpdateTeachersStatus(
@@ -1337,17 +1509,26 @@ class DataService {
     actor?: { id: string; name: string; role: string }
   ) {
     if (!ids.length) return;
+    const idsSet = new Set(ids);
+    const updatedItems: { collection: string; id: string; data: any }[] = [];
+
     this.state.teachers.forEach((t) => {
-      if (ids.includes(t.id)) {
+      if (idsSet.has(t.id)) {
         t.status = status;
+        updatedItems.push({ collection: 'teachers', id: t.id, data: { status } });
       }
     });
     this.state.users.forEach((u) => {
-      if (ids.some((id) => u.id === `user-${id}`)) {
+      if (ids.some((id) => u.id === `user-${id}`) || idsSet.has(u.id.replace('user-', ''))) {
         u.status = status;
+        updatedItems.push({ collection: 'users', id: u.id, data: { status } });
       }
     });
+
     this.saveLocal();
+    this.notify();
+    this.batchSetFirestoreItems(updatedItems).catch(() => {});
+
     if (actor) {
       this.addAuditLog({
         userId: actor.id,
@@ -1359,13 +1540,15 @@ class DataService {
         details: `Updated status to ${status} for ${ids.length} teachers`,
       });
     }
-    this.notify();
   }
 
   public bulkDeleteClasses(ids: string[], actor?: { id: string; name: string; role: string }) {
     if (!ids.length) return;
     this.state.classes = this.state.classes.filter((c) => !ids.includes(c.id));
     this.saveLocal();
+    this.notify();
+    this.batchDeleteFirestoreDocs('classes', ids).catch(() => {});
+
     if (actor) {
       this.addAuditLog({
         userId: actor.id,
@@ -1377,7 +1560,6 @@ class DataService {
         details: `Bulk deleted ${ids.length} classes`,
       });
     }
-    this.notify();
   }
 
   public bulkUpdateClassesAcademicYear(
@@ -1386,12 +1568,20 @@ class DataService {
     actor?: { id: string; name: string; role: string }
   ) {
     if (!ids.length) return;
+    const idsSet = new Set(ids);
+    const updatedClasses: { collection: string; id: string; data: any }[] = [];
+
     this.state.classes.forEach((c) => {
-      if (ids.includes(c.id)) {
+      if (idsSet.has(c.id)) {
         c.academicYear = academicYear;
+        updatedClasses.push({ collection: 'classes', id: c.id, data: { academicYear } });
       }
     });
+
     this.saveLocal();
+    this.notify();
+    this.batchSetFirestoreItems(updatedClasses).catch(() => {});
+
     if (actor) {
       this.addAuditLog({
         userId: actor.id,
@@ -1403,7 +1593,6 @@ class DataService {
         details: `Set academic year to ${academicYear} for ${ids.length} classes`,
       });
     }
-    this.notify();
   }
 
   public bulkUpdateClassesStatus(
@@ -1412,12 +1601,20 @@ class DataService {
     actor?: { id: string; name: string; role: string }
   ) {
     if (!ids.length) return;
+    const idsSet = new Set(ids);
+    const updatedClasses: { collection: string; id: string; data: any }[] = [];
+
     this.state.classes.forEach((c) => {
-      if (ids.includes(c.id)) {
+      if (idsSet.has(c.id)) {
         c.status = status;
+        updatedClasses.push({ collection: 'classes', id: c.id, data: { status } });
       }
     });
+
     this.saveLocal();
+    this.notify();
+    this.batchSetFirestoreItems(updatedClasses).catch(() => {});
+
     if (actor) {
       this.addAuditLog({
         userId: actor.id,
@@ -1429,17 +1626,34 @@ class DataService {
         details: `Updated status to ${status} for ${ids.length} classes`,
       });
     }
-    this.notify();
   }
 
   public bulkDeleteSubjects(ids: string[], actor?: { id: string; name: string; role: string }) {
     if (!ids.length) return;
     this.state.subjects = this.state.subjects.filter((s) => !ids.includes(s.id));
-    this.state.evaluationLevels = this.state.evaluationLevels.filter(
-      (el) => !ids.includes(el.subjectId)
-    );
-    this.state.marks = this.state.marks.filter((m) => !ids.includes(m.subjectId));
+    const evalLevelIdsToDelete: string[] = [];
+    this.state.evaluationLevels = this.state.evaluationLevels.filter((el) => {
+      const isMatch = ids.includes(el.subjectId);
+      if (isMatch) evalLevelIdsToDelete.push(el.id);
+      return !isMatch;
+    });
+    const markIdsToDelete: string[] = [];
+    this.state.marks = this.state.marks.filter((m) => {
+      const isMatch = ids.includes(m.subjectId);
+      if (isMatch) markIdsToDelete.push(m.id);
+      return !isMatch;
+    });
+
     this.saveLocal();
+    this.notify();
+
+    const firestoreDeletions = [
+      ...ids.map((id) => ({ collection: 'subjects', id })),
+      ...evalLevelIdsToDelete.map((id) => ({ collection: 'evaluation_levels', id })),
+      ...markIdsToDelete.map((id) => ({ collection: 'marks', id })),
+    ];
+    this.batchDeleteFirestoreItems(firestoreDeletions).catch(() => {});
+
     if (actor) {
       this.addAuditLog({
         userId: actor.id,
@@ -1451,7 +1665,6 @@ class DataService {
         details: `Bulk deleted ${ids.length} subjects and associated levels/marks`,
       });
     }
-    this.notify();
   }
 
   public bulkUpdateSubjectsStatus(
@@ -1460,12 +1673,20 @@ class DataService {
     actor?: { id: string; name: string; role: string }
   ) {
     if (!ids.length) return;
+    const idsSet = new Set(ids);
+    const updatedSubjects: { collection: string; id: string; data: any }[] = [];
+
     this.state.subjects.forEach((s) => {
-      if (ids.includes(s.id)) {
+      if (idsSet.has(s.id)) {
         s.status = status;
+        updatedSubjects.push({ collection: 'subjects', id: s.id, data: { status } });
       }
     });
+
     this.saveLocal();
+    this.notify();
+    this.batchSetFirestoreItems(updatedSubjects).catch(() => {});
+
     if (actor) {
       this.addAuditLog({
         userId: actor.id,
@@ -1477,7 +1698,6 @@ class DataService {
         details: `Updated status to ${status} for ${ids.length} subjects`,
       });
     }
-    this.notify();
   }
 
   public bulkAssignSubjectsTeacher(
@@ -1486,13 +1706,25 @@ class DataService {
     actor?: { id: string; name: string; role: string }
   ) {
     if (!ids.length) return;
+    const idsSet = new Set(ids);
     const targetTeacher = teacherId ? this.state.teachers.find((t) => t.id === teacherId) : null;
+    const updatedSubjects: { collection: string; id: string; data: any }[] = [];
+
     this.state.subjects.forEach((s) => {
-      if (ids.includes(s.id)) {
+      if (idsSet.has(s.id)) {
         s.assignedTeacherId = teacherId || undefined;
+        updatedSubjects.push({
+          collection: 'subjects',
+          id: s.id,
+          data: { assignedTeacherId: teacherId || null },
+        });
       }
     });
+
     this.saveLocal();
+    this.notify();
+    this.batchSetFirestoreItems(updatedSubjects).catch(() => {});
+
     if (actor) {
       this.addAuditLog({
         userId: actor.id,
@@ -1504,7 +1736,6 @@ class DataService {
         details: `Assigned ${targetTeacher?.name || 'None'} to ${ids.length} subjects`,
       });
     }
-    this.notify();
   }
 
   // --- AUDIT LOG ---
@@ -1521,20 +1752,32 @@ class DataService {
   }
 
   // --- STUDENTS ---
-  public addStudent(student: Omit<Student, 'id' | 'createdDate'>, tempPassword?: string, actor?: { id: string; name: string; role: string }): Student {
-    const id = `std-${Date.now()}`;
+  public addStudent(
+    student: Omit<Student, 'id' | 'createdDate'>,
+    tempPassword?: string,
+    actor?: { id: string; name: string; role: string }
+  ): Student {
+    const cleanAdmission = String(student.admissionNumber || '').trim();
+    // Deterministic ID derived from admission number to prevent duplicate document proliferation
+    const id =
+      (student as any).id ||
+      (cleanAdmission
+        ? `std-${cleanAdmission.toLowerCase().replace(/[^a-z0-9]/g, '_')}`
+        : `std-${Date.now()}`);
+
     const newStudent: Student = {
       ...student,
       id,
-      createdDate: new Date().toISOString().split('T')[0],
+      admissionNumber: cleanAdmission,
+      createdDate: (student as any).createdDate || new Date().toISOString().split('T')[0],
     };
 
-    const cleanAdmission = student.admissionNumber.trim();
     const defaultStudentPassword = `${cleanAdmission}${cleanAdmission}${cleanAdmission}`;
 
-    // Also create corresponding user account for login with systematic credentials
+    // Systematic user account for login
+    const userId = `user-${id}`;
     const user: User = {
-      id: `user-${id}`,
+      id: userId,
       username: cleanAdmission,
       admissionNumber: cleanAdmission,
       role: 'student',
@@ -1546,11 +1789,31 @@ class DataService {
       createdAt: new Date().toISOString(),
     };
 
-    this.state.students.push(newStudent);
-    this.state.users.push(user);
+    // Prevent duplicate insertion in local state
+    const existingIdx = this.state.students.findIndex(
+      (s) =>
+        s.id === id ||
+        (cleanAdmission && s.admissionNumber?.trim().toLowerCase() === cleanAdmission.toLowerCase())
+    );
+    if (existingIdx !== -1) {
+      this.state.students[existingIdx] = newStudent;
+    } else {
+      this.state.students.push(newStudent);
+    }
 
-    setDoc(doc(db, 'students', id), newStudent).catch(() => {});
-    setDoc(doc(db, 'users', user.id), user).catch(() => {});
+    const existingUserIdx = this.state.users.findIndex(
+      (u) =>
+        u.id === userId ||
+        (cleanAdmission && u.admissionNumber?.trim().toLowerCase() === cleanAdmission.toLowerCase())
+    );
+    if (existingUserIdx !== -1) {
+      this.state.users[existingUserIdx] = user;
+    } else {
+      this.state.users.push(user);
+    }
+
+    setDoc(doc(db, 'students', id), newStudent, { merge: true }).catch(() => {});
+    setDoc(doc(db, 'users', user.id), user, { merge: true }).catch(() => {});
 
     if (actor) {
       this.addAuditLog({
@@ -1565,17 +1828,24 @@ class DataService {
     }
 
     this.saveLocal();
+    this.notify();
     return newStudent;
   }
 
-  public updateStudent(id: string, updates: Partial<Student>, actor?: { id: string; name: string; role: string }) {
+  public updateStudent(
+    id: string,
+    updates: Partial<Student>,
+    actor?: { id: string; name: string; role: string }
+  ) {
     const idx = this.state.students.findIndex((s) => s.id === id);
     if (idx !== -1) {
       const prev = this.state.students[idx];
       this.state.students[idx] = { ...prev, ...updates };
 
       // Update associated user
-      const userIdx = this.state.users.findIndex((u) => u.id === `user-${id}` || u.admissionNumber === prev.admissionNumber);
+      const userIdx = this.state.users.findIndex(
+        (u) => u.id === `user-${id}` || (prev.admissionNumber && u.admissionNumber === prev.admissionNumber)
+      );
       if (userIdx !== -1) {
         this.state.users[userIdx] = {
           ...this.state.users[userIdx],
@@ -1585,9 +1855,10 @@ class DataService {
           status: updates.status || this.state.users[userIdx].status,
           admissionNumber: updates.admissionNumber || this.state.users[userIdx].admissionNumber,
         };
+        setDoc(doc(db, 'users', this.state.users[userIdx].id), this.state.users[userIdx], { merge: true }).catch(() => {});
       }
 
-      setDoc(doc(db, 'students', id), this.state.students[idx]).catch(() => {});
+      setDoc(doc(db, 'students', id), this.state.students[idx], { merge: true }).catch(() => {});
 
       if (actor) {
         this.addAuditLog({
@@ -1602,17 +1873,49 @@ class DataService {
       }
 
       this.saveLocal();
+      this.notify();
     }
   }
 
   public deleteStudent(id: string, actor?: { id: string; name: string; role: string }) {
     const student = this.state.students.find((s) => s.id === id);
-    this.state.students = this.state.students.filter((s) => s.id !== id);
-    this.state.users = this.state.users.filter((u) => u.id !== `user-${id}` && u.admissionNumber !== student?.admissionNumber);
-    // Also remove marks
-    this.state.marks = this.state.marks.filter((m) => m.studentId !== id);
+    const targetAdm = student?.admissionNumber?.trim().toLowerCase();
 
+    // Filter local state
+    this.state.students = this.state.students.filter(
+      (s) => s.id !== id && (!targetAdm || s.admissionNumber?.trim().toLowerCase() !== targetAdm)
+    );
+
+    const userIdsToDelete: string[] = [];
+    this.state.users = this.state.users.filter((u) => {
+      const isIdMatch = u.id === `user-${id}` || u.id.replace('user-', '') === id;
+      const isAdmMatch = !!targetAdm && u.admissionNumber?.trim().toLowerCase() === targetAdm;
+      const isMatch = isIdMatch || isAdmMatch;
+      if (isMatch) userIdsToDelete.push(u.id);
+      return !isMatch;
+    });
+
+    const markIdsToDelete: string[] = [];
+    this.state.marks = this.state.marks.filter((m) => {
+      const isMatch = m.studentId === id;
+      if (isMatch) markIdsToDelete.push(m.id);
+      return !isMatch;
+    });
+
+    this.saveLocal();
+    this.notify();
+
+    // Delete from Firestore
+    const itemsToDelete: { collection: string; id: string }[] = [
+      { collection: 'students', id },
+      ...userIdsToDelete.map((uid) => ({ collection: 'users', id: uid })),
+      ...markIdsToDelete.map((mid) => ({ collection: 'marks', id: mid })),
+    ];
+    this.batchDeleteFirestoreItems(itemsToDelete).catch(() => {});
+
+    // Resilient fallback direct deletion
     deleteDoc(doc(db, 'students', id)).catch(() => {});
+    userIdsToDelete.forEach((uid) => deleteDoc(doc(db, 'users', uid)).catch(() => {}));
 
     if (actor && student) {
       this.addAuditLog({
@@ -1625,8 +1928,6 @@ class DataService {
         details: `Deleted student ${student.name} (Ad.No: ${student.admissionNumber})`,
       });
     }
-
-    this.saveLocal();
   }
 
   // --- TEACHERS ---
@@ -2076,8 +2377,19 @@ class DataService {
   public bulkImportStudents(students: any[], actor?: { id: string; name: string; role: string }) {
     let imported = 0;
     const defaultActor = actor || { id: 'admin', name: 'Administrator', role: 'super_admin' };
+    const itemsToSave: { collection: string; id: string; data: any }[] = [];
 
-    students.forEach((s) => {
+    // 1. Deduplicate incoming array by admission number to prevent duplicate rows within the same file
+    const seenInBatch = new Set<string>();
+    const uniqueIncomingStudents = students.filter((s) => {
+      const cleanAdm = String(s.admissionNumber || '').trim().toLowerCase();
+      if (!cleanAdm) return false;
+      if (seenInBatch.has(cleanAdm)) return false;
+      seenInBatch.add(cleanAdm);
+      return true;
+    });
+
+    uniqueIncomingStudents.forEach((s) => {
       const targetClassName = String(s.className || '').trim();
       if (!targetClassName) return;
 
@@ -2090,44 +2402,131 @@ class DataService {
 
       // Auto-create class if it does not yet exist
       if (!classRoom) {
-        classRoom = this.addClass({
-          name: targetClassName,
-          academicYear: this.state.currentAcademicYear || '2025-2026',
-          status: 'active',
-        }, defaultActor);
+        classRoom = this.addClass(
+          {
+            name: targetClassName,
+            academicYear: this.state.currentAcademicYear || '2025-2026',
+            status: 'active',
+          },
+          defaultActor
+        );
       }
 
       if (classRoom) {
         const cleanAdmission = String(s.admissionNumber || '').trim();
         if (!cleanAdmission) return;
 
-        // Skip if student already exists with this admission number
-        const existingStudent = this.state.students.find(
+        const defaultStudentPassword = `${cleanAdmission}${cleanAdmission}${cleanAdmission}`;
+        const pass = s.password || defaultStudentPassword;
+
+        // Check if student already exists with this admission number
+        const existingStudentIdx = this.state.students.findIndex(
           (std) => std.admissionNumber.trim().toLowerCase() === cleanAdmission.toLowerCase()
         );
 
-        if (!existingStudent) {
-          this.addStudent({
+        if (existingStudentIdx !== -1) {
+          // Update existing student
+          const existing = this.state.students[existingStudentIdx];
+          const updatedStudent: Student = {
+            ...existing,
+            name: String(s.name || existing.name).trim(),
+            classId: classRoom.id,
+            phone: s.phone !== undefined ? String(s.phone).trim() : existing.phone,
+            email: s.email !== undefined ? String(s.email).trim() : existing.email,
+            username: cleanAdmission,
+            status: 'active',
+          };
+          this.state.students[existingStudentIdx] = updatedStudent;
+          itemsToSave.push({ collection: 'students', id: existing.id, data: updatedStudent });
+
+          // Update user account
+          const userIdx = this.state.users.findIndex(
+            (u) =>
+              u.id === `user-${existing.id}` ||
+              u.admissionNumber?.trim().toLowerCase() === cleanAdmission.toLowerCase()
+          );
+          if (userIdx !== -1) {
+            this.state.users[userIdx] = {
+              ...this.state.users[userIdx],
+              name: updatedStudent.name,
+              email: updatedStudent.email,
+              phone: updatedStudent.phone,
+              status: 'active',
+              username: cleanAdmission,
+              admissionNumber: cleanAdmission,
+            };
+            itemsToSave.push({
+              collection: 'users',
+              id: this.state.users[userIdx].id,
+              data: this.state.users[userIdx],
+            });
+          }
+          imported++;
+        } else {
+          // Create new student with deterministic ID
+          const id = `std-${cleanAdmission.toLowerCase().replace(/[^a-z0-9]/g, '_')}`;
+          const newStudent: Student = {
+            id,
             admissionNumber: cleanAdmission,
             name: String(s.name || '').trim(),
             classId: classRoom.id,
             phone: String(s.phone || '').trim(),
             email: String(s.email || '').trim(),
-            username: String(s.username || cleanAdmission).trim(),
+            username: cleanAdmission,
             status: 'active',
-          }, s.password, defaultActor);
+            createdDate: new Date().toISOString().split('T')[0],
+          };
+
+          const user: User = {
+            id: `user-${id}`,
+            username: cleanAdmission,
+            admissionNumber: cleanAdmission,
+            role: 'student',
+            name: newStudent.name,
+            email: newStudent.email,
+            phone: newStudent.phone,
+            status: 'active',
+            password: pass,
+            createdAt: new Date().toISOString(),
+          };
+
+          this.state.students.push(newStudent);
+          this.state.users.push(user);
+
+          itemsToSave.push({ collection: 'students', id, data: newStudent });
+          itemsToSave.push({ collection: 'users', id: user.id, data: user });
           imported++;
         }
       }
     });
 
     this.saveLocal();
+    this.notify();
+
+    // Batch commit to Firestore
+    if (itemsToSave.length > 0) {
+      this.batchSetFirestoreItems(itemsToSave).catch((e) => {
+        console.warn('Firestore bulkImportStudents batch set error:', e);
+      });
+    }
+
+    this.addAuditLog({
+      userId: defaultActor.id,
+      userName: defaultActor.name,
+      role: defaultActor.role,
+      action: 'Bulk Imported Students',
+      entity: 'Students',
+      entityId: `batch-${Date.now()}`,
+      details: `Bulk imported/synchronized ${imported} student records`,
+    });
+
     return imported;
   }
 
   public bulkImportTeachers(teachers: any[], actor?: { id: string; name: string; role: string }) {
     let imported = 0;
     const defaultActor = actor || { id: 'admin', name: 'Administrator', role: 'super_admin' };
+    const itemsToSave: { collection: string; id: string; data: any }[] = [];
 
     teachers.forEach((t) => {
       const name = String(t.name || '').trim();
@@ -2156,7 +2555,9 @@ class DataService {
       );
 
       if (!existing) {
-        this.addTeacher({
+        const id = `teacher-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+        const newTeacher: Teacher = {
+          id,
           name,
           phone: String(t.phone || '').trim(),
           email: String(t.email || '').trim(),
@@ -2165,18 +2566,43 @@ class DataService {
           assignedSubjectIds: [],
           assignedClassIds,
           classTeacherOfClassIds: [],
-        }, t.password, defaultActor);
+          createdDate: new Date().toISOString().split('T')[0],
+        };
+
+        const user: User = {
+          id: `user-${id}`,
+          username,
+          role: 'teacher',
+          name,
+          email: newTeacher.email,
+          phone: newTeacher.phone,
+          status: 'active',
+          password: t.password || 'teacher123',
+          createdAt: new Date().toISOString(),
+        };
+
+        this.state.teachers.push(newTeacher);
+        this.state.users.push(user);
+        itemsToSave.push({ collection: 'teachers', id, data: newTeacher });
+        itemsToSave.push({ collection: 'users', id: user.id, data: user });
         imported++;
       }
     });
 
     this.saveLocal();
+    this.notify();
+
+    if (itemsToSave.length > 0) {
+      this.batchSetFirestoreItems(itemsToSave).catch(() => {});
+    }
+
     return imported;
   }
 
   public bulkImportClasses(classes: any[], actor?: { id: string; name: string; role: string }) {
     let imported = 0;
     const defaultActor = actor || { id: 'admin', name: 'Administrator', role: 'super_admin' };
+    const itemsToSave: { collection: string; id: string; data: any }[] = [];
 
     classes.forEach((c) => {
       const className = String(c.name || '').trim();
@@ -2201,23 +2627,35 @@ class DataService {
           if (teacher) teacherId = teacher.id;
         }
 
-        this.addClass({
+        const id = `class-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+        const newClass: ClassRoom = {
+          id,
           name: className,
           academicYear: String(c.academicYear || this.state.currentAcademicYear || '2025-2026').trim(),
           classTeacherId: teacherId,
           status: 'active',
-        }, defaultActor);
+        };
+
+        this.state.classes.push(newClass);
+        itemsToSave.push({ collection: 'classes', id, data: newClass });
         imported++;
       }
     });
 
     this.saveLocal();
+    this.notify();
+
+    if (itemsToSave.length > 0) {
+      this.batchSetFirestoreItems(itemsToSave).catch(() => {});
+    }
+
     return imported;
   }
 
   public bulkImportSubjects(subjects: any[], actor?: { id: string; name: string; role: string }) {
     let imported = 0;
     const defaultActor = actor || { id: 'admin', name: 'Administrator', role: 'super_admin' };
+    const itemsToSave: { collection: string; id: string; data: any }[] = [];
 
     subjects.forEach((s) => {
       const targetClassName = String(s.className || '').trim();
@@ -2233,11 +2671,14 @@ class DataService {
       );
 
       if (!classRoom && targetClassName) {
-        classRoom = this.addClass({
-          name: targetClassName,
-          academicYear: this.state.currentAcademicYear || '2025-2026',
-          status: 'active',
-        }, defaultActor);
+        classRoom = this.addClass(
+          {
+            name: targetClassName,
+            academicYear: this.state.currentAcademicYear || '2025-2026',
+            status: 'active',
+          },
+          defaultActor
+        );
       }
 
       if (classRoom) {
@@ -2260,19 +2701,30 @@ class DataService {
             if (teacher) teacherId = teacher.id;
           }
 
-          this.addSubject({
+          const id = `sub-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+          const newSubject: Subject = {
+            id,
             name: subjectName,
             code,
             classId: classRoom.id,
             assignedTeacherId: teacherId,
             status: 'active',
-          }, defaultActor);
+          };
+
+          this.state.subjects.push(newSubject);
+          itemsToSave.push({ collection: 'subjects', id, data: newSubject });
           imported++;
         }
       }
     });
 
     this.saveLocal();
+    this.notify();
+
+    if (itemsToSave.length > 0) {
+      this.batchSetFirestoreItems(itemsToSave).catch(() => {});
+    }
+
     return imported;
   }
 
