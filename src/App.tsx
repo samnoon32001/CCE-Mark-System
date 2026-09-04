@@ -15,6 +15,7 @@ import { EvaluationLevelManagement } from './components/admin/EvaluationLevelMan
 import { ExcelImportView } from './components/admin/ExcelImportView';
 import { ReportsView } from './components/admin/ReportsView';
 import { AuditLogView } from './components/admin/AuditLogView';
+import { SettingsView } from './components/admin/SettingsView';
 
 // Teacher Views
 import { TeacherDashboard } from './components/teacher/TeacherDashboard';
@@ -33,6 +34,7 @@ import { ErrorBoundary } from './components/common/ErrorBoundary';
 const MainLayout: React.FC = () => {
   const { currentUser, role } = useAuth();
   const [currentSection, setCurrentSection] = useState<NavSection>('admin-dashboard');
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   // Sync default section when role changes
   useEffect(() => {
@@ -51,16 +53,24 @@ const MainLayout: React.FC = () => {
 
   return (
     <div className="flex h-screen bg-slate-50 dark:bg-slate-950 font-sans text-slate-900 dark:text-slate-100 overflow-hidden transition-colors duration-200">
-      {/* Fixed Full Height Sidebar */}
-      <Sidebar currentSection={currentSection} onSelectSection={setCurrentSection} />
+      {/* Sidebar with Mobile Drawer support */}
+      <Sidebar
+        currentSection={currentSection}
+        onSelectSection={setCurrentSection}
+        isOpenMobile={isMobileSidebarOpen}
+        onCloseMobile={() => setIsMobileSidebarOpen(false)}
+      />
 
       {/* Main Workspace Container */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Top Header / Navbar */}
-        <Navbar currentSection={currentSection} />
+        <Navbar
+          currentSection={currentSection}
+          onToggleSidebar={() => setIsMobileSidebarOpen((prev) => !prev)}
+        />
 
         {/* Scrollable Dynamic Main Content Area */}
-        <main className="flex-1 overflow-y-auto p-6 sm:p-8 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
+        <main className="flex-1 overflow-y-auto p-3.5 sm:p-6 lg:p-8 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
           <div className="max-w-7xl w-full mx-auto">
             <ErrorBoundary>
               {/* Admin Views */}
@@ -74,6 +84,7 @@ const MainLayout: React.FC = () => {
               {currentSection === 'evaluation-levels' && (
                 <EvaluationLevelManagement onNavigate={setCurrentSection} />
               )}
+              {currentSection === 'settings' && <SettingsView />}
               {currentSection === 'excel-import' && <ExcelImportView />}
               {currentSection === 'reports' && <ReportsView />}
               {currentSection === 'audit-logs' && <AuditLogView />}

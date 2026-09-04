@@ -15,6 +15,8 @@ import {
   User,
   Award,
   LogOut,
+  Settings,
+  X,
 } from 'lucide-react';
 
 export type NavSection =
@@ -24,6 +26,7 @@ export type NavSection =
   | 'classes'
   | 'subjects'
   | 'evaluation-levels'
+  | 'settings'
   | 'excel-import'
   | 'reports'
   | 'audit-logs'
@@ -42,10 +45,24 @@ export type NavSection =
 interface SidebarProps {
   currentSection: NavSection;
   onSelectSection: (section: NavSection) => void;
+  isOpenMobile?: boolean;
+  onCloseMobile?: () => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ currentSection, onSelectSection }) => {
+export const Sidebar: React.FC<SidebarProps> = ({
+  currentSection,
+  onSelectSection,
+  isOpenMobile = false,
+  onCloseMobile,
+}) => {
   const { currentUser, role, isClassTeacher, logout } = useAuth();
+
+  const handleSelect = (section: NavSection) => {
+    onSelectSection(section);
+    if (onCloseMobile) {
+      onCloseMobile();
+    }
+  };
 
   const getInitials = (name?: string) => {
     if (!name) return 'EM';
@@ -74,59 +91,69 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentSection, onSelectSectio
             icon={<LayoutDashboard className="w-5 h-5" />}
             label="Dashboard"
             active={currentSection === 'admin-dashboard'}
-            onClick={() => onSelectSection('admin-dashboard')}
+            onClick={() => handleSelect('admin-dashboard')}
           />
           <NavItem
             icon={<Users className="w-5 h-5" />}
             label="Students"
             active={currentSection === 'students'}
-            onClick={() => onSelectSection('students')}
+            onClick={() => handleSelect('students')}
           />
           <NavItem
             icon={<GraduationCap className="w-5 h-5" />}
             label="Teachers"
             active={currentSection === 'teachers'}
-            onClick={() => onSelectSection('teachers')}
+            onClick={() => handleSelect('teachers')}
           />
           <NavItem
             icon={<School className="w-5 h-5" />}
             label="Classes"
             active={currentSection === 'classes'}
-            onClick={() => onSelectSection('classes')}
+            onClick={() => handleSelect('classes')}
           />
           <NavItem
             icon={<BookOpen className="w-5 h-5" />}
             label="Subjects"
             active={currentSection === 'subjects'}
-            onClick={() => onSelectSection('subjects')}
+            onClick={() => handleSelect('subjects')}
           />
           <NavItem
             icon={<Sliders className="w-5 h-5" />}
             label="Evaluation Levels"
             active={currentSection === 'evaluation-levels'}
-            onClick={() => onSelectSection('evaluation-levels')}
+            onClick={() => handleSelect('evaluation-levels')}
           />
 
-          <div className="text-slate-500 text-[10px] uppercase font-semibold tracking-wider mt-6 mb-2 px-3">
+          <div className="text-slate-500 text-[10px] uppercase font-semibold tracking-wider mt-5 mb-2 px-3">
+            Settings & Control
+          </div>
+          <NavItem
+            icon={<Settings className="w-5 h-5" />}
+            label="Settings"
+            active={currentSection === 'settings'}
+            onClick={() => handleSelect('settings')}
+          />
+
+          <div className="text-slate-500 text-[10px] uppercase font-semibold tracking-wider mt-5 mb-2 px-3">
             Data & Reports
           </div>
           <NavItem
             icon={<FileSpreadsheet className="w-5 h-5" />}
             label="Excel Import"
             active={currentSection === 'excel-import'}
-            onClick={() => onSelectSection('excel-import')}
+            onClick={() => handleSelect('excel-import')}
           />
           <NavItem
             icon={<FileText className="w-5 h-5" />}
             label="Reports"
             active={currentSection === 'reports'}
-            onClick={() => onSelectSection('reports')}
+            onClick={() => handleSelect('reports')}
           />
           <NavItem
             icon={<History className="w-5 h-5" />}
             label="Audit Logs"
             active={currentSection === 'audit-logs'}
-            onClick={() => onSelectSection('audit-logs')}
+            onClick={() => handleSelect('audit-logs')}
           />
         </>
       );
@@ -142,31 +169,31 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentSection, onSelectSectio
             icon={<LayoutDashboard className="w-5 h-5" />}
             label="Dashboard"
             active={currentSection === 'teacher-dashboard'}
-            onClick={() => onSelectSection('teacher-dashboard')}
+            onClick={() => handleSelect('teacher-dashboard')}
           />
           <NavItem
             icon={<BookOpen className="w-5 h-5" />}
             label="My Subjects"
             active={currentSection === 'teacher-subjects'}
-            onClick={() => onSelectSection('teacher-subjects')}
+            onClick={() => handleSelect('teacher-subjects')}
           />
           <NavItem
             icon={<School className="w-5 h-5" />}
             label="My Classes"
             active={currentSection === 'teacher-classes'}
-            onClick={() => onSelectSection('teacher-classes')}
+            onClick={() => handleSelect('teacher-classes')}
           />
           <NavItem
             icon={<CheckSquare className="w-5 h-5" />}
             label="Mark Entry"
             active={currentSection === 'mark-entry'}
-            onClick={() => onSelectSection('mark-entry')}
+            onClick={() => handleSelect('mark-entry')}
           />
           <NavItem
             icon={<Sliders className="w-5 h-5" />}
             label="Evaluation Levels"
             active={currentSection === 'evaluation-levels'}
-            onClick={() => onSelectSection('evaluation-levels')}
+            onClick={() => handleSelect('evaluation-levels')}
           />
 
           {isClassTeacher && (
@@ -178,7 +205,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentSection, onSelectSectio
                 icon={<ShieldCheck className="w-5 h-5 text-amber-400" />}
                 label="Class Teacher View"
                 active={currentSection === 'class-teacher-view'}
-                onClick={() => onSelectSection('class-teacher-view')}
+                onClick={() => handleSelect('class-teacher-view')}
               />
             </>
           )}
@@ -190,7 +217,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentSection, onSelectSectio
             icon={<FileText className="w-5 h-5" />}
             label="Reports"
             active={currentSection === 'reports'}
-            onClick={() => onSelectSection('reports')}
+            onClick={() => handleSelect('reports')}
           />
         </>
       );
@@ -206,31 +233,31 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentSection, onSelectSectio
             icon={<LayoutDashboard className="w-5 h-5" />}
             label="Dashboard"
             active={currentSection === 'student-dashboard'}
-            onClick={() => onSelectSection('student-dashboard')}
+            onClick={() => handleSelect('student-dashboard')}
           />
           <NavItem
             icon={<User className="w-5 h-5" />}
             label="My Profile"
             active={currentSection === 'student-profile'}
-            onClick={() => onSelectSection('student-profile')}
+            onClick={() => handleSelect('student-profile')}
           />
           <NavItem
             icon={<BookOpen className="w-5 h-5" />}
             label="My Subjects"
             active={currentSection === 'student-subjects'}
-            onClick={() => onSelectSection('student-subjects')}
+            onClick={() => handleSelect('student-subjects')}
           />
           <NavItem
             icon={<Award className="w-5 h-5" />}
             label="My Marks"
             active={currentSection === 'student-marks'}
-            onClick={() => onSelectSection('student-marks')}
+            onClick={() => handleSelect('student-marks')}
           />
           <NavItem
             icon={<FileText className="w-5 h-5" />}
             label="Reports"
             active={currentSection === 'reports'}
-            onClick={() => onSelectSection('reports')}
+            onClick={() => handleSelect('reports')}
           />
         </>
       );
@@ -239,26 +266,38 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentSection, onSelectSectio
     return null;
   };
 
-  return (
-    <aside className="w-64 bg-slate-900 border-r border-slate-800 flex flex-col shrink-0 min-h-screen text-slate-300">
+  const sidebarBody = (
+    <div className="flex flex-col h-full bg-slate-900 text-slate-300">
       {/* Brand Header matching Professional Polish Design */}
-      <div className="p-6 flex items-center gap-3 border-b border-slate-800/80">
-        <div className="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center text-white shadow-sm shadow-indigo-500/30">
-          <BookOpen className="w-5 h-5" />
+      <div className="p-4 sm:p-5 flex items-center justify-between border-b border-slate-800/80">
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-8 h-8 bg-indigo-500 rounded-lg flex items-center justify-center text-white shadow-sm shadow-indigo-500/30 shrink-0">
+            <BookOpen className="w-5 h-5" />
+          </div>
+          <div className="flex flex-col min-w-0">
+            <span className="text-white font-bold text-base tracking-tight truncate">DHDC CCE Portal</span>
+            <span className="text-[10px] text-slate-400 font-medium tracking-wide truncate">CCE Evaluation</span>
+          </div>
         </div>
-        <div className="flex flex-col">
-          <span className="text-white font-bold text-lg tracking-tight">DHDC CCE Portal</span>
-          <span className="text-[10px] text-slate-400 font-medium tracking-wide">CCE Evaluation</span>
-        </div>
+        {onCloseMobile && (
+          <button
+            type="button"
+            onClick={onCloseMobile}
+            className="p-1 text-slate-400 hover:text-white rounded-md hover:bg-slate-800 md:hidden cursor-pointer shrink-0"
+            aria-label="Close menu"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        )}
       </div>
 
       {/* Navigation Links */}
-      <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+      <nav className="flex-1 p-3.5 space-y-1 overflow-y-auto">
         {renderNavItems()}
       </nav>
 
       {/* System Status Indicator */}
-      <div className="px-5 py-3 border-t border-slate-800/60 bg-slate-900/90 text-[11px] text-slate-400 flex items-center justify-between">
+      <div className="px-4 py-2.5 border-t border-slate-800/60 bg-slate-900/90 text-[11px] text-slate-400 flex items-center justify-between">
         <span className="flex items-center gap-2">
           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
           CCE Engine Active
@@ -269,9 +308,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentSection, onSelectSectio
       </div>
 
       {/* User Profile Card matching Professional Polish footer */}
-      <div className="p-4 border-t border-slate-800 flex items-center justify-between gap-3 text-slate-300 bg-slate-950/40">
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="w-10 h-10 bg-indigo-900 rounded-full border border-indigo-700 flex items-center justify-center text-xs font-bold text-white shrink-0">
+      <div className="p-3.5 border-t border-slate-800 flex items-center justify-between gap-2.5 text-slate-300 bg-slate-950/40">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-9 h-9 bg-indigo-900 rounded-full border border-indigo-700 flex items-center justify-center text-xs font-bold text-white shrink-0">
             {getInitials(currentUser?.name)}
           </div>
           <div className="flex flex-col min-w-0">
@@ -282,12 +321,34 @@ export const Sidebar: React.FC<SidebarProps> = ({ currentSection, onSelectSectio
         <button
           onClick={logout}
           title="Sign out"
-          className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition"
+          className="p-1.5 text-slate-400 hover:text-white hover:bg-slate-800 rounded-md transition cursor-pointer shrink-0"
         >
           <LogOut className="w-4 h-4" />
         </button>
       </div>
-    </aside>
+    </div>
+  );
+
+  return (
+    <>
+      {/* Desktop Persistent Sidebar */}
+      <aside className="hidden md:flex w-64 bg-slate-900 border-r border-slate-800 flex-col shrink-0 min-h-screen text-slate-300">
+        {sidebarBody}
+      </aside>
+
+      {/* Mobile Slide-over Drawer with Backdrop */}
+      {isOpenMobile && (
+        <div className="fixed inset-0 z-50 md:hidden flex" role="dialog" aria-modal="true">
+          <div
+            className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs transition-opacity"
+            onClick={onCloseMobile}
+          />
+          <div className="relative w-72 max-w-[85vw] h-full z-50 shadow-2xl animate-in slide-in-from-left duration-200">
+            {sidebarBody}
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 

@@ -58,56 +58,137 @@ export const AdminDashboard: React.FC<{ onNavigate: (section: NavSection) => voi
         </div>
       </div>
 
-      {/* 6 Key Summary Cards (Section 3 Requirement) */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        <StatCard
-          label="Total Students"
-          value={totalStudents}
-          subtext={`${activeStudents} active`}
-          icon={<Users className="w-5 h-5 text-blue-600" />}
-          accent="blue"
+      {/* Combined Key Summary Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+        {/* Students Combined Card */}
+        <div
           onClick={() => onNavigate('students')}
-        />
-        <StatCard
-          label="Active Students"
-          value={activeStudents}
-          subtext="Enrolled in classes"
-          icon={<UserCheck className="w-5 h-5 text-emerald-600" />}
-          accent="emerald"
-          onClick={() => onNavigate('students')}
-        />
-        <StatCard
-          label="Total Teachers"
-          value={totalTeachers}
-          subtext={`${activeTeachers} active`}
-          icon={<GraduationCap className="w-5 h-5 text-purple-600" />}
-          accent="purple"
+          className="bg-white dark:bg-slate-900 rounded-xl p-5 border border-slate-200 dark:border-slate-800 shadow-xs hover:border-indigo-400 dark:hover:border-indigo-600 transition cursor-pointer flex flex-col justify-between"
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              Students Enrolment
+            </span>
+            <div className="p-2 bg-blue-50 dark:bg-blue-950/50 rounded-lg text-blue-600 dark:text-blue-400">
+              <Users className="w-5 h-5" />
+            </div>
+          </div>
+          <div className="mt-3">
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-extrabold font-mono text-slate-900 dark:text-white">
+                {totalStudents}
+              </span>
+              <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Total Registered</span>
+            </div>
+            <div className="flex items-center gap-2 mt-3 pt-3 border-t border-slate-100 dark:border-slate-800 text-xs">
+              <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold">
+                <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                {activeStudents} Active
+              </span>
+              <span className="text-slate-300 dark:text-slate-700">•</span>
+              <span className="text-slate-500 dark:text-slate-400">
+                {totalStudents - activeStudents} Inactive
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Teachers Combined Card */}
+        <div
           onClick={() => onNavigate('teachers')}
-        />
-        <StatCard
-          label="Active Teachers"
-          value={activeTeachers}
-          subtext="With assignments"
-          icon={<UserCheck className="w-5 h-5 text-indigo-600" />}
-          accent="indigo"
-          onClick={() => onNavigate('teachers')}
-        />
-        <StatCard
-          label="Total Classes"
-          value={totalClasses}
-          subtext={`Year: ${state.currentAcademicYear}`}
-          icon={<School className="w-5 h-5 text-amber-600" />}
-          accent="amber"
+          className="bg-white dark:bg-slate-900 rounded-xl p-5 border border-slate-200 dark:border-slate-800 shadow-xs hover:border-purple-400 dark:hover:border-purple-600 transition cursor-pointer flex flex-col justify-between"
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              Faculty & Teachers
+            </span>
+            <div className="p-2 bg-purple-50 dark:bg-purple-950/50 rounded-lg text-purple-600 dark:text-purple-400">
+              <GraduationCap className="w-5 h-5" />
+            </div>
+          </div>
+          <div className="mt-3">
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-extrabold font-mono text-slate-900 dark:text-white">
+                {totalTeachers}
+              </span>
+              <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Total Faculty</span>
+            </div>
+            <div className="flex items-center gap-2 mt-3 pt-3 border-t border-slate-100 dark:border-slate-800 text-xs">
+              <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold">
+                <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                {activeTeachers} Active
+              </span>
+              <span className="text-slate-300 dark:text-slate-700">•</span>
+              <span className="text-slate-500 dark:text-slate-400">
+                {totalTeachers - activeTeachers} Inactive
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Classes Card */}
+        <div
           onClick={() => onNavigate('classes')}
-        />
-        <StatCard
-          label="Total Subjects"
-          value={totalSubjects}
-          subtext="Across all grades"
-          icon={<BookOpen className="w-5 h-5 text-rose-600" />}
-          accent="rose"
-          onClick={() => onNavigate('subjects')}
-        />
+          className="bg-white dark:bg-slate-900 rounded-xl p-5 border border-slate-200 dark:border-slate-800 shadow-xs hover:border-amber-400 dark:hover:border-amber-600 transition cursor-pointer flex flex-col justify-between"
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              Classes & Sections
+            </span>
+            <div className="p-2 bg-amber-50 dark:bg-amber-950/50 rounded-lg text-amber-600 dark:text-amber-400">
+              <School className="w-5 h-5" />
+            </div>
+          </div>
+          <div className="mt-3">
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-extrabold font-mono text-slate-900 dark:text-white">
+                {totalClasses}
+              </span>
+              <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Active Divisions</span>
+            </div>
+            <div className="flex items-center gap-2 mt-3 pt-3 border-t border-slate-100 dark:border-slate-800 text-xs">
+              <span className="text-indigo-600 dark:text-indigo-400 font-semibold">
+                AY {state.currentAcademicYear}
+              </span>
+              <span className="text-slate-300 dark:text-slate-700">•</span>
+              <span className="text-slate-500 dark:text-slate-400">
+                {totalSubjects} Subjects
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Evaluation Progress Card */}
+        <div
+          onClick={() => onNavigate('evaluation-levels')}
+          className="bg-white dark:bg-slate-900 rounded-xl p-5 border border-slate-200 dark:border-slate-800 shadow-xs hover:border-emerald-400 dark:hover:border-emerald-600 transition cursor-pointer flex flex-col justify-between"
+        >
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+              Assessment Matrix
+            </span>
+            <div className="p-2 bg-emerald-50 dark:bg-emerald-950/50 rounded-lg text-emerald-600 dark:text-emerald-400">
+              <BookOpen className="w-5 h-5" />
+            </div>
+          </div>
+          <div className="mt-3">
+            <div className="flex items-baseline gap-2">
+              <span className="text-3xl font-extrabold font-mono text-slate-900 dark:text-white">
+                {totalMarks}
+              </span>
+              <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Entries Logged</span>
+            </div>
+            <div className="flex items-center gap-2 mt-3 pt-3 border-t border-slate-100 dark:border-slate-800 text-xs">
+              <span className="text-slate-700 dark:text-slate-300 font-semibold">
+                {state.evaluationLevels.length} CCE Levels
+              </span>
+              <span className="text-slate-300 dark:text-slate-700">•</span>
+              <span className="text-emerald-600 dark:text-emerald-400 font-medium">
+                Factor 30 Standard
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Class Statistics & Distribution */}

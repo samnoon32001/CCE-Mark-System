@@ -32,10 +32,14 @@ export interface DatabaseState {
   auditLogs: AuditLog[];
   academicYears: AcademicYear[];
   currentAcademicYear: string;
+  isLevelAddingLocked?: boolean;
+  isMarkEntryLocked?: boolean;
 }
 
 // Initial robust seed data matching all requirements
 const INITIAL_STATE: DatabaseState = {
+  isLevelAddingLocked: false,
+  isMarkEntryLocked: false,
   academicYears: [
     { id: 'ay-1', year: '2025-2026', isCurrent: true },
     { id: 'ay-2', year: '2024-2025', isCurrent: false },
@@ -1147,17 +1151,360 @@ class DataService {
     this.saveLocal();
   }
 
-  // --- ACADEMIC YEAR ---
+  // --- ACADEMIC YEAR & SYSTEM SETTINGS ---
   public setCurrentAcademicYear(year: string) {
     this.state.currentAcademicYear = year;
+    this.state.academicYears.forEach(ay => {
+      ay.isCurrent = ay.year === year;
+    });
     this.saveLocal();
+    this.notify();
   }
 
   public addAcademicYear(year: string) {
-    if (this.state.academicYears.some((ay) => ay.year === year)) return;
-    const newAy: AcademicYear = { id: `ay-${Date.now()}`, year, isCurrent: false };
+    const clean = year.trim();
+    if (!clean || this.state.academicYears.some((ay) => ay.year.toLowerCase() === clean.toLowerCase())) return;
+    const newAy: AcademicYear = { id: `ay-${Date.now()}`, year: clean, isCurrent: false };
     this.state.academicYears.push(newAy);
     this.saveLocal();
+    this.notify();
+  }
+
+  public deleteAcademicYear(id: string): boolean {
+    const target = this.state.academicYears.find((ay) => ay.id === id);
+    if (!target) return false;
+    if (target.year === this.state.currentAcademicYear) return false;
+    this.state.academicYears = this.state.academicYears.filter((ay) => ay.id !== id);
+    this.saveLocal();
+    this.notify();
+    return true;
+  }
+
+  public isLevelAddingLocked(): boolean {
+    return !!this.state.isLevelAddingLocked;
+  }
+
+  public isMarkEntryLocked(): boolean {
+    return !!this.state.isMarkEntryLocked;
+  }
+
+  public setLevelAddingLocked(locked: boolean, actor?: { id: string; name: string; role: string }) {
+    this.state.isLevelAddingLocked = locked;
+    this.saveLocal();
+    if (actor) {
+      this.addAuditLog({
+        userId: actor.id,
+        userName: actor.name,
+        role: actor.role,
+        action: locked ? 'Lock Levels' : 'Unlock Levels',
+        entity: 'System Settings',
+        entityId: 'settings-level-lock',
+        details: locked ? 'Locked evaluation level creation and modification' : 'Unlocked evaluation level creation',
+      });
+    }
+    this.notify();
+  }
+
+  public setMarkEntryLocked(locked: boolean, actor?: { id: string; name: string; role: string }) {
+    this.state.isMarkEntryLocked = locked;
+    this.saveLocal();
+    if (actor) {
+      this.addAuditLog({
+        userId: actor.id,
+        userName: actor.name,
+        role: actor.role,
+        action: locked ? 'Lock Mark Entry' : 'Unlock Mark Entry',
+        entity: 'System Settings',
+        entityId: 'settings-mark-lock',
+        details: locked ? 'Locked mark entry system-wide for faculty' : 'Unlocked mark entry system-wide',
+      });
+    }
+    this.notify();
+  }
+
+  // --- BULK OPERATIONS ---
+  public bulkDeleteStudents(ids: string[], actor?: { id: string; name: string; role: string }) {
+    if (!ids.length) return;
+    const count = ids.length;
+    this.state.students = this.state.students.filter((s) => !ids.includes(s.id));
+    this.state.users = this.state.users.filter((u) => !ids.some((id) => u.id === `user-${id}`));
+    this.state.marks = this.state.marks.filter((m) => !ids.includes(m.studentId));
+    this.saveLocal();
+    if (actor) {
+      this.addAuditLog({
+        userId: actor.id,
+        userName: actor.name,
+        role: actor.role,
+        action: 'Bulk Deleted Students',
+        entity: 'Students',
+        entityId: ids.join(','),
+        details: `Bulk deleted ${count} students and associated records`,
+      });
+    }
+    this.notify();
+  }
+
+  public bulkUpdateStudentsStatus(
+    ids: string[],
+    status: 'active' | 'inactive',
+    actor?: { id: string; name: string; role: string }
+  ) {
+    if (!ids.length) return;
+    this.state.students.forEach((s) => {
+      if (ids.includes(s.id)) {
+        s.status = status;
+      }
+    });
+    this.state.users.forEach((u) => {
+      if (ids.some((id) => u.id === `user-${id}`)) {
+        u.status = status;
+      }
+    });
+    this.saveLocal();
+    if (actor) {
+      this.addAuditLog({
+        userId: actor.id,
+        userName: actor.name,
+        role: actor.role,
+        action: `Bulk Status: ${status.toUpperCase()}`,
+        entity: 'Students',
+        entityId: ids.join(','),
+        details: `Updated status to ${status} for ${ids.length} students`,
+      });
+    }
+    this.notify();
+  }
+
+  public bulkAssignStudentsClass(
+    ids: string[],
+    classId: string,
+    actor?: { id: string; name: string; role: string }
+  ) {
+    if (!ids.length) return;
+    const targetClass = this.state.classes.find((c) => c.id === classId);
+    this.state.students.forEach((s) => {
+      if (ids.includes(s.id)) {
+        s.classId = classId;
+      }
+    });
+    this.saveLocal();
+    if (actor) {
+      this.addAuditLog({
+        userId: actor.id,
+        userName: actor.name,
+        role: actor.role,
+        action: 'Bulk Class Reassignment',
+        entity: 'Students',
+        entityId: ids.join(','),
+        details: `Reassigned ${ids.length} students to class ${targetClass?.name || classId}`,
+      });
+    }
+    this.notify();
+  }
+
+  public bulkDeleteTeachers(ids: string[], actor?: { id: string; name: string; role: string }) {
+    if (!ids.length) return;
+    this.state.teachers = this.state.teachers.filter((t) => !ids.includes(t.id));
+    this.state.users = this.state.users.filter((u) => !ids.some((id) => u.id === `user-${id}`));
+    this.state.subjects.forEach((s) => {
+      if (s.assignedTeacherId && ids.includes(s.assignedTeacherId)) {
+        s.assignedTeacherId = undefined;
+      }
+    });
+    this.state.classes.forEach((c) => {
+      if (c.classTeacherId && ids.includes(c.classTeacherId)) {
+        c.classTeacherId = undefined;
+      }
+    });
+    this.saveLocal();
+    if (actor) {
+      this.addAuditLog({
+        userId: actor.id,
+        userName: actor.name,
+        role: actor.role,
+        action: 'Bulk Deleted Teachers',
+        entity: 'Teachers',
+        entityId: ids.join(','),
+        details: `Bulk deleted ${ids.length} teachers`,
+      });
+    }
+    this.notify();
+  }
+
+  public bulkUpdateTeachersStatus(
+    ids: string[],
+    status: 'active' | 'inactive',
+    actor?: { id: string; name: string; role: string }
+  ) {
+    if (!ids.length) return;
+    this.state.teachers.forEach((t) => {
+      if (ids.includes(t.id)) {
+        t.status = status;
+      }
+    });
+    this.state.users.forEach((u) => {
+      if (ids.some((id) => u.id === `user-${id}`)) {
+        u.status = status;
+      }
+    });
+    this.saveLocal();
+    if (actor) {
+      this.addAuditLog({
+        userId: actor.id,
+        userName: actor.name,
+        role: actor.role,
+        action: `Bulk Teacher Status: ${status.toUpperCase()}`,
+        entity: 'Teachers',
+        entityId: ids.join(','),
+        details: `Updated status to ${status} for ${ids.length} teachers`,
+      });
+    }
+    this.notify();
+  }
+
+  public bulkDeleteClasses(ids: string[], actor?: { id: string; name: string; role: string }) {
+    if (!ids.length) return;
+    this.state.classes = this.state.classes.filter((c) => !ids.includes(c.id));
+    this.saveLocal();
+    if (actor) {
+      this.addAuditLog({
+        userId: actor.id,
+        userName: actor.name,
+        role: actor.role,
+        action: 'Bulk Deleted Classes',
+        entity: 'Classes',
+        entityId: ids.join(','),
+        details: `Bulk deleted ${ids.length} classes`,
+      });
+    }
+    this.notify();
+  }
+
+  public bulkUpdateClassesAcademicYear(
+    ids: string[],
+    academicYear: string,
+    actor?: { id: string; name: string; role: string }
+  ) {
+    if (!ids.length) return;
+    this.state.classes.forEach((c) => {
+      if (ids.includes(c.id)) {
+        c.academicYear = academicYear;
+      }
+    });
+    this.saveLocal();
+    if (actor) {
+      this.addAuditLog({
+        userId: actor.id,
+        userName: actor.name,
+        role: actor.role,
+        action: 'Bulk Academic Year Reassignment',
+        entity: 'Classes',
+        entityId: ids.join(','),
+        details: `Set academic year to ${academicYear} for ${ids.length} classes`,
+      });
+    }
+    this.notify();
+  }
+
+  public bulkUpdateClassesStatus(
+    ids: string[],
+    status: 'active' | 'inactive',
+    actor?: { id: string; name: string; role: string }
+  ) {
+    if (!ids.length) return;
+    this.state.classes.forEach((c) => {
+      if (ids.includes(c.id)) {
+        c.status = status;
+      }
+    });
+    this.saveLocal();
+    if (actor) {
+      this.addAuditLog({
+        userId: actor.id,
+        userName: actor.name,
+        role: actor.role,
+        action: `Bulk Class Status: ${status.toUpperCase()}`,
+        entity: 'Classes',
+        entityId: ids.join(','),
+        details: `Updated status to ${status} for ${ids.length} classes`,
+      });
+    }
+    this.notify();
+  }
+
+  public bulkDeleteSubjects(ids: string[], actor?: { id: string; name: string; role: string }) {
+    if (!ids.length) return;
+    this.state.subjects = this.state.subjects.filter((s) => !ids.includes(s.id));
+    this.state.evaluationLevels = this.state.evaluationLevels.filter(
+      (el) => !ids.includes(el.subjectId)
+    );
+    this.state.marks = this.state.marks.filter((m) => !ids.includes(m.subjectId));
+    this.saveLocal();
+    if (actor) {
+      this.addAuditLog({
+        userId: actor.id,
+        userName: actor.name,
+        role: actor.role,
+        action: 'Bulk Deleted Subjects',
+        entity: 'Subjects',
+        entityId: ids.join(','),
+        details: `Bulk deleted ${ids.length} subjects and associated levels/marks`,
+      });
+    }
+    this.notify();
+  }
+
+  public bulkUpdateSubjectsStatus(
+    ids: string[],
+    status: 'active' | 'inactive',
+    actor?: { id: string; name: string; role: string }
+  ) {
+    if (!ids.length) return;
+    this.state.subjects.forEach((s) => {
+      if (ids.includes(s.id)) {
+        s.status = status;
+      }
+    });
+    this.saveLocal();
+    if (actor) {
+      this.addAuditLog({
+        userId: actor.id,
+        userName: actor.name,
+        role: actor.role,
+        action: `Bulk Subject Status: ${status.toUpperCase()}`,
+        entity: 'Subjects',
+        entityId: ids.join(','),
+        details: `Updated status to ${status} for ${ids.length} subjects`,
+      });
+    }
+    this.notify();
+  }
+
+  public bulkAssignSubjectsTeacher(
+    ids: string[],
+    teacherId: string | undefined,
+    actor?: { id: string; name: string; role: string }
+  ) {
+    if (!ids.length) return;
+    const targetTeacher = teacherId ? this.state.teachers.find((t) => t.id === teacherId) : null;
+    this.state.subjects.forEach((s) => {
+      if (ids.includes(s.id)) {
+        s.assignedTeacherId = teacherId || undefined;
+      }
+    });
+    this.saveLocal();
+    if (actor) {
+      this.addAuditLog({
+        userId: actor.id,
+        userName: actor.name,
+        role: actor.role,
+        action: 'Bulk Assign Teacher to Subjects',
+        entity: 'Subjects',
+        entityId: ids.join(','),
+        details: `Assigned ${targetTeacher?.name || 'None'} to ${ids.length} subjects`,
+      });
+    }
+    this.notify();
   }
 
   // --- AUDIT LOG ---
@@ -1969,6 +2316,10 @@ class DataService {
 
     this.saveMarks(payload, defaultActor);
     return marks.length;
+  }
+
+  public getLastSyncTime(): string | null {
+    return this.lastSyncTime;
   }
 
   // Reset to initial seed demo

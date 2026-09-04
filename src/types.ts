@@ -98,6 +98,11 @@ export interface AcademicYear {
   isCurrent: boolean;
 }
 
+export interface SystemLockSettings {
+  isLevelAddingLocked: boolean;
+  isMarkEntryLocked: boolean;
+}
+
 export interface StudentSubjectSummary {
   studentId: string;
   admissionNumber: string;

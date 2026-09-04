@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { dataService } from '../../services/db';
 import { ThemeToggle } from '../common/ThemeToggle';
@@ -9,22 +9,24 @@ import {
   CheckCircle,
   AlertCircle,
   ChevronRight,
-  Database,
-  Cloud,
-  RefreshCw,
   ShieldCheck,
   LogOut,
   User,
   GraduationCap,
+  Menu,
 } from 'lucide-react';
 import { Modal } from '../common/Modal';
 import type { NavSection } from './Sidebar';
 
 interface NavbarProps {
   currentSection?: NavSection;
+  onToggleSidebar?: () => void;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({ currentSection = 'admin-dashboard' }) => {
+export const Navbar: React.FC<NavbarProps> = ({
+  currentSection = 'admin-dashboard',
+  onToggleSidebar,
+}) => {
   const {
     currentUser,
     role,
@@ -35,41 +37,11 @@ export const Navbar: React.FC<NavbarProps> = ({ currentSection = 'admin-dashboar
   } = useAuth();
 
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
-  const [isFirebaseModalOpen, setIsFirebaseModalOpen] = useState(false);
-  const [isSyncing, setIsSyncing] = useState(false);
-  const [syncFeedback, setSyncFeedback] = useState<string | null>(null);
-  const [firebaseInfo, setFirebaseInfo] = useState(() => dataService.getFirebaseInfo());
-
-  useEffect(() => {
-    const unsub = dataService.subscribe(() => {
-      setFirebaseInfo(dataService.getFirebaseInfo());
-    });
-    return unsub;
-  }, []);
-
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [passwordMsg, setPasswordMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   const academicYears = dataService.getState().academicYears;
-
-  const handleManualSync = async () => {
-    setIsSyncing(true);
-    setSyncFeedback(null);
-    try {
-      const ok = await dataService.syncWithFirestore();
-      if (ok) {
-        setSyncFeedback('Successfully synchronized with Firebase Firestore');
-      } else {
-        setSyncFeedback('Synchronized with local storage and pending cloud connection');
-      }
-    } catch {
-      setSyncFeedback('Cloud sync attempted; changes preserved locally');
-    } finally {
-      setIsSyncing(false);
-      setTimeout(() => setSyncFeedback(null), 3000);
-    }
-  };
 
   const handlePasswordSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -146,9 +118,19 @@ export const Navbar: React.FC<NavbarProps> = ({ currentSection = 'admin-dashboar
   };
 
   return (
-    <header className="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-4 sm:px-6 lg:px-8 flex items-center justify-between shrink-0 z-20 transition-colors duration-200">
-      {/* Breadcrumb Hierarchy */}
-      <div className="flex items-center gap-2.5 text-sm font-medium text-slate-500 dark:text-slate-400 min-w-0">
+    <header className="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-3 sm:px-6 lg:px-8 flex items-center justify-between shrink-0 z-20 transition-colors duration-200">
+      {/* Mobile Hamburger & Breadcrumb Hierarchy */}
+      <div className="flex items-center gap-2 sm:gap-2.5 text-sm font-medium text-slate-500 dark:text-slate-400 min-w-0">
+        {onToggleSidebar && (
+          <button
+            type="button"
+            onClick={onToggleSidebar}
+            className="p-1.5 -ml-1 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-md md:hidden cursor-pointer"
+            aria-label="Toggle navigation sidebar"
+          >
+            <Menu className="w-5 h-5" />
+          </button>
+        )}
         <span className="hover:text-indigo-600 dark:hover:text-indigo-400 cursor-pointer hidden sm:inline text-slate-500 dark:text-slate-400 font-semibold tracking-tight">
           DHDC CCE Portal
         </span>
@@ -159,9 +141,9 @@ export const Navbar: React.FC<NavbarProps> = ({ currentSection = 'admin-dashboar
       </div>
 
       {/* Action Controls & Fast Demo Switcher */}
-      <div className="flex items-center gap-2 sm:gap-3">
+      <div className="flex items-center gap-1.5 sm:gap-3">
         {/* Academic Year Selector */}
-        <div className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-md text-xs font-semibold text-slate-700 dark:text-slate-200">
+        <div className="flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1.5 bg-slate-50 dark:bg-slate-800/90 border border-slate-200 dark:border-slate-700 rounded-md text-xs font-semibold text-slate-700 dark:text-slate-200">
           <Calendar className="w-3.5 h-3.5 text-slate-400 dark:text-slate-500" />
           <span className="text-slate-400 dark:text-slate-500 text-[11px] uppercase font-bold tracking-wider hidden md:inline">Year:</span>
           <select
@@ -204,20 +186,6 @@ export const Navbar: React.FC<NavbarProps> = ({ currentSection = 'admin-dashboar
             </div>
           )}
         </div>
-
-        {/* Firebase Cloud Status Indicator */}
-        <button
-          onClick={() => setIsFirebaseModalOpen(true)}
-          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/80 hover:bg-emerald-100 dark:hover:bg-emerald-900/50 text-emerald-800 dark:text-emerald-300 text-xs font-semibold transition cursor-pointer"
-          title="Firebase Firestore Cloud Connected - Click for details"
-        >
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-          </span>
-          <Database className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
-          <span className="hidden xl:inline">Firebase Connected</span>
-        </button>
 
         {/* Light / Dark Mode Toggle Button */}
         <ThemeToggle showLabel={false} />
@@ -325,80 +293,6 @@ export const Navbar: React.FC<NavbarProps> = ({ currentSection = 'admin-dashboar
             </button>
           </div>
         </form>
-      </Modal>
-
-      {/* Firebase Cloud Connection Modal */}
-      <Modal
-        isOpen={isFirebaseModalOpen}
-        onClose={() => setIsFirebaseModalOpen(false)}
-        title="Firebase Cloud Database Status"
-        maxWidth="md"
-      >
-        <div className="space-y-4">
-          <div className="flex items-center gap-3 p-3.5 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-900">
-            <div className="p-2 bg-emerald-100 rounded-full shrink-0">
-              <Cloud className="w-5 h-5 text-emerald-700" />
-            </div>
-            <div>
-              <div className="text-sm font-bold flex items-center gap-2">
-                <span>Connected to Cloud Firestore</span>
-                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-200 text-emerald-800">
-                  Active
-                </span>
-              </div>
-              <p className="text-xs text-emerald-700 mt-0.5">
-                All changes to evaluation levels, subjects, classes, student marks, and audit logs synchronize with Google Cloud Firestore.
-              </p>
-            </div>
-          </div>
-
-          <div className="space-y-2.5 text-xs">
-            <div className="p-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-md flex justify-between items-center">
-              <span className="font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-[10px]">Database ID:</span>
-              <span className="font-mono font-bold text-indigo-700 dark:text-indigo-400 text-right truncate max-w-[220px]" title={firebaseInfo.databaseId}>
-                {firebaseInfo.databaseId}
-              </span>
-            </div>
-
-            <div className="p-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-md flex justify-between items-center">
-              <span className="font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-[10px]">Project ID:</span>
-              <span className="font-mono text-slate-700 dark:text-slate-200">{firebaseInfo.projectId}</span>
-            </div>
-
-            <div className="p-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-md flex justify-between items-center">
-              <span className="font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-[10px]">Last Synced:</span>
-              <span className="font-mono text-slate-700 dark:text-slate-200">{firebaseInfo.lastSyncTime || 'Just now'}</span>
-            </div>
-
-            <div className="p-2.5 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-md flex justify-between items-center">
-              <span className="font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-[10px]">Security Rules:</span>
-              <span className="font-semibold text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
-                <ShieldCheck className="w-3.5 h-3.5" /> Deployed & Verified
-              </span>
-            </div>
-          </div>
-
-          {syncFeedback && (
-            <div className="p-2.5 bg-indigo-50 border border-indigo-200 text-indigo-800 text-xs rounded-md flex items-center gap-2">
-              <CheckCircle className="w-4 h-4 text-indigo-600 shrink-0" />
-              <span>{syncFeedback}</span>
-            </div>
-          )}
-
-          <div className="flex items-center justify-between pt-3 border-t border-slate-200">
-            <span className="text-[11px] text-slate-400">
-              Auto-syncs on every modification
-            </span>
-            <button
-              onClick={handleManualSync}
-              disabled={isSyncing}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white rounded-md text-xs font-semibold shadow-xs transition"
-            >
-              <RefreshCw className={`w-3.5 h-3.5 ${isSyncing ? 'animate-spin' : ''}`} />
-              {isSyncing ? 'Syncing...' : 'Sync with Firestore Now'}
-            </button>
-          </div>
-        </div>
       </Modal>
     </header>
   );

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { dataService } from '../../services/db';
 import { useAuth } from '../../context/AuthContext';
 import type { Student } from '../../types';
+import { calculateCCETotal } from '../../utils/calculations';
 import {
   Search,
   Plus,
@@ -11,6 +12,12 @@ import {
   CheckCircle,
   AlertCircle,
   Users,
+  BookOpen,
+  Award,
+  CheckSquare,
+  X,
+  Layers,
+  Check,
 } from 'lucide-react';
 import { Modal } from '../common/Modal';
 import { ConfirmDialog } from '../common/ConfirmDialog';
@@ -27,6 +34,11 @@ export const StudentManagement: React.FC = () => {
   const [selectedStatusFilter, setSelectedStatusFilter] = useState('ALL');
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 8;
+
+  // Bulk Selection State
+  const [selectedStudentIds, setSelectedStudentIds] = useState<string[]>([]);
+  const [bulkTargetClassId, setBulkTargetClassId] = useState<string>('');
+  const [isBulkDeleteModalOpen, setIsBulkDeleteModalOpen] = useState(false);
 
   // Modals state
   const [isAddEditModalOpen, setIsAddEditModalOpen] = useState(false);
@@ -193,6 +205,68 @@ export const StudentManagement: React.FC = () => {
     setRerender((v) => v + 1);
   };
 
+  // Bulk Action Handlers
+  const handleToggleSelectAll = () => {
+    if (selectedStudentIds.length === paginatedStudents.length && paginatedStudents.length > 0) {
+      setSelectedStudentIds([]);
+    } else {
+      setSelectedStudentIds(paginatedStudents.map((s) => s.id));
+    }
+  };
+
+  const handleSelectAllFiltered = () => {
+    setSelectedStudentIds(filteredStudents.map((s) => s.id));
+  };
+
+  const handleToggleRow = (id: string) => {
+    setSelectedStudentIds((prev) =>
+      prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]
+    );
+  };
+
+  const handleBulkActivate = () => {
+    const actor = currentUser
+      ? { id: currentUser.id, name: currentUser.name, role: currentUser.role }
+      : undefined;
+    dataService.bulkUpdateStudentsStatus(selectedStudentIds, 'active', actor);
+    setSelectedStudentIds([]);
+    setRerender((v) => v + 1);
+  };
+
+  const handleBulkDeactivate = () => {
+    const actor = currentUser
+      ? { id: currentUser.id, name: currentUser.name, role: currentUser.role }
+      : undefined;
+    dataService.bulkUpdateStudentsStatus(selectedStudentIds, 'inactive', actor);
+    setSelectedStudentIds([]);
+    setRerender((v) => v + 1);
+  };
+
+  const handleBulkAssignClass = () => {
+    if (!bulkTargetClassId) return;
+    const actor = currentUser
+      ? { id: currentUser.id, name: currentUser.name, role: currentUser.role }
+      : undefined;
+    dataService.bulkAssignStudentsClass(selectedStudentIds, bulkTargetClassId, actor);
+    setSelectedStudentIds([]);
+    setBulkTargetClassId('');
+    setRerender((v) => v + 1);
+  };
+
+  const handleBulkDeleteConfirm = () => {
+    const actor = currentUser
+      ? { id: currentUser.id, name: currentUser.name, role: currentUser.role }
+      : undefined;
+    dataService.bulkDeleteStudents(selectedStudentIds, actor);
+    setSelectedStudentIds([]);
+    setIsBulkDeleteModalOpen(false);
+    setRerender((v) => v + 1);
+  };
+
+  const isAllSelected =
+    paginatedStudents.length > 0 &&
+    paginatedStudents.every((s) => selectedStudentIds.includes(s.id));
+
   return (
     <div className="space-y-6 animate-fadeIn">
       {/* Header */}
@@ -215,6 +289,83 @@ export const StudentManagement: React.FC = () => {
           Add Student
         </button>
       </div>
+
+      {/* Bulk Actions Toolbar (Visible when rows are selected) */}
+      {selectedStudentIds.length > 0 && (
+        <div className="p-3 sm:p-4 rounded-xl bg-blue-50 dark:bg-blue-950/60 border border-blue-200 dark:border-blue-800 flex flex-wrap items-center justify-between gap-3 animate-in fade-in duration-150">
+          <div className="flex items-center gap-2">
+            <span className="px-2.5 py-1 rounded-md bg-blue-600 text-white text-xs font-bold font-mono">
+              {selectedStudentIds.length} Selected
+            </span>
+            <span className="text-xs text-blue-900 dark:text-blue-200 font-medium">
+              Actions for selected students:
+            </span>
+            {selectedStudentIds.length < filteredStudents.length && (
+              <button
+                type="button"
+                onClick={handleSelectAllFiltered}
+                className="text-xs text-blue-700 dark:text-blue-300 underline hover:text-blue-900 cursor-pointer font-medium"
+              >
+                Select all {filteredStudents.length} filtered
+              </button>
+            )}
+          </div>
+
+          <div className="flex items-center flex-wrap gap-2">
+            <button
+              onClick={handleBulkActivate}
+              className="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-lg shadow-xs transition cursor-pointer"
+            >
+              Set Active
+            </button>
+            <button
+              onClick={handleBulkDeactivate}
+              className="px-2.5 py-1.5 bg-slate-600 hover:bg-slate-700 text-white text-xs font-semibold rounded-lg shadow-xs transition cursor-pointer"
+            >
+              Set Inactive
+            </button>
+
+            {/* Reassign class */}
+            <div className="flex items-center gap-1.5">
+              <select
+                value={bulkTargetClassId}
+                onChange={(e) => setBulkTargetClassId(e.target.value)}
+                className="px-2 py-1.5 text-xs bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-700 rounded-lg text-slate-800 dark:text-slate-200"
+              >
+                <option value="">Move to Class...</option>
+                {state.classes.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+              <button
+                onClick={handleBulkAssignClass}
+                disabled={!bulkTargetClassId}
+                className="px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-xs font-semibold rounded-lg shadow-xs transition cursor-pointer"
+              >
+                Move
+              </button>
+            </div>
+
+            <button
+              onClick={() => setIsBulkDeleteModalOpen(true)}
+              className="px-2.5 py-1.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold rounded-lg shadow-xs transition cursor-pointer flex items-center gap-1"
+            >
+              <Trash2 className="w-3.5 h-3.5" />
+              Delete Selected
+            </button>
+
+            <button
+              onClick={() => setSelectedStudentIds([])}
+              className="p-1.5 text-slate-500 hover:text-slate-700 dark:hover:text-slate-200 rounded-lg hover:bg-blue-100/60 dark:hover:bg-blue-900/40 cursor-pointer"
+              title="Clear selection"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Filter and Search Bar */}
       <div className="bg-white dark:bg-slate-800/80 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-xs flex flex-col md:flex-row gap-4 justify-between items-center">
@@ -280,7 +431,16 @@ export const StudentManagement: React.FC = () => {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-slate-200 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-900/50 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-                <th className="py-3.5 px-4 w-16 text-center">SI. No</th>
+                <th className="py-3.5 px-3 w-10 text-center">
+                  <input
+                    type="checkbox"
+                    checked={isAllSelected}
+                    onChange={handleToggleSelectAll}
+                    aria-label="Select all students on page"
+                    className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                  />
+                </th>
+                <th className="py-3.5 px-3 w-14 text-center">SI. No</th>
                 <th className="py-3.5 px-4">Admission No</th>
                 <th className="py-3.5 px-4">Name</th>
                 <th className="py-3.5 px-4">Class</th>
@@ -291,7 +451,7 @@ export const StudentManagement: React.FC = () => {
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-sm">
               {paginatedStudents.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-8 text-center text-slate-400">
+                  <td colSpan={7} className="py-8 text-center text-slate-400">
                     No students found matching your filter criteria.
                   </td>
                 </tr>
@@ -299,13 +459,27 @@ export const StudentManagement: React.FC = () => {
                 paginatedStudents.map((std, idx) => {
                   const siNo = (currentPage - 1) * pageSize + idx + 1;
                   const classRoom = state.classes.find((c) => c.id === std.classId);
+                  const isSelected = selectedStudentIds.includes(std.id);
 
                   return (
                     <tr
                       key={std.id}
-                      className="hover:bg-slate-50/60 dark:hover:bg-slate-800/60 transition-colors"
+                      className={`transition-colors ${
+                        isSelected
+                          ? 'bg-blue-50/70 dark:bg-blue-950/40'
+                          : 'hover:bg-slate-50/60 dark:hover:bg-slate-800/60'
+                      }`}
                     >
-                      <td className="py-3.5 px-4 text-center font-mono text-xs text-slate-500">
+                      <td className="py-3.5 px-3 text-center">
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => handleToggleRow(std.id)}
+                          aria-label={`Select student ${std.name}`}
+                          className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500 cursor-pointer"
+                        />
+                      </td>
+                      <td className="py-3.5 px-3 text-center font-mono text-xs text-slate-500">
                         {siNo}
                       </td>
                       <td className="py-3.5 px-4 font-mono font-semibold text-blue-600 dark:text-blue-400">
@@ -570,77 +744,262 @@ export const StudentManagement: React.FC = () => {
         </form>
       </Modal>
 
-      {/* View Student Details Modal */}
-      {viewingStudent && (
-        <Modal
-          isOpen={true}
-          onClose={() => setViewingStudent(null)}
-          title={`Student Profile: ${viewingStudent.name}`}
-          maxWidth="md"
-        >
-          <div className="space-y-4 text-sm">
-            <div className="flex items-center justify-between p-3 bg-slate-50 dark:bg-slate-800 rounded-xl">
-              <div>
-                <span className="text-xs text-slate-400">Admission No</span>
-                <div className="text-lg font-mono font-bold text-blue-600 dark:text-blue-400">
-                  {viewingStudent.admissionNumber}
+      {/* View Student Details Modal with Subjects and Marks */}
+      {viewingStudent && (() => {
+        const studentClass = state.classes.find((c) => c.id === viewingStudent.classId);
+        const studentSubjects = state.subjects.filter((s) => s.classId === viewingStudent.classId);
+
+        // Calculate aggregate statistics for this student
+        let grandMaxMark = 0;
+        let grandObtainedMark = 0;
+        let grandFactor30Total = 0;
+        let evaluatedSubjectsCount = 0;
+
+        const subjectEvaluations = studentSubjects.map((subject) => {
+          const teacher = state.teachers.find((t) => t.id === subject.assignedTeacherId);
+          const levels = state.evaluationLevels
+            .filter((l) => l.subjectId === subject.id && l.status === 'active')
+            .sort((a, b) => a.displayOrder - b.displayOrder);
+
+          const subjectMarks = state.marks.filter(
+            (m) => m.studentId === viewingStudent.id && m.subjectId === subject.id
+          );
+
+          const markItems = levels.map((lvl) => {
+            const m = subjectMarks.find((sm) => sm.evaluationLevelId === lvl.id);
+            return {
+              maximumMark: lvl.maximumMark || lvl.maxMark || 25,
+              obtainedMark: m?.obtainedMark ?? null,
+            };
+          });
+
+          const cceCalc = calculateCCETotal(markItems);
+          const grade =
+            cceCalc.percentage >= 90
+              ? 'A+'
+              : cceCalc.percentage >= 80
+              ? 'A'
+              : cceCalc.percentage >= 70
+              ? 'B+'
+              : cceCalc.percentage >= 60
+              ? 'B'
+              : cceCalc.percentage >= 50
+              ? 'C+'
+              : cceCalc.percentage >= 40
+              ? 'C'
+              : 'D';
+
+          if (cceCalc.completedCount > 0) {
+            evaluatedSubjectsCount++;
+            grandMaxMark += cceCalc.totalMaximum;
+            grandObtainedMark += cceCalc.totalObtained;
+            grandFactor30Total += cceCalc.finalMarkOutOf30;
+          }
+
+          return {
+            subject,
+            teacher,
+            levels,
+            subjectMarks,
+            cceCalc,
+            grade,
+          };
+        });
+
+        const overallPercentage =
+          grandMaxMark > 0 ? ((grandObtainedMark / grandMaxMark) * 100).toFixed(1) : '—';
+
+        return (
+          <Modal
+            isOpen={true}
+            onClose={() => setViewingStudent(null)}
+            title={`Student CCE Dossier: ${viewingStudent.name}`}
+            maxWidth="2xl"
+          >
+            <div className="space-y-5 text-sm max-h-[75vh] overflow-y-auto pr-1">
+              {/* Student Identification Banner */}
+              <div className="p-4 bg-slate-900 text-white rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+                <div className="flex items-center gap-3.5">
+                  <div className="w-12 h-12 bg-blue-600 rounded-xl flex items-center justify-center font-bold font-mono text-lg text-white shadow-xs">
+                    {viewingStudent.name.slice(0, 2).toUpperCase()}
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-base font-bold text-white">{viewingStudent.name}</h3>
+                      <Badge variant={viewingStudent.status === 'active' ? 'success' : 'neutral'}>
+                        {viewingStudent.status.toUpperCase()}
+                      </Badge>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-300 mt-0.5">
+                      <span>Ad. No: <strong className="font-mono text-blue-300">{viewingStudent.admissionNumber}</strong></span>
+                      <span>•</span>
+                      <span>Class: <strong>{studentClass ? studentClass.name : 'Unassigned'}</strong></span>
+                      <span>•</span>
+                      <span>User: <span className="font-mono">@{viewingStudent.username}</span></span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-800">
+                  <div className="text-right">
+                    <span className="text-[10px] uppercase text-slate-400 font-semibold block">Overall Score</span>
+                    <span className="text-xl font-bold font-mono text-emerald-400">
+                      {grandFactor30Total.toFixed(1)} <span className="text-xs text-slate-400">/ 30</span>
+                    </span>
+                  </div>
                 </div>
               </div>
-              <Badge variant={viewingStudent.status === 'active' ? 'success' : 'neutral'}>
-                {viewingStudent.status.toUpperCase()}
-              </Badge>
-            </div>
 
-            <div className="grid grid-cols-2 gap-3 text-xs">
-              <div>
-                <span className="text-slate-400">Full Name</span>
-                <p className="font-semibold text-slate-800 dark:text-slate-200">
-                  {viewingStudent.name}
-                </p>
+              {/* Quick Details Grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs p-3 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">
+                <div>
+                  <span className="text-slate-500 dark:text-slate-400 block">Class & Year</span>
+                  <span className="font-semibold text-slate-800 dark:text-slate-200">
+                    {studentClass ? `${studentClass.name} (${studentClass.academicYear})` : 'None'}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-slate-500 dark:text-slate-400 block">Contact Phone</span>
+                  <span className="font-semibold text-slate-800 dark:text-slate-200">
+                    {viewingStudent.phone || '—'}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-slate-500 dark:text-slate-400 block">Contact Email</span>
+                  <span className="font-semibold text-slate-800 dark:text-slate-200 truncate block">
+                    {viewingStudent.email || '—'}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-slate-500 dark:text-slate-400 block">Enrolled Date</span>
+                  <span className="font-semibold text-slate-800 dark:text-slate-200">
+                    {viewingStudent.createdDate || '—'}
+                  </span>
+                </div>
               </div>
-              <div>
-                <span className="text-slate-400">Class</span>
-                <p className="font-semibold text-slate-800 dark:text-slate-200">
-                  {state.classes.find((c) => c.id === viewingStudent.classId)?.name || 'Unassigned'}
-                </p>
-              </div>
-              <div>
-                <span className="text-slate-400">Login Username</span>
-                <p className="font-semibold text-slate-800 dark:text-slate-200">
-                  @{viewingStudent.username}
-                </p>
-              </div>
-              <div>
-                <span className="text-slate-400">Enrolled Date</span>
-                <p className="font-semibold text-slate-800 dark:text-slate-200">
-                  {viewingStudent.createdDate}
-                </p>
-              </div>
-              <div>
-                <span className="text-slate-400">Email</span>
-                <p className="font-semibold text-slate-800 dark:text-slate-200">
-                  {viewingStudent.email || '—'}
-                </p>
-              </div>
-              <div>
-                <span className="text-slate-400">Phone</span>
-                <p className="font-semibold text-slate-800 dark:text-slate-200">
-                  {viewingStudent.phone || '—'}
-                </p>
-              </div>
-            </div>
 
-            <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-end">
-              <button
-                onClick={() => setViewingStudent(null)}
-                className="px-4 py-1.5 text-xs font-medium bg-slate-100 hover:bg-slate-200 rounded-lg text-slate-700"
-              >
-                Close
-              </button>
+              {/* Subjects & Marks Header */}
+              <div className="flex items-center justify-between pt-1">
+                <div className="flex items-center gap-2">
+                  <BookOpen className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
+                  <h4 className="font-bold text-slate-900 dark:text-white">
+                    Subjects & Continuous Comprehensive Evaluation (CCE)
+                  </h4>
+                </div>
+                <span className="text-xs text-slate-500">
+                  {studentSubjects.length} Registered Subjects ({evaluatedSubjectsCount} with marks)
+                </span>
+              </div>
+
+              {/* Subject Breakdown List */}
+              {studentSubjects.length === 0 ? (
+                <div className="p-8 text-center text-slate-400 bg-slate-50 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800">
+                  No subjects configured for this class yet.
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {subjectEvaluations.map(({ subject, teacher, levels, subjectMarks, cceCalc, grade }) => (
+                    <div
+                      key={subject.id}
+                      className="p-4 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-xs"
+                    >
+                      {/* Subject Header */}
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 mb-3 border-b border-slate-100 dark:border-slate-800">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-slate-900 dark:text-white text-sm">
+                              {subject.name}
+                            </span>
+                            <span className="text-[11px] font-mono font-semibold px-2 py-0.5 rounded bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-100 dark:border-indigo-800">
+                              {subject.code}
+                            </span>
+                          </div>
+                          <span className="text-xs text-slate-500 mt-0.5 block">
+                            Teacher: {teacher?.name || 'Not assigned'}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-3">
+                          <div className="text-right">
+                            <span className="text-[10px] uppercase text-slate-400 block font-semibold">Factor 30 Score</span>
+                            <span className="font-mono font-bold text-sm text-indigo-600 dark:text-indigo-400">
+                              {cceCalc.finalMarkOutOf30.toFixed(1)} / 30
+                            </span>
+                          </div>
+                          <div className="px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 font-bold text-xs">
+                            {grade || '—'}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Levels Table */}
+                      {levels.length === 0 ? (
+                        <div className="text-xs text-slate-400 italic py-2">
+                          No evaluation levels defined for this subject.
+                        </div>
+                      ) : (
+                        <div className="overflow-x-auto">
+                          <table className="w-full text-xs text-left">
+                            <thead>
+                              <tr className="text-slate-400 border-b border-slate-100 dark:border-slate-800">
+                                <th className="pb-2 font-medium">Evaluation Level</th>
+                                <th className="pb-2 text-center font-medium">Max Mark</th>
+                                <th className="pb-2 text-center font-medium">Obtained</th>
+                                <th className="pb-2 text-right font-medium">Score %</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100 dark:divide-slate-800/60">
+                              {levels.map((lvl) => {
+                                const markRec = subjectMarks.find((m) => m.evaluationLevelId === lvl.id);
+                                const hasMark = markRec !== undefined && markRec.obtainedMark !== null;
+                                const max = lvl.maximumMark || lvl.maxMark || 25;
+                                const obtained = hasMark ? markRec.obtainedMark : null;
+                                const pct = hasMark ? (((obtained as number) / max) * 100).toFixed(0) : '—';
+
+                                return (
+                                  <tr key={lvl.id} className="hover:bg-slate-50/50 dark:hover:bg-slate-800/40">
+                                    <td className="py-2 text-slate-700 dark:text-slate-300 font-medium">
+                                      {lvl.name}
+                                    </td>
+                                    <td className="py-2 text-center text-slate-500 font-mono">
+                                      {max}
+                                    </td>
+                                    <td className="py-2 text-center font-mono">
+                                      {hasMark ? (
+                                        <span className="font-bold text-slate-900 dark:text-white">
+                                          {obtained}
+                                        </span>
+                                      ) : (
+                                        <span className="text-slate-400 italic">Not entered</span>
+                                      )}
+                                    </td>
+                                    <td className="py-2 text-right font-mono font-medium text-slate-600 dark:text-slate-400">
+                                      {pct !== '—' ? `${pct}%` : '—'}
+                                    </td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <div className="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-end">
+                <button
+                  onClick={() => setViewingStudent(null)}
+                  className="px-5 py-2 text-xs font-semibold bg-slate-800 hover:bg-slate-900 text-white rounded-lg shadow-xs cursor-pointer"
+                >
+                  Close Dossier
+                </button>
+              </div>
             </div>
-          </div>
-        </Modal>
-      )}
+          </Modal>
+        );
+      })()}
 
       {/* Delete Confirmation Dialog */}
       {deletingStudent && (
@@ -651,6 +1010,19 @@ export const StudentManagement: React.FC = () => {
           title={`Delete Student: ${deletingStudent.name}`}
           message={`Are you sure you want to remove ${deletingStudent.name} (Ad.No: ${deletingStudent.admissionNumber})?\n\nThis will remove their student record and all entered evaluation marks.`}
           confirmText="Yes, Delete Student"
+          isDestructive={true}
+        />
+      )}
+
+      {/* Bulk Delete Confirmation Dialog */}
+      {isBulkDeleteModalOpen && (
+        <ConfirmDialog
+          isOpen={true}
+          onClose={() => setIsBulkDeleteModalOpen(false)}
+          onConfirm={handleBulkDeleteConfirm}
+          title={`Delete ${selectedStudentIds.length} Students`}
+          message={`Are you sure you want to delete the ${selectedStudentIds.length} selected students? This will permanently remove their records, user logins, and all entered evaluation marks.`}
+          confirmText="Yes, Delete Selected"
           isDestructive={true}
         />
       )}
