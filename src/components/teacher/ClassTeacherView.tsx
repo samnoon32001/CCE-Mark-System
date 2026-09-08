@@ -12,12 +12,16 @@ import {
   BookOpen,
   Eye,
   AlertCircle,
+  FileText,
+  Edit3,
 } from 'lucide-react';
 import { Badge } from '../common/Badge';
+import { AcademicPerformanceDossier } from '../student/AcademicPerformanceDossier';
 
 export const ClassTeacherView: React.FC = () => {
   const { currentUser, role } = useAuth();
   const state = dataService.getState();
+  const [selectedDossierStudentId, setSelectedDossierStudentId] = useState<string | null>(null);
 
   const teacherProfile = state.teachers.find(
     (t) => t.username === currentUser?.username || t.email === currentUser?.email
@@ -263,12 +267,13 @@ export const ClassTeacherView: React.FC = () => {
                   Overall %
                 </th>
                 <th className="py-3 px-3 text-center min-w-[90px]">Status</th>
+                <th className="py-3 px-3 text-center min-w-[120px]">Dossier & Notes</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100 dark:divide-slate-800 text-xs">
               {studentConsolidatedData.length === 0 ? (
                 <tr>
-                  <td colSpan={5 + classSubjects.length} className="py-8 text-center text-slate-400">
+                  <td colSpan={6 + classSubjects.length} className="py-8 text-center text-slate-400">
                     No students found in this class.
                   </td>
                 </tr>
@@ -301,7 +306,12 @@ export const ClassTeacherView: React.FC = () => {
                     </td>
 
                     <td className="py-2.5 px-4 font-semibold text-slate-800 dark:text-slate-100">
-                      {row.student.name}
+                      <button
+                        onClick={() => setSelectedDossierStudentId(row.student.id)}
+                        className="hover:text-indigo-600 dark:hover:text-indigo-400 hover:underline cursor-pointer text-left"
+                      >
+                        {row.student.name}
+                      </button>
                     </td>
 
                     {/* Subject Scores */}
@@ -347,6 +357,18 @@ export const ClassTeacherView: React.FC = () => {
                         {row.overallPercentage >= 40 ? 'Passed' : 'Needs Support'}
                       </Badge>
                     </td>
+
+                    {/* Actions: Dossier & Notes */}
+                    <td className="py-2.5 px-3 text-center">
+                      <button
+                        onClick={() => setSelectedDossierStudentId(row.student.id)}
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-semibold text-indigo-700 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100 rounded-lg transition cursor-pointer"
+                        title="View academic exam breakdown and manage Class Teacher Notes"
+                      >
+                        <FileText className="w-3.5 h-3.5 text-indigo-600" />
+                        Dossier
+                      </button>
+                    </td>
                   </tr>
                 ))
               )}
@@ -354,6 +376,19 @@ export const ClassTeacherView: React.FC = () => {
           </table>
         </div>
       </div>
+
+      {/* Student Academic Dossier & Notes Modal */}
+      {selectedDossierStudentId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/60 backdrop-blur-xs overflow-y-auto">
+          <div className="w-full max-w-5xl bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-2xl my-auto max-h-[90vh] overflow-y-auto">
+            <AcademicPerformanceDossier
+              studentId={selectedDossierStudentId}
+              isModal={true}
+              onClose={() => setSelectedDossierStudentId(null)}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

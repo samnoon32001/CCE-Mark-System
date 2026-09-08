@@ -102,6 +102,56 @@ export const ReportsView: React.FC = () => {
     exportToExcel(rows, `Institutional_Academic_Performance_Report.xlsx`, 'Class Analytics');
   };
 
+  const handleExportStudentObservations = () => {
+    const activeStudents = state.students.filter(
+      (s) => (selectedClassId === 'ALL' || s.classId === selectedClassId) && s.status === 'active'
+    );
+
+    const rows = activeStudents.map((std) => {
+      const cls = state.classes.find((c) => c.id === std.classId);
+      const subjects = state.subjects.filter((sub) => sub.classId === std.classId && sub.status === 'active');
+      let totalScore = 0;
+      subjects.forEach((sub) => {
+        const levels = state.evaluationLevels.filter((l) => l.subjectId === sub.id && l.status === 'active');
+        const marks = state.marks.filter((m) => m.studentId === std.id && m.subjectId === sub.id);
+        const cce = calculateCCETotal(
+          levels.map((lvl) => {
+            const m = marks.find((mark) => mark.evaluationLevelId === lvl.id);
+            return {
+              levelId: lvl.id,
+              maxMark: lvl.maxMark,
+              obtainedMark: m ? m.obtainedMark : 0,
+            };
+          })
+        );
+        totalScore += cce.finalMarkOutOf30;
+      });
+      const maxScore = subjects.length * 30;
+      const pct = maxScore > 0 ? Number(((totalScore / maxScore) * 100).toFixed(1)) : 0;
+
+      return {
+        'Admission No': std.admissionNumber,
+        'Student Name': std.name,
+        Class: cls ? cls.name : 'Unknown',
+        'Academic Year': cls ? cls.academicYear : '',
+        'CCE Total Score (30 scale)': totalScore,
+        'Max Possible': maxScore,
+        'Overall Percentage': `${pct}%`,
+        Status: pct >= 40 ? 'Qualified' : 'Needs Support',
+        'Teacher Strengths Remark': std.classTeacherNotes?.strengths || 'N/A',
+        'Teacher Areas For Improvement': std.classTeacherNotes?.areasOfImprovement || 'N/A',
+        'Teacher Recommendations': std.classTeacherNotes?.recommendations || 'N/A',
+        'Counseling Notes': std.classTeacherNotes?.counselingNotes || 'N/A',
+        'Remarks Updated By': std.classTeacherNotes?.updatedByName || 'N/A',
+        'Remarks Date': std.classTeacherNotes?.lastUpdated
+          ? new Date(std.classTeacherNotes.lastUpdated).toLocaleDateString()
+          : 'N/A',
+      };
+    });
+
+    exportToExcel(rows, `Student_Academic_And_Observations_Register.xlsx`, 'Students Register');
+  };
+
   return (
     <div className="space-y-6 animate-fadeIn">
       {/* Header */}
@@ -116,17 +166,26 @@ export const ReportsView: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <button
             onClick={handleExportInstitutionalReport}
-            className="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-xs transition"
+            className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-xs transition"
+            title="Export class cohort averages and pass rates"
           >
             <Download className="w-4 h-4" />
-            Export Report (Excel)
+            Export Class Analytics (Excel)
+          </button>
+          <button
+            onClick={handleExportStudentObservations}
+            className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-xs transition"
+            title="Export student grades and class teacher observations register"
+          >
+            <Download className="w-4 h-4" />
+            Export Student Dossier & Notes (Excel)
           </button>
           <button
             onClick={() => window.print()}
-            className="flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 rounded-xl shadow-xs transition"
+            className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 rounded-xl shadow-xs transition"
           >
             <Printer className="w-4 h-4" />
             Print

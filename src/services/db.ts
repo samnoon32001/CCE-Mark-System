@@ -17,6 +17,22 @@ import type {
   Mark,
   AuditLog,
   AcademicYear,
+  Achievement,
+  BehaviorRecord,
+  ActiveHourSlot,
+  LeaveApplication,
+  AttendanceRecord,
+  AttendanceClearance,
+  ComplaintFeedback,
+  AttendanceRulesConfig,
+  MessageReceiverType,
+  AttendanceStatus,
+  ClassTeacherNotes,
+  LeaveType,
+  LeaveStatus,
+  TimetablePeriodDefinition,
+  DayOfWeek,
+  TimetableSlot,
 } from '../types';
 
 const STORAGE_KEY = 'student_mark_system_db_v1';
@@ -34,6 +50,18 @@ export interface DatabaseState {
   currentAcademicYear: string;
   isLevelAddingLocked?: boolean;
   isMarkEntryLocked?: boolean;
+  achievements: Achievement[];
+  behaviorRecords: BehaviorRecord[];
+  activeHourSlots: ActiveHourSlot[];
+  leaveApplications: LeaveApplication[];
+  attendanceRecords: AttendanceRecord[];
+  attendanceClearances: AttendanceClearance[];
+  complaintsFeedback: ComplaintFeedback[];
+  complaints?: ComplaintFeedback[];
+  allowedReceiverTypes: MessageReceiverType[];
+  attendanceRules: AttendanceRulesConfig;
+  timetablePeriods?: TimetablePeriodDefinition[];
+  timetableSlots?: TimetableSlot[];
 }
 
 // Initial robust seed data matching all requirements
@@ -505,6 +533,33 @@ const INITIAL_STATE: DatabaseState = {
       classId: 'class-10a',
       assignedTeacherId: 'teacher-3',
       status: 'active',
+      trackAttendance: true,
+    },
+    {
+      id: 'sub-10a-ca',
+      name: 'Computer Application',
+      code: 'CA1001',
+      classId: 'class-10a',
+      assignedTeacherId: 'teacher-2',
+      additionalTeacherIds: ['teacher-1'],
+      status: 'active',
+      trackAttendance: true,
+      isSplitSubject: true,
+      splitGroupName: 'Computer Application',
+      enrolledStudentIds: ['std-2001', 'std-2002', 'std-2003'],
+    },
+    {
+      id: 'sub-10a-hum',
+      name: 'Humanities',
+      code: 'HUM1001',
+      classId: 'class-10a',
+      assignedTeacherId: 'teacher-4',
+      additionalTeacherIds: ['teacher-3'],
+      status: 'active',
+      trackAttendance: true,
+      isSplitSubject: true,
+      splitGroupName: 'Humanities',
+      enrolledStudentIds: ['std-2004', 'std-2005', 'std-2006'],
     },
   ],
   evaluationLevels: [
@@ -865,6 +920,339 @@ const INITIAL_STATE: DatabaseState = {
       timestamp: '2025-02-20T16:45:00.000Z',
     },
   ],
+  achievements: [
+    {
+      id: 'ach-1',
+      studentId: 'std-1001',
+      title: 'State Inter-College Elocution Contest',
+      category: 'competition',
+      date: '2025-01-20',
+      description: 'Secured First Prize with distinction representing DHDC in the Inter-College Elocution championship.',
+      positionPrize: '1st Prize & Gold Medal',
+      awardedBy: 'State Higher Education Council',
+      createdDate: '2025-01-21T10:00:00.000Z',
+    },
+    {
+      id: 'ach-2',
+      studentId: 'std-1002',
+      title: 'Annual Athletic Meet 400m Relay',
+      category: 'sports',
+      date: '2025-02-05',
+      description: 'Anchored the team to silver medal victory at the inter-district collegiate athletics meet.',
+      positionPrize: 'Silver Medal (2nd Position)',
+      awardedBy: 'District Collegiate Sports Board',
+      createdDate: '2025-02-06T11:00:00.000Z',
+    },
+  ],
+  behaviorRecords: [
+    {
+      id: 'beh-1',
+      studentId: 'std-1001',
+      type: 'positive',
+      title: 'Exemplary Leadership in Peer Mentoring',
+      description: 'Alice voluntarily organized remedial study sessions for classmates in English literature debate preparation.',
+      recordedBy: 'Mr. Robert Vance',
+      recordedByRole: 'Class Teacher',
+      date: '2025-02-12',
+    },
+    {
+      id: 'beh-2',
+      studentId: 'std-1002',
+      type: 'observation',
+      title: 'Laboratory Discipline Improvement',
+      description: 'Bob demonstrated notable attentiveness and adherence to scientific lab safety protocols.',
+      recordedBy: 'Dr. Albert Stone',
+      recordedByRole: 'Subject Teacher',
+      date: '2025-02-15',
+    },
+  ],
+  activeHourSlots: [
+    { id: 'slot-1', label: 'Morning Session 1', startTime: '07:00', endTime: '09:15', durationMinutes: 135, isActive: true },
+    { id: 'slot-2', label: 'Morning Session 2', startTime: '09:45', endTime: '11:15', durationMinutes: 90, isActive: true },
+    { id: 'slot-3', label: 'Mid-day Session', startTime: '11:25', endTime: '12:55', durationMinutes: 90, isActive: true },
+    { id: 'slot-4', label: 'Afternoon Session 1', startTime: '14:00', endTime: '15:20', durationMinutes: 80, isActive: true },
+    { id: 'slot-5', label: 'Afternoon Session 2', startTime: '15:30', endTime: '16:10', durationMinutes: 40, isActive: true },
+  ],
+  leaveApplications: [
+    {
+      id: 'leave-1',
+      studentId: 'std-1001',
+      studentAdmissionNumber: '1001',
+      studentName: 'Alice Johnson',
+      classId: 'class-8a',
+      leaveType: 'casual',
+      startDate: '2025-02-18',
+      endDate: '2025-02-18',
+      slotsIncluded: ['slot-1', 'slot-2'],
+      totalDurationMinutes: 225,
+      totalDurationFormatted: '3h 45m',
+      reason: 'Family urgent commitment in the morning session.',
+      status: 'arrived',
+      appliedAt: '2025-02-17T18:00:00.000Z',
+      reviewedBy: 'user-teacher-1',
+      reviewedByName: 'Mr. Robert Vance',
+      reviewedAt: '2025-02-18T06:30:00.000Z',
+      hasArrived: true,
+      arrivedAt: '2025-02-18T11:20:00.000Z',
+      remarks: 'Student reported to class teacher at 11:20 AM and marked arrived.',
+    },
+  ],
+  attendanceRecords: [
+    {
+      id: 'att-1001-eng-p1',
+      date: '2025-02-10',
+      classId: 'class-8a',
+      subjectId: 'sub-8a-eng',
+      period: 1,
+      studentId: 'std-1001',
+      status: 'present',
+      markedBy: 'Mr. Robert Vance',
+      markedAt: '2025-02-10T07:15:00.000Z',
+    },
+    {
+      id: 'att-1001-eng-p2',
+      date: '2025-02-12',
+      classId: 'class-8a',
+      subjectId: 'sub-8a-eng',
+      period: 2,
+      studentId: 'std-1001',
+      status: 'academic_leave',
+      markedBy: 'Mr. Robert Vance',
+      markedAt: '2025-02-12T09:50:00.000Z',
+      remarks: 'Attending college debate rehearsal (Counted as Present)',
+    },
+    {
+      id: 'att-1001-eng-p3',
+      date: '2025-02-14',
+      classId: 'class-8a',
+      subjectId: 'sub-8a-eng',
+      period: 3,
+      studentId: 'std-1001',
+      status: 'present',
+      markedBy: 'Mr. Robert Vance',
+      markedAt: '2025-02-14T11:30:00.000Z',
+    },
+    {
+      id: 'att-1002-eng-p1',
+      date: '2025-02-10',
+      classId: 'class-8a',
+      subjectId: 'sub-8a-eng',
+      period: 1,
+      studentId: 'std-1002',
+      status: 'present',
+      markedBy: 'Mr. Robert Vance',
+      markedAt: '2025-02-10T07:15:00.000Z',
+    },
+    {
+      id: 'att-1002-eng-p2',
+      date: '2025-02-12',
+      classId: 'class-8a',
+      subjectId: 'sub-8a-eng',
+      period: 2,
+      studentId: 'std-1002',
+      status: 'late',
+      lateArrivalTime: '10:05 AM',
+      lateReason: 'College bus traffic delay',
+      markedBy: 'Mr. Robert Vance',
+      markedAt: '2025-02-12T10:05:00.000Z',
+    },
+  ],
+  attendanceClearances: [],
+  complaintsFeedback: [
+    {
+      id: 'cmp-1',
+      studentId: 'std-1001',
+      studentAdmissionNumber: '1001',
+      studentName: 'Alice Johnson',
+      classId: 'class-8a',
+      receiverType: 'principal',
+      category: 'academic',
+      title: 'Request for Additional Reference Books in Digital Library',
+      subject: 'Request for Additional Reference Books in Digital Library',
+      message: 'Respected Principal, our department currently has limited copies of the latest linguistics textbooks. Could we request additional digital access licenses?',
+      status: 'resolved',
+      response: 'Dear Alice, we have approved the requisition and added 15 digital licenses to the e-library portal.',
+      respondedBy: 'user-admin',
+      respondedByName: 'Ashiq CP Hudawi (Principal / Admin)',
+      respondedAt: '2025-02-15T14:00:00.000Z',
+      resolvedAt: '2025-02-15T14:00:00.000Z',
+      submittedAt: '2025-02-13T09:30:00.000Z',
+      createdAt: '2025-02-13T09:30:00.000Z',
+    },
+  ],
+  allowedReceiverTypes: [
+    'principal',
+    'academic_assistant',
+    'class_teacher',
+    'hod',
+    'hos',
+    'super_admin',
+  ],
+  attendanceRules: {
+    maxOfficialLeavePercent: 10,
+    maxCasualLeavePercent: 15,
+    maxTotalLeavesPercent: 25,
+    maxOfficialCasualCombinedPercent: 15,
+    minRequiredAttendancePercent: 85,
+    academicLeaveCountedAsPresent: true,
+    clearanceAllowedRoles: ['super_admin', 'Principal', 'HoD', 'HoS', 'Academic Assistant'],
+  },
+  timetablePeriods: [
+    { id: 'p-1', periodNumber: 1, name: 'Period 1', startTime: '07:45', endTime: '08:30' },
+    { id: 'p-2', periodNumber: 2, name: 'Period 2', startTime: '08:30', endTime: '09:15' },
+    { id: 'p-brk-1', periodNumber: 0, name: 'Interval', startTime: '09:15', endTime: '09:30', isBreak: true, breakLabel: 'Morning Interval' },
+    { id: 'p-3', periodNumber: 3, name: 'Period 3', startTime: '09:30', endTime: '10:15' },
+    { id: 'p-4', periodNumber: 4, name: 'Period 4', startTime: '10:15', endTime: '11:00' },
+    { id: 'p-5', periodNumber: 5, name: 'Period 5', startTime: '11:00', endTime: '11:45' },
+    { id: 'p-brk-2', periodNumber: 0, name: 'Prayer & Lunch', startTime: '11:45', endTime: '12:45', isBreak: true, breakLabel: 'Prayer & Lunch Break' },
+    { id: 'p-6', periodNumber: 6, name: 'Period 6', startTime: '12:45', endTime: '13:30' },
+    { id: 'p-7', periodNumber: 7, name: 'Period 7', startTime: '13:30', endTime: '14:15' },
+    { id: 'p-8', periodNumber: 8, name: 'Period 8', startTime: '14:15', endTime: '15:00' },
+    { id: 'p-9', periodNumber: 9, name: 'Period 9', startTime: '15:00', endTime: '15:45' },
+  ],
+  timetableSlots: [
+    // Class 8 A - Sunday
+    { id: 'tt-8a-sun-1', dayOfWeek: 'Sunday', periodNumber: 1, classId: 'class-8a', subjectId: 'sub-8a-eng', teacherId: 'teacher-1', room: 'Hall 8A' },
+    { id: 'tt-8a-sun-2', dayOfWeek: 'Sunday', periodNumber: 2, classId: 'class-8a', subjectId: 'sub-8a-mat', teacherId: 'teacher-2', room: 'Hall 8A' },
+    { id: 'tt-8a-sun-3', dayOfWeek: 'Sunday', periodNumber: 3, classId: 'class-8a', subjectId: 'sub-8a-sci', teacherId: 'teacher-3', room: 'Hall 8A' },
+    { id: 'tt-8a-sun-4', dayOfWeek: 'Sunday', periodNumber: 4, classId: 'class-8a', subjectId: 'sub-8a-soc', teacherId: 'teacher-4', room: 'Hall 8A' },
+    { id: 'tt-8a-sun-5', dayOfWeek: 'Sunday', periodNumber: 5, classId: 'class-8a', subjectId: 'sub-8a-eng', teacherId: 'teacher-1', room: 'Hall 8A' },
+    { id: 'tt-8a-sun-6', dayOfWeek: 'Sunday', periodNumber: 6, classId: 'class-8a', subjectId: 'sub-8a-mat', teacherId: 'teacher-2', room: 'Hall 8A' },
+    { id: 'tt-8a-sun-7', dayOfWeek: 'Sunday', periodNumber: 7, classId: 'class-8a', subjectId: 'sub-8a-sci', teacherId: 'teacher-3', room: 'Hall 8A' },
+    { id: 'tt-8a-sun-8', dayOfWeek: 'Sunday', periodNumber: 8, classId: 'class-8a', subjectId: 'sub-8a-soc', teacherId: 'teacher-4', room: 'Hall 8A' },
+    { id: 'tt-8a-sun-9', dayOfWeek: 'Sunday', periodNumber: 9, classId: 'class-8a', subjectId: 'sub-8a-eng', teacherId: 'teacher-1', room: 'Hall 8A' },
+
+    // Class 8 A - Monday
+    { id: 'tt-8a-mon-1', dayOfWeek: 'Monday', periodNumber: 1, classId: 'class-8a', subjectId: 'sub-8a-eng', teacherId: 'teacher-1', room: 'Hall 8A' },
+    { id: 'tt-8a-mon-2', dayOfWeek: 'Monday', periodNumber: 2, classId: 'class-8a', subjectId: 'sub-8a-mat', teacherId: 'teacher-2', room: 'Hall 8A' },
+    { id: 'tt-8a-mon-3', dayOfWeek: 'Monday', periodNumber: 3, classId: 'class-8a', subjectId: 'sub-8a-sci', teacherId: 'teacher-3', room: 'Hall 8A' },
+    { id: 'tt-8a-mon-4', dayOfWeek: 'Monday', periodNumber: 4, classId: 'class-8a', subjectId: 'sub-8a-soc', teacherId: 'teacher-4', room: 'Hall 8A' },
+    { id: 'tt-8a-mon-5', dayOfWeek: 'Monday', periodNumber: 5, classId: 'class-8a', subjectId: 'sub-8a-eng', teacherId: 'teacher-1', room: 'Hall 8A' },
+    { id: 'tt-8a-mon-6', dayOfWeek: 'Monday', periodNumber: 6, classId: 'class-8a', subjectId: 'sub-8a-mat', teacherId: 'teacher-2', room: 'Hall 8A' },
+    { id: 'tt-8a-mon-7', dayOfWeek: 'Monday', periodNumber: 7, classId: 'class-8a', subjectId: 'sub-8a-sci', teacherId: 'teacher-3', room: 'Hall 8A' },
+    { id: 'tt-8a-mon-8', dayOfWeek: 'Monday', periodNumber: 8, classId: 'class-8a', subjectId: 'sub-8a-soc', teacherId: 'teacher-4', room: 'Hall 8A' },
+    { id: 'tt-8a-mon-9', dayOfWeek: 'Monday', periodNumber: 9, classId: 'class-8a', subjectId: 'sub-8a-eng', teacherId: 'teacher-1', room: 'Hall 8A' },
+
+    // Class 8 A - Tuesday
+    { id: 'tt-8a-tue-1', dayOfWeek: 'Tuesday', periodNumber: 1, classId: 'class-8a', subjectId: 'sub-8a-sci', teacherId: 'teacher-3', room: 'Hall 8A' },
+    { id: 'tt-8a-tue-2', dayOfWeek: 'Tuesday', periodNumber: 2, classId: 'class-8a', subjectId: 'sub-8a-soc', teacherId: 'teacher-4', room: 'Hall 8A' },
+    { id: 'tt-8a-tue-3', dayOfWeek: 'Tuesday', periodNumber: 3, classId: 'class-8a', subjectId: 'sub-8a-eng', teacherId: 'teacher-1', room: 'Hall 8A' },
+    { id: 'tt-8a-tue-4', dayOfWeek: 'Tuesday', periodNumber: 4, classId: 'class-8a', subjectId: 'sub-8a-mat', teacherId: 'teacher-2', room: 'Hall 8A' },
+    { id: 'tt-8a-tue-5', dayOfWeek: 'Tuesday', periodNumber: 5, classId: 'class-8a', subjectId: 'sub-8a-sci', teacherId: 'teacher-3', room: 'Hall 8A' },
+    { id: 'tt-8a-tue-6', dayOfWeek: 'Tuesday', periodNumber: 6, classId: 'class-8a', subjectId: 'sub-8a-soc', teacherId: 'teacher-4', room: 'Hall 8A' },
+    { id: 'tt-8a-tue-7', dayOfWeek: 'Tuesday', periodNumber: 7, classId: 'class-8a', subjectId: 'sub-8a-eng', teacherId: 'teacher-1', room: 'Hall 8A' },
+    { id: 'tt-8a-tue-8', dayOfWeek: 'Tuesday', periodNumber: 8, classId: 'class-8a', subjectId: 'sub-8a-mat', teacherId: 'teacher-2', room: 'Hall 8A' },
+    { id: 'tt-8a-tue-9', dayOfWeek: 'Tuesday', periodNumber: 9, classId: 'class-8a', subjectId: 'sub-8a-sci', teacherId: 'teacher-3', room: 'Hall 8A' },
+
+    // Class 8 A - Wednesday
+    { id: 'tt-8a-wed-1', dayOfWeek: 'Wednesday', periodNumber: 1, classId: 'class-8a', subjectId: 'sub-8a-mat', teacherId: 'teacher-2', room: 'Hall 8A' },
+    { id: 'tt-8a-wed-2', dayOfWeek: 'Wednesday', periodNumber: 2, classId: 'class-8a', subjectId: 'sub-8a-eng', teacherId: 'teacher-1', room: 'Hall 8A' },
+    { id: 'tt-8a-wed-3', dayOfWeek: 'Wednesday', periodNumber: 3, classId: 'class-8a', subjectId: 'sub-8a-soc', teacherId: 'teacher-4', room: 'Hall 8A' },
+    { id: 'tt-8a-wed-4', dayOfWeek: 'Wednesday', periodNumber: 4, classId: 'class-8a', subjectId: 'sub-8a-sci', teacherId: 'teacher-3', room: 'Hall 8A' },
+    { id: 'tt-8a-wed-5', dayOfWeek: 'Wednesday', periodNumber: 5, classId: 'class-8a', subjectId: 'sub-8a-mat', teacherId: 'teacher-2', room: 'Hall 8A' },
+    { id: 'tt-8a-wed-6', dayOfWeek: 'Wednesday', periodNumber: 6, classId: 'class-8a', subjectId: 'sub-8a-eng', teacherId: 'teacher-1', room: 'Hall 8A' },
+    { id: 'tt-8a-wed-7', dayOfWeek: 'Wednesday', periodNumber: 7, classId: 'class-8a', subjectId: 'sub-8a-soc', teacherId: 'teacher-4', room: 'Hall 8A' },
+    { id: 'tt-8a-wed-8', dayOfWeek: 'Wednesday', periodNumber: 8, classId: 'class-8a', subjectId: 'sub-8a-sci', teacherId: 'teacher-3', room: 'Hall 8A' },
+    { id: 'tt-8a-wed-9', dayOfWeek: 'Wednesday', periodNumber: 9, classId: 'class-8a', subjectId: 'sub-8a-mat', teacherId: 'teacher-2', room: 'Hall 8A' },
+
+    // Class 8 A - Thursday
+    { id: 'tt-8a-thu-1', dayOfWeek: 'Thursday', periodNumber: 1, classId: 'class-8a', subjectId: 'sub-8a-eng', teacherId: 'teacher-1', room: 'Hall 8A' },
+    { id: 'tt-8a-thu-2', dayOfWeek: 'Thursday', periodNumber: 2, classId: 'class-8a', subjectId: 'sub-8a-sci', teacherId: 'teacher-3', room: 'Hall 8A' },
+    { id: 'tt-8a-thu-3', dayOfWeek: 'Thursday', periodNumber: 3, classId: 'class-8a', subjectId: 'sub-8a-mat', teacherId: 'teacher-2', room: 'Hall 8A' },
+    { id: 'tt-8a-thu-4', dayOfWeek: 'Thursday', periodNumber: 4, classId: 'class-8a', subjectId: 'sub-8a-soc', teacherId: 'teacher-4', room: 'Hall 8A' },
+    { id: 'tt-8a-thu-5', dayOfWeek: 'Thursday', periodNumber: 5, classId: 'class-8a', subjectId: 'sub-8a-eng', teacherId: 'teacher-1', room: 'Hall 8A' },
+    { id: 'tt-8a-thu-6', dayOfWeek: 'Thursday', periodNumber: 6, classId: 'class-8a', subjectId: 'sub-8a-sci', teacherId: 'teacher-3', room: 'Hall 8A' },
+    { id: 'tt-8a-thu-7', dayOfWeek: 'Thursday', periodNumber: 7, classId: 'class-8a', subjectId: 'sub-8a-mat', teacherId: 'teacher-2', room: 'Hall 8A' },
+    { id: 'tt-8a-thu-8', dayOfWeek: 'Thursday', periodNumber: 8, classId: 'class-8a', subjectId: 'sub-8a-soc', teacherId: 'teacher-4', room: 'Hall 8A' },
+    { id: 'tt-8a-thu-9', dayOfWeek: 'Thursday', periodNumber: 9, classId: 'class-8a', subjectId: 'sub-8a-eng', teacherId: 'teacher-1', room: 'Hall 8A' },
+
+    // Class 10 A - with Split Subjects in Period 4 (Computer Application vs Humanities)!
+    { id: 'tt-10a-sun-1', dayOfWeek: 'Sunday', periodNumber: 1, classId: 'class-10a', subjectId: 'sub-10a-mat', teacherId: 'teacher-2', room: 'Hall 10A' },
+    { id: 'tt-10a-sun-2', dayOfWeek: 'Sunday', periodNumber: 2, classId: 'class-10a', subjectId: 'sub-10a-eng', teacherId: 'teacher-1', room: 'Hall 10A' },
+    { id: 'tt-10a-sun-3', dayOfWeek: 'Sunday', periodNumber: 3, classId: 'class-10a', subjectId: 'sub-10a-sci', teacherId: 'teacher-3', room: 'Hall 10A' },
+    // Period 4 Split Slot
+    { id: 'tt-10a-sun-4-ca', dayOfWeek: 'Sunday', periodNumber: 4, classId: 'class-10a', subjectId: 'sub-10a-ca', teacherId: 'teacher-2', room: 'Lab A', isSplitSlot: true },
+    { id: 'tt-10a-sun-4-hum', dayOfWeek: 'Sunday', periodNumber: 4, classId: 'class-10a', subjectId: 'sub-10a-hum', teacherId: 'teacher-4', room: 'Room 12', isSplitSlot: true },
+    { id: 'tt-10a-sun-5', dayOfWeek: 'Sunday', periodNumber: 5, classId: 'class-10a', subjectId: 'sub-10a-mat', teacherId: 'teacher-2', room: 'Hall 10A' },
+    { id: 'tt-10a-sun-6', dayOfWeek: 'Sunday', periodNumber: 6, classId: 'class-10a', subjectId: 'sub-10a-sci', teacherId: 'teacher-3', room: 'Hall 10A' },
+    { id: 'tt-10a-sun-7', dayOfWeek: 'Sunday', periodNumber: 7, classId: 'class-10a', subjectId: 'sub-10a-eng', teacherId: 'teacher-1', room: 'Hall 10A' },
+    { id: 'tt-10a-sun-8', dayOfWeek: 'Sunday', periodNumber: 8, classId: 'class-10a', subjectId: 'sub-10a-ca', teacherId: 'teacher-2', room: 'Lab A', isSplitSlot: true },
+    { id: 'tt-10a-sun-8-hum', dayOfWeek: 'Sunday', periodNumber: 8, classId: 'class-10a', subjectId: 'sub-10a-hum', teacherId: 'teacher-4', room: 'Room 12', isSplitSlot: true },
+    { id: 'tt-10a-sun-9', dayOfWeek: 'Sunday', periodNumber: 9, classId: 'class-10a', subjectId: 'sub-10a-sci', teacherId: 'teacher-3', room: 'Hall 10A' },
+
+    // Class 10 A - Monday
+    { id: 'tt-10a-mon-1', dayOfWeek: 'Monday', periodNumber: 1, classId: 'class-10a', subjectId: 'sub-10a-mat', teacherId: 'teacher-2', room: 'Hall 10A' },
+    { id: 'tt-10a-mon-2', dayOfWeek: 'Monday', periodNumber: 2, classId: 'class-10a', subjectId: 'sub-10a-eng', teacherId: 'teacher-1', room: 'Hall 10A' },
+    { id: 'tt-10a-mon-3', dayOfWeek: 'Monday', periodNumber: 3, classId: 'class-10a', subjectId: 'sub-10a-sci', teacherId: 'teacher-3', room: 'Hall 10A' },
+    { id: 'tt-10a-mon-4-ca', dayOfWeek: 'Monday', periodNumber: 4, classId: 'class-10a', subjectId: 'sub-10a-ca', teacherId: 'teacher-2', room: 'Lab A', isSplitSlot: true },
+    { id: 'tt-10a-mon-4-hum', dayOfWeek: 'Monday', periodNumber: 4, classId: 'class-10a', subjectId: 'sub-10a-hum', teacherId: 'teacher-4', room: 'Room 12', isSplitSlot: true },
+    { id: 'tt-10a-mon-5', dayOfWeek: 'Monday', periodNumber: 5, classId: 'class-10a', subjectId: 'sub-10a-mat', teacherId: 'teacher-2', room: 'Hall 10A' },
+    { id: 'tt-10a-mon-6', dayOfWeek: 'Monday', periodNumber: 6, classId: 'class-10a', subjectId: 'sub-10a-sci', teacherId: 'teacher-3', room: 'Hall 10A' },
+    { id: 'tt-10a-mon-7', dayOfWeek: 'Monday', periodNumber: 7, classId: 'class-10a', subjectId: 'sub-10a-eng', teacherId: 'teacher-1', room: 'Hall 10A' },
+    { id: 'tt-10a-mon-8', dayOfWeek: 'Monday', periodNumber: 8, classId: 'class-10a', subjectId: 'sub-10a-ca', teacherId: 'teacher-2', room: 'Lab A', isSplitSlot: true },
+    { id: 'tt-10a-mon-8-hum', dayOfWeek: 'Monday', periodNumber: 8, classId: 'class-10a', subjectId: 'sub-10a-hum', teacherId: 'teacher-4', room: 'Room 12', isSplitSlot: true },
+    { id: 'tt-10a-mon-9', dayOfWeek: 'Monday', periodNumber: 9, classId: 'class-10a', subjectId: 'sub-10a-sci', teacherId: 'teacher-3', room: 'Hall 10A' },
+
+    // Class 10 A - Tuesday
+    { id: 'tt-10a-tue-1', dayOfWeek: 'Tuesday', periodNumber: 1, classId: 'class-10a', subjectId: 'sub-10a-eng', teacherId: 'teacher-1', room: 'Hall 10A' },
+    { id: 'tt-10a-tue-2', dayOfWeek: 'Tuesday', periodNumber: 2, classId: 'class-10a', subjectId: 'sub-10a-mat', teacherId: 'teacher-2', room: 'Hall 10A' },
+    { id: 'tt-10a-tue-3', dayOfWeek: 'Tuesday', periodNumber: 3, classId: 'class-10a', subjectId: 'sub-10a-sci', teacherId: 'teacher-3', room: 'Hall 10A' },
+    { id: 'tt-10a-tue-4-ca', dayOfWeek: 'Tuesday', periodNumber: 4, classId: 'class-10a', subjectId: 'sub-10a-ca', teacherId: 'teacher-2', room: 'Lab A', isSplitSlot: true },
+    { id: 'tt-10a-tue-4-hum', dayOfWeek: 'Tuesday', periodNumber: 4, classId: 'class-10a', subjectId: 'sub-10a-hum', teacherId: 'teacher-4', room: 'Room 12', isSplitSlot: true },
+    { id: 'tt-10a-tue-5', dayOfWeek: 'Tuesday', periodNumber: 5, classId: 'class-10a', subjectId: 'sub-10a-eng', teacherId: 'teacher-1', room: 'Hall 10A' },
+    { id: 'tt-10a-tue-6', dayOfWeek: 'Tuesday', periodNumber: 6, classId: 'class-10a', subjectId: 'sub-10a-mat', teacherId: 'teacher-2', room: 'Hall 10A' },
+    { id: 'tt-10a-tue-7', dayOfWeek: 'Tuesday', periodNumber: 7, classId: 'class-10a', subjectId: 'sub-10a-sci', teacherId: 'teacher-3', room: 'Hall 10A' },
+    { id: 'tt-10a-tue-8', dayOfWeek: 'Tuesday', periodNumber: 8, classId: 'class-10a', subjectId: 'sub-10a-eng', teacherId: 'teacher-1', room: 'Hall 10A' },
+    { id: 'tt-10a-tue-9', dayOfWeek: 'Tuesday', periodNumber: 9, classId: 'class-10a', subjectId: 'sub-10a-mat', teacherId: 'teacher-2', room: 'Hall 10A' },
+
+    // Class 10 A - Wednesday
+    { id: 'tt-10a-wed-1', dayOfWeek: 'Wednesday', periodNumber: 1, classId: 'class-10a', subjectId: 'sub-10a-sci', teacherId: 'teacher-3', room: 'Hall 10A' },
+    { id: 'tt-10a-wed-2', dayOfWeek: 'Wednesday', periodNumber: 2, classId: 'class-10a', subjectId: 'sub-10a-eng', teacherId: 'teacher-1', room: 'Hall 10A' },
+    { id: 'tt-10a-wed-3', dayOfWeek: 'Wednesday', periodNumber: 3, classId: 'class-10a', subjectId: 'sub-10a-mat', teacherId: 'teacher-2', room: 'Hall 10A' },
+    { id: 'tt-10a-wed-4-ca', dayOfWeek: 'Wednesday', periodNumber: 4, classId: 'class-10a', subjectId: 'sub-10a-ca', teacherId: 'teacher-2', room: 'Lab A', isSplitSlot: true },
+    { id: 'tt-10a-wed-4-hum', dayOfWeek: 'Wednesday', periodNumber: 4, classId: 'class-10a', subjectId: 'sub-10a-hum', teacherId: 'teacher-4', room: 'Room 12', isSplitSlot: true },
+    { id: 'tt-10a-wed-5', dayOfWeek: 'Wednesday', periodNumber: 5, classId: 'class-10a', subjectId: 'sub-10a-sci', teacherId: 'teacher-3', room: 'Hall 10A' },
+    { id: 'tt-10a-wed-6', dayOfWeek: 'Wednesday', periodNumber: 6, classId: 'class-10a', subjectId: 'sub-10a-eng', teacherId: 'teacher-1', room: 'Hall 10A' },
+    { id: 'tt-10a-wed-7', dayOfWeek: 'Wednesday', periodNumber: 7, classId: 'class-10a', subjectId: 'sub-10a-mat', teacherId: 'teacher-2', room: 'Hall 10A' },
+    { id: 'tt-10a-wed-8', dayOfWeek: 'Wednesday', periodNumber: 8, classId: 'class-10a', subjectId: 'sub-10a-sci', teacherId: 'teacher-3', room: 'Hall 10A' },
+    { id: 'tt-10a-wed-9', dayOfWeek: 'Wednesday', periodNumber: 9, classId: 'class-10a', subjectId: 'sub-10a-eng', teacherId: 'teacher-1', room: 'Hall 10A' },
+
+    // Class 10 A - Thursday
+    { id: 'tt-10a-thu-1', dayOfWeek: 'Thursday', periodNumber: 1, classId: 'class-10a', subjectId: 'sub-10a-mat', teacherId: 'teacher-2', room: 'Hall 10A' },
+    { id: 'tt-10a-thu-2', dayOfWeek: 'Thursday', periodNumber: 2, classId: 'class-10a', subjectId: 'sub-10a-eng', teacherId: 'teacher-1', room: 'Hall 10A' },
+    { id: 'tt-10a-thu-3', dayOfWeek: 'Thursday', periodNumber: 3, classId: 'class-10a', subjectId: 'sub-10a-sci', teacherId: 'teacher-3', room: 'Hall 10A' },
+    { id: 'tt-10a-thu-4-ca', dayOfWeek: 'Thursday', periodNumber: 4, classId: 'class-10a', subjectId: 'sub-10a-ca', teacherId: 'teacher-2', room: 'Lab A', isSplitSlot: true },
+    { id: 'tt-10a-thu-4-hum', dayOfWeek: 'Thursday', periodNumber: 4, classId: 'class-10a', subjectId: 'sub-10a-hum', teacherId: 'teacher-4', room: 'Room 12', isSplitSlot: true },
+    { id: 'tt-10a-thu-5', dayOfWeek: 'Thursday', periodNumber: 5, classId: 'class-10a', subjectId: 'sub-10a-mat', teacherId: 'teacher-2', room: 'Hall 10A' },
+    { id: 'tt-10a-thu-6', dayOfWeek: 'Thursday', periodNumber: 6, classId: 'class-10a', subjectId: 'sub-10a-sci', teacherId: 'teacher-3', room: 'Hall 10A' },
+    { id: 'tt-10a-thu-7', dayOfWeek: 'Thursday', periodNumber: 7, classId: 'class-10a', subjectId: 'sub-10a-eng', teacherId: 'teacher-1', room: 'Hall 10A' },
+    { id: 'tt-10a-thu-8', dayOfWeek: 'Thursday', periodNumber: 8, classId: 'class-10a', subjectId: 'sub-10a-mat', teacherId: 'teacher-2', room: 'Hall 10A' },
+    { id: 'tt-10a-thu-9', dayOfWeek: 'Thursday', periodNumber: 9, classId: 'class-10a', subjectId: 'sub-10a-sci', teacherId: 'teacher-3', room: 'Hall 10A' },
+
+    // Class 8 A - Friday
+    { id: 'tt-8a-fri-1', dayOfWeek: 'Friday', periodNumber: 1, classId: 'class-8a', subjectId: 'sub-8a-eng', teacherId: 'teacher-1', room: 'Hall 8A' },
+    { id: 'tt-8a-fri-2', dayOfWeek: 'Friday', periodNumber: 2, classId: 'class-8a', subjectId: 'sub-8a-mat', teacherId: 'teacher-2', room: 'Hall 8A' },
+    { id: 'tt-8a-fri-3', dayOfWeek: 'Friday', periodNumber: 3, classId: 'class-8a', subjectId: 'sub-8a-sci', teacherId: 'teacher-3', room: 'Hall 8A' },
+    { id: 'tt-8a-fri-4', dayOfWeek: 'Friday', periodNumber: 4, classId: 'class-8a', subjectId: 'sub-8a-soc', teacherId: 'teacher-4', room: 'Hall 8A' },
+
+    // Class 10 A - Friday
+    { id: 'tt-10a-fri-1', dayOfWeek: 'Friday', periodNumber: 1, classId: 'class-10a', subjectId: 'sub-10a-mat', teacherId: 'teacher-2', room: 'Hall 10A' },
+    { id: 'tt-10a-fri-2', dayOfWeek: 'Friday', periodNumber: 2, classId: 'class-10a', subjectId: 'sub-10a-eng', teacherId: 'teacher-1', room: 'Hall 10A' },
+    { id: 'tt-10a-fri-3', dayOfWeek: 'Friday', periodNumber: 3, classId: 'class-10a', subjectId: 'sub-10a-sci', teacherId: 'teacher-3', room: 'Hall 10A' },
+    { id: 'tt-10a-fri-4', dayOfWeek: 'Friday', periodNumber: 4, classId: 'class-10a', subjectId: 'sub-10a-ca', teacherId: 'teacher-2', room: 'Lab A', isSplitSlot: true },
+
+    // Class 8 A - Saturday
+    { id: 'tt-8a-sat-1', dayOfWeek: 'Saturday', periodNumber: 1, classId: 'class-8a', subjectId: 'sub-8a-sci', teacherId: 'teacher-3', room: 'Hall 8A' },
+    { id: 'tt-8a-sat-2', dayOfWeek: 'Saturday', periodNumber: 2, classId: 'class-8a', subjectId: 'sub-8a-soc', teacherId: 'teacher-4', room: 'Hall 8A' },
+    { id: 'tt-8a-sat-3', dayOfWeek: 'Saturday', periodNumber: 3, classId: 'class-8a', subjectId: 'sub-8a-eng', teacherId: 'teacher-1', room: 'Hall 8A' },
+    { id: 'tt-8a-sat-4', dayOfWeek: 'Saturday', periodNumber: 4, classId: 'class-8a', subjectId: 'sub-8a-mat', teacherId: 'teacher-2', room: 'Hall 8A' },
+
+    // Class 10 A - Saturday
+    { id: 'tt-10a-sat-1', dayOfWeek: 'Saturday', periodNumber: 1, classId: 'class-10a', subjectId: 'sub-10a-eng', teacherId: 'teacher-1', room: 'Hall 10A' },
+    { id: 'tt-10a-sat-2', dayOfWeek: 'Saturday', periodNumber: 2, classId: 'class-10a', subjectId: 'sub-10a-mat', teacherId: 'teacher-2', room: 'Hall 10A' },
+    { id: 'tt-10a-sat-3', dayOfWeek: 'Saturday', periodNumber: 3, classId: 'class-10a', subjectId: 'sub-10a-sci', teacherId: 'teacher-3', room: 'Hall 10A' },
+    { id: 'tt-10a-sat-4', dayOfWeek: 'Saturday', periodNumber: 4, classId: 'class-10a', subjectId: 'sub-10a-hum', teacherId: 'teacher-4', room: 'Room 12', isSplitSlot: true },
+  ],
 };
 
 class DataService {
@@ -892,6 +1280,65 @@ class DataService {
         };
       } else {
         state = JSON.parse(JSON.stringify(INITIAL_STATE));
+      }
+
+      // Safety defaults for newly introduced modules
+      if (!state.achievements) state.achievements = JSON.parse(JSON.stringify(INITIAL_STATE.achievements));
+      if (!state.behaviorRecords) state.behaviorRecords = JSON.parse(JSON.stringify(INITIAL_STATE.behaviorRecords));
+      if (!state.activeHourSlots || state.activeHourSlots.length === 0) state.activeHourSlots = JSON.parse(JSON.stringify(INITIAL_STATE.activeHourSlots));
+      if (!state.leaveApplications) state.leaveApplications = JSON.parse(JSON.stringify(INITIAL_STATE.leaveApplications));
+      if (!state.attendanceRecords) state.attendanceRecords = JSON.parse(JSON.stringify(INITIAL_STATE.attendanceRecords));
+      if (!state.attendanceClearances) state.attendanceClearances = [];
+      if (!state.complaintsFeedback) state.complaintsFeedback = JSON.parse(JSON.stringify(INITIAL_STATE.complaintsFeedback));
+      if (!state.allowedReceiverTypes || state.allowedReceiverTypes.length === 0) state.allowedReceiverTypes = JSON.parse(JSON.stringify(INITIAL_STATE.allowedReceiverTypes));
+      if (!state.attendanceRules) state.attendanceRules = JSON.parse(JSON.stringify(INITIAL_STATE.attendanceRules));
+      if (!state.timetablePeriods || state.timetablePeriods.length === 0) {
+        state.timetablePeriods = JSON.parse(JSON.stringify(INITIAL_STATE.timetablePeriods || []));
+      }
+      if (!state.timetableSlots || state.timetableSlots.length === 0) {
+        state.timetableSlots = JSON.parse(JSON.stringify(INITIAL_STATE.timetableSlots || []));
+      }
+      // Ensure classes have attendance toggle enabled by default
+      if (state.classes) {
+        state.classes.forEach((c) => {
+          if (c.isAttendanceEnabled === undefined) c.isAttendanceEnabled = true;
+        });
+      }
+      // Ensure split subjects exist in subjects array if not present
+      if (state.subjects) {
+        if (!state.subjects.some((s) => s.id === 'sub-10a-ca')) {
+          state.subjects.push({
+            id: 'sub-10a-ca',
+            name: 'Computer Application',
+            code: 'CA1001',
+            classId: 'class-10a',
+            assignedTeacherId: 'teacher-2',
+            additionalTeacherIds: ['teacher-1'],
+            status: 'active',
+            trackAttendance: true,
+            isSplitSubject: true,
+            splitGroupName: 'Computer Application',
+            enrolledStudentIds: ['std-2001', 'std-2002', 'std-2003'],
+          });
+        }
+        if (!state.subjects.some((s) => s.id === 'sub-10a-hum')) {
+          state.subjects.push({
+            id: 'sub-10a-hum',
+            name: 'Humanities',
+            code: 'HUM1001',
+            classId: 'class-10a',
+            assignedTeacherId: 'teacher-4',
+            additionalTeacherIds: ['teacher-3'],
+            status: 'active',
+            trackAttendance: true,
+            isSplitSubject: true,
+            splitGroupName: 'Humanities',
+            enrolledStudentIds: ['std-2004', 'std-2005', 'std-2006'],
+          });
+        }
+        state.subjects.forEach((s) => {
+          if (s.trackAttendance === undefined) s.trackAttendance = true;
+        });
       }
     } catch (e) {
       console.error('Error loading local state:', e);
@@ -1008,8 +1455,20 @@ class DataService {
     return () => this.listeners.delete(listener);
   }
 
-  public getState(): DatabaseState {
-    return this.state;
+  public getState(): DatabaseState & { complaints: ComplaintFeedback[] } {
+    const rawComplaints = this.state.complaintsFeedback || [];
+    const normalizedComplaints = rawComplaints.map((c) => ({
+      ...c,
+      title: c.title || c.subject || 'Grievance / Feedback',
+      subject: c.subject || c.title || 'Grievance / Feedback',
+      submittedAt: c.submittedAt || c.createdAt || new Date().toISOString(),
+      createdAt: c.createdAt || c.submittedAt || new Date().toISOString(),
+    }));
+
+    return {
+      ...this.state,
+      complaints: normalizedComplaints,
+    };
   }
 
   public getFirebaseInfo() {
@@ -1115,6 +1574,13 @@ class DataService {
           evalSnap,
           marksSnap,
           logsSnap,
+          achievementsSnap,
+          behaviorSnap,
+          slotsSnap,
+          leavesSnap,
+          attSnap,
+          clearanceSnap,
+          complaintsSnap,
         ] = await Promise.all([
           getDocs(collection(db, 'classes')),
           getDocs(collection(db, 'students')),
@@ -1123,6 +1589,13 @@ class DataService {
           getDocs(collection(db, 'evaluation_levels')),
           getDocs(collection(db, 'marks')),
           getDocs(collection(db, 'audit_logs')),
+          getDocs(collection(db, 'achievements')),
+          getDocs(collection(db, 'behavior_records')),
+          getDocs(collection(db, 'active_hour_slots')),
+          getDocs(collection(db, 'leave_applications')),
+          getDocs(collection(db, 'attendance_records')),
+          getDocs(collection(db, 'attendance_clearances')),
+          getDocs(collection(db, 'complaints_feedback')),
         ]);
 
         if (!usersSnap.empty) {
@@ -1229,6 +1702,27 @@ class DataService {
         }
         if (!logsSnap.empty) {
           this.state.auditLogs = logsSnap.docs.map((d) => d.data() as AuditLog);
+        }
+        if (!achievementsSnap.empty) {
+          this.state.achievements = achievementsSnap.docs.map((d) => d.data() as Achievement);
+        }
+        if (!behaviorSnap.empty) {
+          this.state.behaviorRecords = behaviorSnap.docs.map((d) => d.data() as BehaviorRecord);
+        }
+        if (!slotsSnap.empty) {
+          this.state.activeHourSlots = slotsSnap.docs.map((d) => d.data() as ActiveHourSlot);
+        }
+        if (!leavesSnap.empty) {
+          this.state.leaveApplications = leavesSnap.docs.map((d) => d.data() as LeaveApplication);
+        }
+        if (!attSnap.empty) {
+          this.state.attendanceRecords = attSnap.docs.map((d) => d.data() as AttendanceRecord);
+        }
+        if (!clearanceSnap.empty) {
+          this.state.attendanceClearances = clearanceSnap.docs.map((d) => d.data() as AttendanceClearance);
+        }
+        if (!complaintsSnap.empty) {
+          this.state.complaintsFeedback = complaintsSnap.docs.map((d) => d.data() as ComplaintFeedback);
         }
 
         this.saveLocal();
@@ -1361,6 +1855,48 @@ class DataService {
       return !isMatch;
     });
 
+    const achievementIdsToDelete: string[] = [];
+    this.state.achievements = (this.state.achievements || []).filter((a) => {
+      const isMatch = idsSet.has(a.studentId);
+      if (isMatch) achievementIdsToDelete.push(a.id);
+      return !isMatch;
+    });
+
+    const behaviorIdsToDelete: string[] = [];
+    this.state.behaviorRecords = (this.state.behaviorRecords || []).filter((b) => {
+      const isMatch = idsSet.has(b.studentId);
+      if (isMatch) behaviorIdsToDelete.push(b.id);
+      return !isMatch;
+    });
+
+    const leaveIdsToDelete: string[] = [];
+    this.state.leaveApplications = (this.state.leaveApplications || []).filter((l) => {
+      const isMatch = idsSet.has(l.studentId);
+      if (isMatch) leaveIdsToDelete.push(l.id);
+      return !isMatch;
+    });
+
+    const attendanceIdsToDelete: string[] = [];
+    this.state.attendanceRecords = (this.state.attendanceRecords || []).filter((att) => {
+      const isMatch = idsSet.has(att.studentId);
+      if (isMatch) attendanceIdsToDelete.push(att.id);
+      return !isMatch;
+    });
+
+    const clearanceIdsToDelete: string[] = [];
+    this.state.attendanceClearances = (this.state.attendanceClearances || []).filter((clr) => {
+      const isMatch = idsSet.has(clr.studentId);
+      if (isMatch) clearanceIdsToDelete.push(clr.id);
+      return !isMatch;
+    });
+
+    const complaintIdsToDelete: string[] = [];
+    this.state.complaintsFeedback = (this.state.complaintsFeedback || []).filter((c) => {
+      const isMatch = idsSet.has(c.studentId);
+      if (isMatch) complaintIdsToDelete.push(c.id);
+      return !isMatch;
+    });
+
     this.saveLocal();
     this.notify();
 
@@ -1369,6 +1905,12 @@ class DataService {
     ids.forEach((id) => firestoreDeletions.push({ collection: 'students', id }));
     userIdsToDelete.forEach((id) => firestoreDeletions.push({ collection: 'users', id }));
     markIdsToDelete.forEach((id) => firestoreDeletions.push({ collection: 'marks', id }));
+    achievementIdsToDelete.forEach((id) => firestoreDeletions.push({ collection: 'achievements', id }));
+    behaviorIdsToDelete.forEach((id) => firestoreDeletions.push({ collection: 'behavior_records', id }));
+    leaveIdsToDelete.forEach((id) => firestoreDeletions.push({ collection: 'leave_applications', id }));
+    attendanceIdsToDelete.forEach((id) => firestoreDeletions.push({ collection: 'attendance_records', id }));
+    clearanceIdsToDelete.forEach((id) => firestoreDeletions.push({ collection: 'attendance_clearances', id }));
+    complaintIdsToDelete.forEach((id) => firestoreDeletions.push({ collection: 'complaints_feedback', id }));
 
     this.batchDeleteFirestoreItems(firestoreDeletions).catch((err) => {
       console.warn('Firestore bulk delete error:', err);
@@ -1902,6 +2444,48 @@ class DataService {
       return !isMatch;
     });
 
+    const achievementIdsToDelete: string[] = [];
+    this.state.achievements = (this.state.achievements || []).filter((a) => {
+      const isMatch = a.studentId === id;
+      if (isMatch) achievementIdsToDelete.push(a.id);
+      return !isMatch;
+    });
+
+    const behaviorIdsToDelete: string[] = [];
+    this.state.behaviorRecords = (this.state.behaviorRecords || []).filter((b) => {
+      const isMatch = b.studentId === id;
+      if (isMatch) behaviorIdsToDelete.push(b.id);
+      return !isMatch;
+    });
+
+    const leaveIdsToDelete: string[] = [];
+    this.state.leaveApplications = (this.state.leaveApplications || []).filter((l) => {
+      const isMatch = l.studentId === id;
+      if (isMatch) leaveIdsToDelete.push(l.id);
+      return !isMatch;
+    });
+
+    const attendanceIdsToDelete: string[] = [];
+    this.state.attendanceRecords = (this.state.attendanceRecords || []).filter((att) => {
+      const isMatch = att.studentId === id;
+      if (isMatch) attendanceIdsToDelete.push(att.id);
+      return !isMatch;
+    });
+
+    const clearanceIdsToDelete: string[] = [];
+    this.state.attendanceClearances = (this.state.attendanceClearances || []).filter((clr) => {
+      const isMatch = clr.studentId === id;
+      if (isMatch) clearanceIdsToDelete.push(clr.id);
+      return !isMatch;
+    });
+
+    const complaintIdsToDelete: string[] = [];
+    this.state.complaintsFeedback = (this.state.complaintsFeedback || []).filter((c) => {
+      const isMatch = c.studentId === id;
+      if (isMatch) complaintIdsToDelete.push(c.id);
+      return !isMatch;
+    });
+
     this.saveLocal();
     this.notify();
 
@@ -1910,6 +2494,12 @@ class DataService {
       { collection: 'students', id },
       ...userIdsToDelete.map((uid) => ({ collection: 'users', id: uid })),
       ...markIdsToDelete.map((mid) => ({ collection: 'marks', id: mid })),
+      ...achievementIdsToDelete.map((aid) => ({ collection: 'achievements', id: aid })),
+      ...behaviorIdsToDelete.map((bid) => ({ collection: 'behavior_records', id: bid })),
+      ...leaveIdsToDelete.map((lid) => ({ collection: 'leave_applications', id: lid })),
+      ...attendanceIdsToDelete.map((attId) => ({ collection: 'attendance_records', id: attId })),
+      ...clearanceIdsToDelete.map((cid) => ({ collection: 'attendance_clearances', id: cid })),
+      ...complaintIdsToDelete.map((cmpId) => ({ collection: 'complaints_feedback', id: cmpId })),
     ];
     this.batchDeleteFirestoreItems(itemsToDelete).catch(() => {});
 
@@ -2382,7 +2972,7 @@ class DataService {
     // 1. Deduplicate incoming array by admission number to prevent duplicate rows within the same file
     const seenInBatch = new Set<string>();
     const uniqueIncomingStudents = students.filter((s) => {
-      const cleanAdm = String(s.admissionNumber || '').trim().toLowerCase();
+      const cleanAdm = String(s.admissionNumber || '').replace(/\.0$/, '').trim().toLowerCase();
       if (!cleanAdm) return false;
       if (seenInBatch.has(cleanAdm)) return false;
       seenInBatch.add(cleanAdm);
@@ -2390,18 +2980,20 @@ class DataService {
     });
 
     uniqueIncomingStudents.forEach((s) => {
-      const targetClassName = String(s.className || '').trim();
-      if (!targetClassName) return;
+      let targetClassName = String(s.className || '').trim();
+      let classRoom = null;
 
-      // Find class ID by name (case-insensitive and whitespace-insensitive)
-      let classRoom = this.state.classes.find(
-        (c) =>
-          c.name.trim().toLowerCase() === targetClassName.toLowerCase() ||
-          c.name.replace(/\s+/g, '').toLowerCase() === targetClassName.replace(/\s+/g, '').toLowerCase()
-      );
-
-      // Auto-create class if it does not yet exist
-      if (!classRoom) {
+      if (s.classId) {
+        classRoom = this.state.classes.find((c) => c.id === s.classId);
+      }
+      if (!classRoom && targetClassName) {
+        classRoom = this.state.classes.find(
+          (c) =>
+            c.name.trim().toLowerCase() === targetClassName.toLowerCase() ||
+            c.name.replace(/\s+/g, '').toLowerCase() === targetClassName.replace(/\s+/g, '').toLowerCase()
+        );
+      }
+      if (!classRoom && targetClassName) {
         classRoom = this.addClass(
           {
             name: targetClassName,
@@ -2411,9 +3003,12 @@ class DataService {
           defaultActor
         );
       }
+      if (!classRoom && this.state.classes.length > 0) {
+        classRoom = this.state.classes[0];
+      }
 
       if (classRoom) {
-        const cleanAdmission = String(s.admissionNumber || '').trim();
+        const cleanAdmission = String(s.admissionNumber || '').replace(/\.0$/, '').trim();
         if (!cleanAdmission) return;
 
         const defaultStudentPassword = `${cleanAdmission}${cleanAdmission}${cleanAdmission}`;
@@ -2768,6 +3363,974 @@ class DataService {
 
     this.saveMarks(payload, defaultActor);
     return marks.length;
+  }
+
+  // ==========================================
+  // 👤 EXTENDED STUDENT PROFILE & TEACHER NOTES
+  // ==========================================
+  public updateStudentExtendedProfile(
+    id: string,
+    updates: Partial<Student>,
+    actor?: { id: string; name: string; role: string }
+  ): boolean {
+    const idx = this.state.students.findIndex((s) => s.id === id);
+    if (idx === -1) return false;
+
+    const student = this.state.students[idx];
+    const updated: Student = {
+      ...student,
+      ...updates,
+      guardian: updates.guardian ? { ...(student.guardian || {}), ...updates.guardian } : student.guardian,
+    };
+    this.state.students[idx] = updated;
+
+    // Sync corresponding user info if name, phone, or email changed
+    const userIdx = this.state.users.findIndex(
+      (u) => u.admissionNumber === student.admissionNumber || u.id === `user-${student.id}`
+    );
+    if (userIdx !== -1) {
+      if (updates.name) this.state.users[userIdx].name = updates.name;
+      if (updates.phone) this.state.users[userIdx].phone = updates.phone;
+      if (updates.email) this.state.users[userIdx].email = updates.email;
+      setDoc(doc(db, 'users', this.state.users[userIdx].id), this.state.users[userIdx], { merge: true }).catch(() => {});
+    }
+
+    if (actor) {
+      this.addAuditLog({
+        userId: actor.id,
+        userName: actor.name,
+        role: actor.role,
+        action: 'Updated Student Profile',
+        entity: 'Student',
+        entityId: id,
+        details: `Updated dossier for student ${student.name} (${student.admissionNumber})`,
+      });
+    }
+
+    this.saveLocal();
+    this.notify();
+    setDoc(doc(db, 'students', id), updated, { merge: true }).catch(() => {});
+    return true;
+  }
+
+  public updateClassTeacherNotes(
+    studentId: string,
+    notes: Partial<ClassTeacherNotes>,
+    actor: { id: string; name: string; role: string }
+  ): boolean {
+    const idx = this.state.students.findIndex((s) => s.id === studentId);
+    if (idx === -1) return false;
+
+    const student = this.state.students[idx];
+
+    // RBAC Check: Only Super Admin or the appointed Class Teacher can edit notes
+    if (actor && actor.role !== 'super_admin') {
+      const studentClass = this.state.classes.find((c) => c.id === student.classId);
+      const teacher = this.state.teachers.find(
+        (t) => t.id === actor.id || t.username === actor.name || `user-${t.id}` === actor.id
+      );
+      const isClassTeacher =
+        (studentClass && teacher && studentClass.classTeacherId === teacher.id) ||
+        (student.classId && teacher?.classTeacherOfClassIds?.includes(student.classId));
+
+      if (!isClassTeacher) {
+        console.warn('Unauthorized class teacher notes modification attempt by', actor);
+        return false;
+      }
+    }
+
+    const updatedNotes: ClassTeacherNotes = {
+      ...(student.classTeacherNotes || {}),
+      ...notes,
+      lastUpdated: new Date().toISOString(),
+      updatedBy: actor.id,
+      updatedByName: actor.name,
+    };
+
+    this.state.students[idx] = {
+      ...student,
+      classTeacherNotes: updatedNotes,
+    };
+
+    this.addAuditLog({
+      userId: actor.id,
+      userName: actor.name,
+      role: actor.role,
+      action: 'Updated Class Teacher Notes',
+      entity: 'Student',
+      entityId: studentId,
+      details: `Class teacher notes saved for student ${student.name} (${student.admissionNumber})`,
+    });
+
+    this.saveLocal();
+    this.notify();
+    setDoc(doc(db, 'students', studentId), { classTeacherNotes: updatedNotes }, { merge: true }).catch(() => {});
+    return true;
+  }
+
+  // ==========================================
+  // 🏆 ACHIEVEMENTS CRUD
+  // ==========================================
+  public addAchievement(
+    item: Omit<Achievement, 'id' | 'createdDate'>,
+    actor?: { id: string; name: string; role: string }
+  ): Achievement {
+    const id = `ach-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+    const newAchievement: Achievement = {
+      ...item,
+      id,
+      createdDate: new Date().toISOString(),
+    };
+
+    this.state.achievements.unshift(newAchievement);
+    if (actor) {
+      this.addAuditLog({
+        userId: actor.id,
+        userName: actor.name,
+        role: actor.role,
+        action: 'Added Achievement',
+        entity: 'Achievement',
+        entityId: id,
+        details: `Added ${item.category} achievement: "${item.title}" for student ${item.studentId}`,
+      });
+    }
+
+    this.saveLocal();
+    this.notify();
+    setDoc(doc(db, 'achievements', id), newAchievement).catch(() => {});
+    return newAchievement;
+  }
+
+  public updateAchievement(
+    id: string,
+    updates: Partial<Achievement>,
+    actor?: { id: string; name: string; role: string }
+  ): boolean {
+    const idx = this.state.achievements.findIndex((a) => a.id === id);
+    if (idx === -1) return false;
+
+    this.state.achievements[idx] = { ...this.state.achievements[idx], ...updates };
+    if (actor) {
+      this.addAuditLog({
+        userId: actor.id,
+        userName: actor.name,
+        role: actor.role,
+        action: 'Updated Achievement',
+        entity: 'Achievement',
+        entityId: id,
+        details: `Updated achievement "${this.state.achievements[idx].title}"`,
+      });
+    }
+
+    this.saveLocal();
+    this.notify();
+    setDoc(doc(db, 'achievements', id), this.state.achievements[idx], { merge: true }).catch(() => {});
+    return true;
+  }
+
+  public deleteAchievement(id: string, actor?: { id: string; name: string; role: string }): boolean {
+    const idx = this.state.achievements.findIndex((a) => a.id === id);
+    if (idx === -1) return false;
+
+    const removed = this.state.achievements.splice(idx, 1)[0];
+    if (actor) {
+      this.addAuditLog({
+        userId: actor.id,
+        userName: actor.name,
+        role: actor.role,
+        action: 'Deleted Achievement',
+        entity: 'Achievement',
+        entityId: id,
+        details: `Deleted achievement "${removed.title}"`,
+      });
+    }
+
+    this.saveLocal();
+    this.notify();
+    deleteDoc(doc(db, 'achievements', id)).catch(() => {});
+    return true;
+  }
+
+  // ==========================================
+  // 🧭 BEHAVIOR & DISCIPLINE CRUD
+  // ==========================================
+  public addBehaviorRecord(
+    item: Omit<BehaviorRecord, 'id' | 'date'> & { date?: string },
+    actor?: { id: string; name: string; role: string }
+  ): BehaviorRecord {
+    const id = `beh-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+    const newRecord: BehaviorRecord = {
+      ...item,
+      id,
+      date: item.date || new Date().toISOString().split('T')[0],
+    };
+
+    this.state.behaviorRecords.unshift(newRecord);
+    if (actor) {
+      this.addAuditLog({
+        userId: actor.id,
+        userName: actor.name,
+        role: actor.role,
+        action: 'Added Behavior Record',
+        entity: 'BehaviorRecord',
+        entityId: id,
+        details: `Added ${item.type} record: "${item.title}" for student ${item.studentId}`,
+      });
+    }
+
+    this.saveLocal();
+    this.notify();
+    setDoc(doc(db, 'behavior_records', id), newRecord).catch(() => {});
+    return newRecord;
+  }
+
+  public updateBehaviorRecord(
+    id: string,
+    updates: Partial<BehaviorRecord>,
+    actor?: { id: string; name: string; role: string }
+  ): boolean {
+    const idx = this.state.behaviorRecords.findIndex((b) => b.id === id);
+    if (idx === -1) return false;
+
+    const record = this.state.behaviorRecords[idx];
+
+    // RBAC Check: Super Admin, Creator, or Class Teacher of the student only
+    if (actor && actor.role !== 'super_admin') {
+      const student = this.state.students.find((s) => s.id === record.studentId);
+      const studentClass = student ? this.state.classes.find((c) => c.id === student.classId) : null;
+      const teacher = this.state.teachers.find(
+        (t) => t.id === actor.id || t.username === actor.name || `user-${t.id}` === actor.id
+      );
+      const isClassTeacher =
+        (studentClass && teacher && studentClass.classTeacherId === teacher.id) ||
+        (student?.classId && teacher?.classTeacherOfClassIds?.includes(student.classId));
+      const isCreator =
+        record.recordedBy === actor.id ||
+        record.recordedById === actor.id ||
+        record.recordedBy === actor.name;
+
+      if (!isClassTeacher && !isCreator) {
+        console.warn('Unauthorized behavior record modification attempt');
+        return false;
+      }
+    }
+
+    this.state.behaviorRecords[idx] = { ...this.state.behaviorRecords[idx], ...updates };
+    if (actor) {
+      this.addAuditLog({
+        userId: actor.id,
+        userName: actor.name,
+        role: actor.role,
+        action: 'Updated Behavior Record',
+        entity: 'BehaviorRecord',
+        entityId: id,
+        details: `Updated behavior record "${this.state.behaviorRecords[idx].title}"`,
+      });
+    }
+
+    this.saveLocal();
+    this.notify();
+    setDoc(doc(db, 'behavior_records', id), this.state.behaviorRecords[idx], { merge: true }).catch(() => {});
+    return true;
+  }
+
+  public deleteBehaviorRecord(id: string, actor?: { id: string; name: string; role: string }): boolean {
+    const idx = this.state.behaviorRecords.findIndex((b) => b.id === id);
+    if (idx === -1) return false;
+
+    const record = this.state.behaviorRecords[idx];
+
+    // RBAC Check: Super Admin, Creator, or Class Teacher of the student only
+    if (actor && actor.role !== 'super_admin') {
+      const student = this.state.students.find((s) => s.id === record.studentId);
+      const studentClass = student ? this.state.classes.find((c) => c.id === student.classId) : null;
+      const teacher = this.state.teachers.find(
+        (t) => t.id === actor.id || t.username === actor.name || `user-${t.id}` === actor.id
+      );
+      const isClassTeacher =
+        (studentClass && teacher && studentClass.classTeacherId === teacher.id) ||
+        (student?.classId && teacher?.classTeacherOfClassIds?.includes(student.classId));
+      const isCreator =
+        record.recordedBy === actor.id ||
+        record.recordedById === actor.id ||
+        record.recordedBy === actor.name;
+
+      if (!isClassTeacher && !isCreator) {
+        console.warn('Unauthorized behavior record deletion attempt');
+        return false;
+      }
+    }
+
+    const removed = this.state.behaviorRecords.splice(idx, 1)[0];
+    if (actor) {
+      this.addAuditLog({
+        userId: actor.id,
+        userName: actor.name,
+        role: actor.role,
+        action: 'Deleted Behavior Record',
+        entity: 'BehaviorRecord',
+        entityId: id,
+        details: `Deleted behavior record "${removed.title}"`,
+      });
+    }
+
+    this.saveLocal();
+    this.notify();
+    deleteDoc(doc(db, 'behavior_records', id)).catch(() => {});
+    return true;
+  }
+
+  // ==========================================
+  // ⏰ ACTIVE HOUR SLOTS & LEAVE CALCULATION
+  // ==========================================
+  private calculateMinutesFromTimes(start: string, end: string): number {
+    const [startH, startM] = start.split(':').map(Number);
+    const [endH, endM] = end.split(':').map(Number);
+    if (isNaN(startH) || isNaN(startM) || isNaN(endH) || isNaN(endM)) return 60;
+    const diff = endH * 60 + endM - (startH * 60 + startM);
+    return diff > 0 ? diff : 60;
+  }
+
+  public updateActiveHourSlot(id: string, updates: Partial<ActiveHourSlot>): boolean {
+    const idx = this.state.activeHourSlots.findIndex((s) => s.id === id);
+    if (idx === -1) return false;
+
+    const updated = { ...this.state.activeHourSlots[idx], ...updates };
+    if (updates.startTime || updates.endTime) {
+      updated.durationMinutes = this.calculateMinutesFromTimes(updated.startTime, updated.endTime);
+    }
+
+    this.state.activeHourSlots[idx] = updated;
+    this.saveLocal();
+    this.notify();
+    setDoc(doc(db, 'active_hour_slots', id), updated, { merge: true }).catch(() => {});
+    return true;
+  }
+
+  public addActiveHourSlot(
+    slot: Omit<ActiveHourSlot, 'id' | 'durationMinutes'> | any,
+    actor?: { id: string; name: string; role: string }
+  ): ActiveHourSlot {
+    const id = `slot-${Date.now()}`;
+    const durationMinutes = slot.durationMinutes || this.calculateMinutesFromTimes(slot.startTime, slot.endTime);
+    const newSlot: ActiveHourSlot = {
+      ...slot,
+      id,
+      durationMinutes,
+    };
+
+    this.state.activeHourSlots.push(newSlot);
+    this.saveLocal();
+    this.notify();
+    setDoc(doc(db, 'active_hour_slots', id), newSlot).catch(() => {});
+    return newSlot;
+  }
+
+  public deleteActiveHourSlot(id: string, actor?: { id: string; name: string; role: string }): boolean {
+    const idx = this.state.activeHourSlots.findIndex((s) => s.id === id);
+    if (idx === -1) return false;
+
+    this.state.activeHourSlots.splice(idx, 1);
+    this.saveLocal();
+    this.notify();
+    deleteDoc(doc(db, 'active_hour_slots', id)).catch(() => {});
+    return true;
+  }
+
+  public resetActiveHourSlotsToDefault(actor?: { id: string; name: string; role: string }): void {
+    const defaults = [
+      { id: 'slot-1', label: 'Morning Session 1', startTime: '07:00', endTime: '09:15', durationMinutes: 135, isActive: true },
+      { id: 'slot-2', label: 'Morning Session 2', startTime: '09:45', endTime: '11:15', durationMinutes: 90, isActive: true },
+      { id: 'slot-3', label: 'Mid-day Session', startTime: '11:25', endTime: '12:55', durationMinutes: 90, isActive: true },
+      { id: 'slot-4', label: 'Afternoon Session 1', startTime: '14:00', endTime: '15:20', durationMinutes: 80, isActive: true },
+      { id: 'slot-5', label: 'Afternoon Session 2', startTime: '15:30', endTime: '16:10', durationMinutes: 40, isActive: true },
+    ];
+    this.state.activeHourSlots = defaults;
+    this.saveLocal();
+    this.notify();
+    this.batchSetFirestoreItems(defaults.map((d) => ({ collection: 'active_hour_slots', id: d.id, data: d }))).catch(() => {});
+  }
+
+  public formatMinutesToHours(minutes: number): string {
+    const h = Math.floor(minutes / 60);
+    const m = minutes % 60;
+    if (h === 0) return `${m}m`;
+    if (m === 0) return `${h}h`;
+    return `${h}h ${m}m`;
+  }
+
+  // ==========================================
+  // 📝 LEAVE APPLICATIONS WORKFLOW
+  // ==========================================
+  public applyLeave(
+    app: {
+      studentId: string;
+      studentAdmissionNumber?: string;
+      studentName?: string;
+      classId?: string;
+      leaveType: LeaveType;
+      startDate: string;
+      endDate: string;
+      startTime?: string;
+      endTime?: string;
+      slotsIncluded?: string[];
+      activeHourSlotIds?: string[];
+      totalDurationMinutes?: number;
+      totalDurationFormatted?: string;
+      reason: string;
+      appliedByTeacher?: boolean;
+      reviewerName?: string;
+      reviewerId?: string;
+    } | any,
+    actor?: { id: string; name: string; role: string }
+  ): LeaveApplication {
+    const id = `leave-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+    const student = this.state.students.find((s) => s.id === app.studentId);
+    const resolvedAdmissionNumber = app.studentAdmissionNumber || student?.admissionNumber || 'ADM000';
+    const resolvedName = app.studentName || student?.name || 'Student';
+    const resolvedClassId = app.classId || student?.classId || '';
+    const slots = app.slotsIncluded || app.activeHourSlotIds || [];
+
+    // Calculate total active hours from selected slots or start/end times
+    let totalMinutes = app.totalDurationMinutes || 0;
+    if (!totalMinutes) {
+      if (slots && slots.length > 0) {
+        slots.forEach((slotId: string) => {
+          const slot = this.state.activeHourSlots.find((s) => s.id === slotId);
+          if (slot) totalMinutes += slot.durationMinutes;
+        });
+      } else if (app.startTime && app.endTime) {
+        totalMinutes = this.calculateMinutesFromTimes(app.startTime, app.endTime);
+      } else {
+        totalMinutes = this.state.activeHourSlots.reduce((acc, s) => acc + s.durationMinutes, 0);
+      }
+    }
+
+    const newApp: LeaveApplication = {
+      id,
+      studentId: app.studentId,
+      studentAdmissionNumber: resolvedAdmissionNumber,
+      studentName: resolvedName,
+      classId: resolvedClassId,
+      leaveType: app.leaveType,
+      startDate: app.startDate,
+      endDate: app.endDate,
+      startTime: app.startTime,
+      endTime: app.endTime,
+      slotsIncluded: slots,
+      totalDurationMinutes: totalMinutes,
+      totalDurationFormatted: app.totalDurationFormatted || this.formatMinutesToHours(totalMinutes),
+      reason: app.reason,
+      status: app.appliedByTeacher ? 'approved' : 'pending',
+      appliedAt: new Date().toISOString(),
+      reviewedBy: app.appliedByTeacher ? app.reviewerId : undefined,
+      reviewedByName: app.appliedByTeacher ? app.reviewerName : undefined,
+      reviewedAt: app.appliedByTeacher ? new Date().toISOString() : undefined,
+    };
+
+    this.state.leaveApplications.unshift(newApp);
+    this.saveLocal();
+    this.notify();
+    setDoc(doc(db, 'leave_applications', id), newApp).catch(() => {});
+    return newApp;
+  }
+
+  public reviewLeave(
+    id: string,
+    status: 'approved' | 'rejected',
+    reviewerNameOrId?: string,
+    reviewerIdOrName?: string,
+    remarksOrActor?: string | any,
+    actor?: { id: string; name: string; role: string }
+  ): boolean {
+    const idx = this.state.leaveApplications.findIndex((l) => l.id === id);
+    if (idx === -1) return false;
+
+    let byName = reviewerNameOrId || 'Staff';
+    let byId = reviewerIdOrName || 'staff';
+    let remarks = typeof remarksOrActor === 'string' ? remarksOrActor : undefined;
+
+    this.state.leaveApplications[idx] = {
+      ...this.state.leaveApplications[idx],
+      status,
+      reviewedBy: byId,
+      reviewedByName: byName,
+      reviewedAt: new Date().toISOString(),
+      remarks: remarks || this.state.leaveApplications[idx].remarks,
+    };
+
+    this.saveLocal();
+    this.notify();
+    setDoc(doc(db, 'leave_applications', id), this.state.leaveApplications[idx], { merge: true }).catch(() => {});
+    return true;
+  }
+
+  public markLeaveArrived(id: string, arrivedAtOrActor?: string | any, actor?: any): boolean {
+    const idx = this.state.leaveApplications.findIndex((l) => l.id === id);
+    if (idx === -1) return false;
+
+    const arrivalTimestamp = typeof arrivedAtOrActor === 'string' ? arrivedAtOrActor : new Date().toISOString();
+    this.state.leaveApplications[idx] = {
+      ...this.state.leaveApplications[idx],
+      status: 'arrived',
+      hasArrived: true,
+      arrivedAt: arrivalTimestamp,
+      remarks: `Student checked in and marked arrived at ${new Date(arrivalTimestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`,
+    };
+
+    this.saveLocal();
+    this.notify();
+    setDoc(doc(db, 'leave_applications', id), this.state.leaveApplications[idx], { merge: true }).catch(() => {});
+    return true;
+  }
+
+  public deleteLeaveApplication(id: string, actor?: any): boolean {
+    const idx = this.state.leaveApplications.findIndex((l) => l.id === id);
+    if (idx === -1) return false;
+
+    this.state.leaveApplications.splice(idx, 1);
+    this.saveLocal();
+    this.notify();
+    deleteDoc(doc(db, 'leave_applications', id)).catch(() => {});
+    return true;
+  }
+
+  // ==========================================
+  // 📋 MULTI-PERIOD ATTENDANCE (Periods 1 - 9)
+  // ==========================================
+  public savePeriodAttendance(
+    params: {
+      date: string;
+      classId: string;
+      subjectId: string;
+      period: number;
+      records: {
+        studentId: string;
+        status: AttendanceStatus;
+        lateArrivalTime?: string;
+        lateReason?: string;
+        remarks?: string;
+      }[];
+      markedBy?: string;
+    } | any,
+    actor?: { id: string; name: string; role: string }
+  ): { savedCount: number } {
+    const itemsToSave: { collection: string; id: string; data: any }[] = [];
+    const markedBy = params.markedBy || actor?.name || 'Staff';
+
+    params.records.forEach((rec: any) => {
+      // Deterministic key for exact period attendance
+      const recordId = `att-${params.date}-${params.subjectId}-p${params.period}-${rec.studentId}`;
+      const existingIdx = this.state.attendanceRecords.findIndex(
+        (a) =>
+          a.date === params.date &&
+          a.subjectId === params.subjectId &&
+          a.period === params.period &&
+          a.studentId === rec.studentId
+      );
+
+      const record: AttendanceRecord = {
+        id: recordId,
+        date: params.date,
+        classId: params.classId,
+        subjectId: params.subjectId,
+        period: params.period,
+        studentId: rec.studentId,
+        status: rec.status,
+        lateArrivalTime: rec.lateArrivalTime,
+        lateReason: rec.lateReason,
+        remarks: rec.remarks,
+        markedBy,
+        markedAt: new Date().toISOString(),
+      };
+
+      if (existingIdx >= 0) {
+        this.state.attendanceRecords[existingIdx] = record;
+      } else {
+        this.state.attendanceRecords.push(record);
+      }
+
+      itemsToSave.push({ collection: 'attendance_records', id: recordId, data: record });
+    });
+
+    this.saveLocal();
+    this.notify();
+
+    if (itemsToSave.length > 0) {
+      this.batchSetFirestoreItems(itemsToSave).catch(() => {});
+    }
+
+    return { savedCount: params.records.length };
+  }
+
+  public recordAttendance(
+    date: string,
+    classId: string,
+    subjectId: string,
+    period: number,
+    studentId: string,
+    status: AttendanceStatus,
+    markedBy: string
+  ): void {
+    this.savePeriodAttendance({
+      date,
+      classId,
+      subjectId,
+      period,
+      records: [{ studentId, status }],
+      markedBy,
+    });
+  }
+
+  public recordLeaveArrival(id: string, actorName?: string): boolean {
+    return this.markLeaveArrived(id, new Date().toISOString(), { name: actorName || 'Staff' });
+  }
+
+  public grantAttendanceClearance(
+    clearance: Omit<AttendanceClearance, 'id' | 'clearedDate'> | any,
+    actor?: { id: string; name: string; role: string }
+  ): AttendanceClearance {
+    const id = `clr-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+    const newClr: AttendanceClearance = {
+      ...clearance,
+      id,
+      clearedDate: new Date().toISOString(),
+    };
+
+    this.state.attendanceClearances.unshift(newClr);
+    this.saveLocal();
+    this.notify();
+    setDoc(doc(db, 'attendance_clearances', id), newClr).catch(() => {});
+    return newClr;
+  }
+
+  public revokeAttendanceClearance(id: string, actor?: { id: string; name: string; role: string }): boolean {
+    const idx = this.state.attendanceClearances.findIndex((c) => c.id === id);
+    if (idx === -1) return false;
+
+    this.state.attendanceClearances.splice(idx, 1);
+    this.saveLocal();
+    this.notify();
+    deleteDoc(doc(db, 'attendance_clearances', id)).catch(() => {});
+    return true;
+  }
+
+  public updateAttendanceRecordStatus(
+    recordId: string,
+    newStatus: AttendanceStatus,
+    remarks?: string,
+    actor?: { id: string; name: string; role: string }
+  ): boolean {
+    const idx = this.state.attendanceRecords.findIndex((r) => r.id === recordId);
+    if (idx === -1) return false;
+
+    this.state.attendanceRecords[idx] = {
+      ...this.state.attendanceRecords[idx],
+      status: newStatus,
+      remarks: remarks ? `${remarks} (Updated by ${actor?.name || 'Authority'})` : this.state.attendanceRecords[idx].remarks,
+      markedAt: new Date().toISOString(),
+    };
+
+    this.saveLocal();
+    this.notify();
+    setDoc(doc(db, 'attendance_records', recordId), this.state.attendanceRecords[idx], { merge: true }).catch(() => {});
+    return true;
+  }
+
+  public updateAttendanceRules(rules: Partial<AttendanceRulesConfig>): AttendanceRulesConfig {
+    this.state.attendanceRules = {
+      ...this.state.attendanceRules,
+      ...rules,
+    };
+    this.saveLocal();
+    this.notify();
+    setDoc(doc(db, 'system_config', 'attendance_rules'), this.state.attendanceRules, { merge: true }).catch(() => {});
+    return this.state.attendanceRules;
+  }
+
+  // ==========================================
+  // 💬 COMPLAINTS & FEEDBACK WITH ROUTING
+  // ==========================================
+  public submitComplaint(
+    item: (Omit<ComplaintFeedback, 'id' | 'submittedAt' | 'status' | 'title'> & { title?: string; subject?: string }) | any,
+    actor?: { id: string; name: string; role: string }
+  ): ComplaintFeedback {
+    const id = `cmp-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+    const effectiveTitle = item.title || item.subject || 'Complaint/Feedback';
+    const newComplaint: ComplaintFeedback = {
+      ...item,
+      title: effectiveTitle,
+      subject: item.subject || effectiveTitle,
+      id,
+      status: 'pending',
+      submittedAt: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
+    };
+
+    this.state.complaintsFeedback.unshift(newComplaint);
+    this.saveLocal();
+    this.notify();
+    setDoc(doc(db, 'complaints_feedback', id), newComplaint).catch(() => {});
+    return newComplaint;
+  }
+
+  public respondToComplaint(
+    id: string,
+    responseOrUpdates: string | { response: string; respondedByName?: string; respondedBy?: string; status?: any },
+    responderName?: string | any,
+    responderId?: string,
+    status: 'in_progress' | 'resolved' = 'resolved'
+  ): boolean {
+    const idx = this.state.complaintsFeedback.findIndex((c) => c.id === id);
+    if (idx === -1) return false;
+
+    let text = '';
+    let byName = '';
+    let byId = '';
+    let finalStatus = status;
+
+    if (typeof responseOrUpdates === 'object' && responseOrUpdates !== null) {
+      text = responseOrUpdates.response || '';
+      byName = responseOrUpdates.respondedByName || (responderName?.name || 'Administrator');
+      byId = responseOrUpdates.respondedBy || (responderName?.id || 'admin');
+      finalStatus = responseOrUpdates.status || 'resolved';
+    } else {
+      text = String(responseOrUpdates || '');
+      byName = typeof responderName === 'string' ? responderName : 'Administrator';
+      byId = responderId || 'admin';
+    }
+
+    this.state.complaintsFeedback[idx] = {
+      ...this.state.complaintsFeedback[idx],
+      response: text,
+      respondedBy: byId,
+      respondedByName: byName,
+      respondedAt: new Date().toISOString(),
+      resolvedAt: new Date().toISOString(),
+      status: finalStatus,
+    };
+
+    this.saveLocal();
+    this.notify();
+    setDoc(doc(db, 'complaints_feedback', id), this.state.complaintsFeedback[idx], { merge: true }).catch(() => {});
+    return true;
+  }
+
+  public deleteComplaint(id: string, operator?: { id: string; name: string; role: string }): boolean {
+    const idx = this.state.complaintsFeedback.findIndex((c) => c.id === id);
+    if (idx === -1) return false;
+
+    this.state.complaintsFeedback.splice(idx, 1);
+    this.saveLocal();
+    this.notify();
+    deleteDoc(doc(db, 'complaints_feedback', id)).catch(() => {});
+    return true;
+  }
+
+  public updateAllowedReceivers(types: MessageReceiverType[]): void {
+    this.state.allowedReceiverTypes = types;
+    this.saveLocal();
+    this.notify();
+    setDoc(doc(db, 'system_config', 'allowed_receivers'), { types }, { merge: true }).catch(() => {});
+  }
+
+  // ==========================================
+  // ⚙️ SUBJECT & TEACHER PERMISSIONS
+  // ==========================================
+  public setSubjectAttendanceTracking(subjectId: string, track: boolean, operator?: any): boolean {
+    return this.updateSubjectAttendanceSettings(subjectId, { trackAttendance: track });
+  }
+  public updateSubjectAttendanceSettings(
+    subjectId: string,
+    settings: {
+      trackAttendance?: boolean;
+      isSplitSubject?: boolean;
+      splitGroupName?: string;
+      enrolledStudentIds?: string[];
+    }
+  ): boolean {
+    const idx = this.state.subjects.findIndex((s) => s.id === subjectId);
+    if (idx === -1) return false;
+
+    this.state.subjects[idx] = {
+      ...this.state.subjects[idx],
+      ...settings,
+    };
+
+    this.saveLocal();
+    this.notify();
+    setDoc(doc(db, 'subjects', subjectId), this.state.subjects[idx], { merge: true }).catch(() => {});
+    return true;
+  }
+
+  public updateTeacherAttendanceAccess(
+    teacherId: string,
+    canManageAllAttendance: boolean,
+    specialRoleTitle?: string
+  ): boolean {
+    const idx = this.state.teachers.findIndex((t) => t.id === teacherId);
+    if (idx === -1) return false;
+
+    this.state.teachers[idx] = {
+      ...this.state.teachers[idx],
+      canManageAllAttendance,
+      specialRoleTitle: specialRoleTitle || this.state.teachers[idx].specialRoleTitle,
+    };
+
+    this.saveLocal();
+    this.notify();
+    setDoc(doc(db, 'teachers', teacherId), this.state.teachers[idx], { merge: true }).catch(() => {});
+    return true;
+  }
+
+  // ==========================================
+  // 📅 TIMETABLE & CLASS ATTENDANCE CONTROLS
+  // ==========================================
+  public toggleClassAttendance(classId: string, isAttendanceEnabled: boolean): boolean {
+    const idx = this.state.classes.findIndex((c) => c.id === classId);
+    if (idx === -1) return false;
+
+    this.state.classes[idx] = {
+      ...this.state.classes[idx],
+      isAttendanceEnabled,
+    };
+    this.saveLocal();
+    this.notify();
+    setDoc(doc(db, 'classes', classId), this.state.classes[idx], { merge: true }).catch(() => {});
+    return true;
+  }
+
+  public updateSubjectTeacherAccess(
+    subjectId: string,
+    assignedTeacherId?: string,
+    additionalTeacherIds?: string[]
+  ): boolean {
+    const idx = this.state.subjects.findIndex((s) => s.id === subjectId);
+    if (idx === -1) return false;
+
+    this.state.subjects[idx] = {
+      ...this.state.subjects[idx],
+      ...(assignedTeacherId !== undefined ? { assignedTeacherId } : {}),
+      ...(additionalTeacherIds !== undefined ? { additionalTeacherIds } : {}),
+    };
+
+    this.saveLocal();
+    this.notify();
+    setDoc(doc(db, 'subjects', subjectId), this.state.subjects[idx], { merge: true }).catch(() => {});
+    return true;
+  }
+
+  public updateSubjectEnrolledStudents(subjectId: string, studentIds: string[]): boolean {
+    const idx = this.state.subjects.findIndex((s) => s.id === subjectId);
+    if (idx === -1) return false;
+
+    this.state.subjects[idx] = {
+      ...this.state.subjects[idx],
+      enrolledStudentIds: studentIds,
+    };
+    this.saveLocal();
+    this.notify();
+    setDoc(doc(db, 'subjects', subjectId), this.state.subjects[idx], { merge: true }).catch(() => {});
+    return true;
+  }
+
+  public getTimetablePeriods(): TimetablePeriodDefinition[] {
+    return (this.state.timetablePeriods || []).slice().sort((a, b) => a.periodNumber - b.periodNumber);
+  }
+
+  public saveTimetablePeriods(periods: TimetablePeriodDefinition[]): void {
+    this.state.timetablePeriods = periods;
+    this.saveLocal();
+    this.notify();
+    setDoc(doc(db, 'system_config', 'timetable_periods'), { periods }, { merge: true }).catch(() => {});
+  }
+
+  public addTimetablePeriod(period: TimetablePeriodDefinition): TimetablePeriodDefinition {
+    if (!this.state.timetablePeriods) this.state.timetablePeriods = [];
+    const newPeriod: TimetablePeriodDefinition = {
+      ...period,
+      id: period.id || `period-${Date.now()}`,
+    };
+    this.state.timetablePeriods.push(newPeriod);
+    this.saveLocal();
+    this.notify();
+    setDoc(doc(db, 'timetable_periods', newPeriod.id), newPeriod).catch(() => {});
+    return newPeriod;
+  }
+
+  public updateTimetablePeriod(id: string, updates: Partial<TimetablePeriodDefinition>): boolean {
+    if (!this.state.timetablePeriods) return false;
+    const idx = this.state.timetablePeriods.findIndex((p) => p.id === id);
+    if (idx === -1) return false;
+
+    this.state.timetablePeriods[idx] = {
+      ...this.state.timetablePeriods[idx],
+      ...updates,
+    };
+    this.saveLocal();
+    this.notify();
+    setDoc(doc(db, 'timetable_periods', id), this.state.timetablePeriods[idx], { merge: true }).catch(() => {});
+    return true;
+  }
+
+  public deleteTimetablePeriod(id: string): boolean {
+    if (!this.state.timetablePeriods) return false;
+    const idx = this.state.timetablePeriods.findIndex((p) => p.id === id);
+    if (idx === -1) return false;
+
+    this.state.timetablePeriods.splice(idx, 1);
+    this.saveLocal();
+    this.notify();
+    deleteDoc(doc(db, 'timetable_periods', id)).catch(() => {});
+    return true;
+  }
+
+  public getTimetableSlots(): TimetableSlot[] {
+    return (this.state.timetableSlots || []).slice();
+  }
+
+  public saveTimetableSlots(slots: TimetableSlot[]): void {
+    this.state.timetableSlots = slots;
+    this.saveLocal();
+    this.notify();
+    setDoc(doc(db, 'system_config', 'timetable_slots'), { slots }, { merge: true }).catch(() => {});
+  }
+
+  public saveTimetableSlot(slot: TimetableSlot): TimetableSlot {
+    if (!this.state.timetableSlots) this.state.timetableSlots = [];
+    const id = slot.id || `tt-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+    const fullSlot = { ...slot, id };
+    const existingIdx = this.state.timetableSlots.findIndex((s) => s.id === id);
+
+    if (existingIdx !== -1) {
+      this.state.timetableSlots[existingIdx] = fullSlot;
+    } else {
+      this.state.timetableSlots.push(fullSlot);
+    }
+
+    this.saveLocal();
+    this.notify();
+    setDoc(doc(db, 'timetable_slots', id), fullSlot).catch(() => {});
+    return fullSlot;
+  }
+
+  public deleteTimetableSlot(id: string): boolean {
+    if (!this.state.timetableSlots) return false;
+    const idx = this.state.timetableSlots.findIndex((s) => s.id === id);
+    if (idx === -1) return false;
+
+    this.state.timetableSlots.splice(idx, 1);
+    this.saveLocal();
+    this.notify();
+    deleteDoc(doc(db, 'timetable_slots', id)).catch(() => {});
+    return true;
+  }
+
+  public getTimetableForDay(classId: string, dayOfWeek: DayOfWeek): TimetableSlot[] {
+    if (!this.state.timetableSlots) return [];
+    return this.state.timetableSlots
+      .filter((s) => s.classId === classId && s.dayOfWeek.toLowerCase() === dayOfWeek.toLowerCase())
+      .sort((a, b) => a.periodNumber - b.periodNumber);
   }
 
   public getLastSyncTime(): string | null {

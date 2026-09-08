@@ -17,6 +17,12 @@ import {
   LogOut,
   Settings,
   X,
+  Calendar,
+  CalendarCheck,
+  Clock,
+  Trophy,
+  ShieldAlert,
+  MessageSquare,
 } from 'lucide-react';
 
 export type NavSection =
@@ -25,7 +31,14 @@ export type NavSection =
   | 'teachers'
   | 'classes'
   | 'subjects'
+  | 'attendance'
+  | 'leaves'
+  | 'timetable'
+  | 'achievements'
+  | 'discipline'
+  | 'feedback'
   | 'evaluation-levels'
+  | 'attendance-settings'
   | 'settings'
   | 'excel-import'
   | 'reports'
@@ -117,19 +130,65 @@ export const Sidebar: React.FC<SidebarProps> = ({
             active={currentSection === 'subjects'}
             onClick={() => handleSelect('subjects')}
           />
+
+          <div className="text-slate-500 text-[10px] uppercase font-semibold tracking-wider mt-5 mb-2 px-3">
+            College Operations
+          </div>
+          <NavItem
+            icon={<CalendarCheck className="w-5 h-5" />}
+            label="Attendance (Hajar)"
+            active={currentSection === 'attendance'}
+            onClick={() => handleSelect('attendance')}
+          />
+          <NavItem
+            icon={<Clock className="w-5 h-5" />}
+            label="Leave Applications"
+            active={currentSection === 'leaves'}
+            onClick={() => handleSelect('leaves')}
+          />
+          <NavItem
+            icon={<Calendar className="w-5 h-5" />}
+            label="Timetable & Schedule"
+            active={currentSection === 'timetable'}
+            onClick={() => handleSelect('timetable')}
+          />
+          <NavItem
+            icon={<Trophy className="w-5 h-5" />}
+            label="Achievements"
+            active={currentSection === 'achievements'}
+            onClick={() => handleSelect('achievements')}
+          />
+          <NavItem
+            icon={<ShieldAlert className="w-5 h-5" />}
+            label="Behavior & Discipline"
+            active={currentSection === 'discipline'}
+            onClick={() => handleSelect('discipline')}
+          />
+          <NavItem
+            icon={<MessageSquare className="w-5 h-5" />}
+            label="Complaints & Feedback"
+            active={currentSection === 'feedback'}
+            onClick={() => handleSelect('feedback')}
+          />
+
+          <div className="text-slate-500 text-[10px] uppercase font-semibold tracking-wider mt-5 mb-2 px-3">
+            Academics & Settings
+          </div>
           <NavItem
             icon={<Sliders className="w-5 h-5" />}
             label="Evaluation Levels"
             active={currentSection === 'evaluation-levels'}
             onClick={() => handleSelect('evaluation-levels')}
           />
-
-          <div className="text-slate-500 text-[10px] uppercase font-semibold tracking-wider mt-5 mb-2 px-3">
-            Settings & Control
-          </div>
           <NavItem
             icon={<Settings className="w-5 h-5" />}
-            label="Settings"
+            label="Attendance Settings"
+            active={currentSection === 'attendance-settings'}
+            onClick={() => handleSelect('attendance-settings')}
+          />
+          <NavItem
+            icon={<Settings className="w-5 h-5" />}
+            label="Portal Settings"
             active={currentSection === 'settings'}
             onClick={() => handleSelect('settings')}
           />
@@ -170,6 +229,42 @@ export const Sidebar: React.FC<SidebarProps> = ({
             label="Dashboard"
             active={currentSection === 'teacher-dashboard'}
             onClick={() => handleSelect('teacher-dashboard')}
+          />
+          <NavItem
+            icon={<CalendarCheck className="w-5 h-5" />}
+            label="Attendance (Hajar)"
+            active={currentSection === 'attendance'}
+            onClick={() => handleSelect('attendance')}
+          />
+          <NavItem
+            icon={<Clock className="w-5 h-5" />}
+            label="Leave Applications"
+            active={currentSection === 'leaves'}
+            onClick={() => handleSelect('leaves')}
+          />
+          <NavItem
+            icon={<Calendar className="w-5 h-5" />}
+            label="Timetable & Schedule"
+            active={currentSection === 'timetable'}
+            onClick={() => handleSelect('timetable')}
+          />
+          <NavItem
+            icon={<Trophy className="w-5 h-5" />}
+            label="Achievements"
+            active={currentSection === 'achievements'}
+            onClick={() => handleSelect('achievements')}
+          />
+          <NavItem
+            icon={<ShieldAlert className="w-5 h-5" />}
+            label="Discipline Registry"
+            active={currentSection === 'discipline'}
+            onClick={() => handleSelect('discipline')}
+          />
+          <NavItem
+            icon={<MessageSquare className="w-5 h-5" />}
+            label="Complaints & Feedback"
+            active={currentSection === 'feedback'}
+            onClick={() => handleSelect('feedback')}
           />
           <NavItem
             icon={<BookOpen className="w-5 h-5" />}
@@ -237,9 +332,39 @@ export const Sidebar: React.FC<SidebarProps> = ({
           />
           <NavItem
             icon={<User className="w-5 h-5" />}
-            label="My Profile"
+            label="My Profile & Dossier"
             active={currentSection === 'student-profile'}
             onClick={() => handleSelect('student-profile')}
+          />
+          <NavItem
+            icon={<CalendarCheck className="w-5 h-5" />}
+            label="Attendance (Hajar)"
+            active={currentSection === 'attendance'}
+            onClick={() => handleSelect('attendance')}
+          />
+          <NavItem
+            icon={<Clock className="w-5 h-5" />}
+            label="Leave Applications"
+            active={currentSection === 'leaves'}
+            onClick={() => handleSelect('leaves')}
+          />
+          <NavItem
+            icon={<Calendar className="w-5 h-5" />}
+            label="Class Timetable"
+            active={currentSection === 'timetable'}
+            onClick={() => handleSelect('timetable')}
+          />
+          <NavItem
+            icon={<Trophy className="w-5 h-5" />}
+            label="Achievements & Awards"
+            active={currentSection === 'achievements'}
+            onClick={() => handleSelect('achievements')}
+          />
+          <NavItem
+            icon={<MessageSquare className="w-5 h-5" />}
+            label="Complaints & Feedback"
+            active={currentSection === 'feedback'}
+            onClick={() => handleSelect('feedback')}
           />
           <NavItem
             icon={<BookOpen className="w-5 h-5" />}
@@ -275,8 +400,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
             <BookOpen className="w-5 h-5" />
           </div>
           <div className="flex flex-col min-w-0">
-            <span className="text-white font-bold text-base tracking-tight truncate">DHDC CCE Portal</span>
-            <span className="text-[10px] text-slate-400 font-medium tracking-wide truncate">CCE Evaluation</span>
+            <span className="text-white font-bold text-base tracking-tight truncate">DHDC Portal</span>
+            <span className="text-[10px] text-slate-400 font-medium tracking-wide truncate">College Main Portal</span>
           </div>
         </div>
         {onCloseMobile && (

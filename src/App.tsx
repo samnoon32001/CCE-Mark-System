@@ -17,6 +17,16 @@ import { ReportsView } from './components/admin/ReportsView';
 import { AuditLogView } from './components/admin/AuditLogView';
 import { SettingsView } from './components/admin/SettingsView';
 
+// College Operations Views
+import { AttendanceLeaveView } from './components/attendance/AttendanceLeaveView';
+import { LeaveManagementView } from './components/leaves/LeaveManagementView';
+import { TimetableManagementView } from './components/timetable/TimetableManagementView';
+import { AchievementsView } from './components/achievements/AchievementsView';
+import { BehaviorDisciplineView } from './components/discipline/BehaviorDisciplineView';
+import { ComplaintsFeedbackView } from './components/feedback/ComplaintsFeedbackView';
+import { AttendanceSettingsView } from './components/attendance/AttendanceSettingsView';
+import { MobileBottomNav } from './components/layout/MobileBottomNav';
+
 // Teacher Views
 import { TeacherDashboard } from './components/teacher/TeacherDashboard';
 import { TeacherClassesView } from './components/teacher/TeacherClassesView';
@@ -70,7 +80,7 @@ const MainLayout: React.FC = () => {
         />
 
         {/* Scrollable Dynamic Main Content Area */}
-        <main className="flex-1 overflow-y-auto p-3.5 sm:p-6 lg:p-8 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
+        <main className="flex-1 overflow-y-auto p-3.5 sm:p-6 lg:p-8 pb-24 md:pb-8 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">
           <div className="max-w-7xl w-full mx-auto">
             <ErrorBoundary>
               {/* Admin Views */}
@@ -88,6 +98,15 @@ const MainLayout: React.FC = () => {
               {currentSection === 'excel-import' && <ExcelImportView />}
               {currentSection === 'reports' && <ReportsView />}
               {currentSection === 'audit-logs' && <AuditLogView />}
+
+              {/* Shared College Operations Views */}
+              {currentSection === 'attendance' && <AttendanceLeaveView />}
+              {currentSection === 'leaves' && <LeaveManagementView />}
+              {currentSection === 'timetable' && <TimetableManagementView />}
+              {currentSection === 'achievements' && <AchievementsView />}
+              {currentSection === 'discipline' && <BehaviorDisciplineView />}
+              {currentSection === 'feedback' && <ComplaintsFeedbackView />}
+              {currentSection === 'attendance-settings' && <AttendanceSettingsView />}
 
               {/* Teacher Views */}
               {currentSection === 'teacher-dashboard' && (
@@ -112,6 +131,13 @@ const MainLayout: React.FC = () => {
             </ErrorBoundary>
           </div>
         </main>
+
+        {/* Mobile App-style Bottom Navigation Bar */}
+        <MobileBottomNav
+          currentSection={currentSection}
+          onSelectSection={setCurrentSection}
+          onToggleMenu={() => setIsMobileSidebarOpen((prev) => !prev)}
+        />
       </div>
     </div>
   );

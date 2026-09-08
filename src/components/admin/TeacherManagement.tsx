@@ -993,7 +993,7 @@ export const TeacherManagement: React.FC = () => {
                   Portal Login URL / Role
                 </label>
                 <div className="font-medium text-slate-800 dark:text-slate-200">
-                  CCE Portal &gt; Teacher Tab
+                  DHDC Portal &gt; Teacher Tab
                 </div>
               </div>
 

@@ -8,10 +8,50 @@ export interface User {
   email?: string;
   phone?: string;
   admissionNumber?: string;
+  studentId?: string;
   status: 'active' | 'inactive';
   password?: string;
   createdAt: string;
   updatedAt?: string;
+}
+
+export interface StudentGuardianInfo {
+  name?: string;
+  relationship?: string;
+  phone?: string;
+  email?: string;
+  address?: string;
+  occupation?: string;
+  fatherName?: string;
+  fatherPhone?: string;
+  fatherOccupation?: string;
+  motherName?: string;
+  motherPhone?: string;
+  motherOccupation?: string;
+  guardianName?: string;
+  guardianRelation?: string;
+  guardianPhone?: string;
+  guardianEmail?: string;
+  guardianAddress?: string;
+  guardianOccupation?: string;
+  emergencyContactName?: string;
+  emergencyContactPhone?: string;
+  alternatePhone?: string;
+  familyNotes?: string;
+}
+
+export interface ClassTeacherNotes {
+  generalObservations?: string;
+  strengths?: string;
+  concerns?: string;
+  areasOfImprovement?: string;
+  behaviorRemarks?: string;
+  personalDevelopment?: string;
+  counselingNotes?: string;
+  recommendations?: string;
+  lastUpdated?: string;
+  updatedBy?: string;
+  updatedByName?: string;
 }
 
 export interface Student {
@@ -24,6 +64,17 @@ export interface Student {
   username: string;
   status: 'active' | 'inactive';
   createdDate: string;
+  enrollmentDate?: string;
+  // Extended Profile
+  photoUrl?: string;
+  dob?: string;
+  gender?: 'male' | 'female' | 'other';
+  bloodGroup?: string;
+  address?: string;
+  rollNumber?: string;
+  guardian?: StudentGuardianInfo;
+  classTeacherNotes?: ClassTeacherNotes;
+  electiveSubjectIds?: string[]; // IDs of split/elective subjects enrolled in
 }
 
 export interface Teacher {
@@ -37,6 +88,8 @@ export interface Teacher {
   assignedClassIds: string[];
   classTeacherOfClassIds: string[];
   createdDate: string;
+  specialRoleTitle?: string; // e.g. "Principal", "Academic Assistant", "HoD", "HoS"
+  canManageAllAttendance?: boolean; // Granted access to take/view attendance for all subjects
 }
 
 export interface ClassRoom {
@@ -46,6 +99,7 @@ export interface ClassRoom {
   classTeacherId?: string;
   status: 'active' | 'inactive';
   createdDate?: string;
+  isAttendanceEnabled?: boolean;
 }
 
 export interface Subject {
@@ -54,7 +108,13 @@ export interface Subject {
   code: string; // e.g. "ENG101"
   classId: string;
   assignedTeacherId?: string;
+  teacherId?: string; // alias for assignedTeacherId
   status: 'active' | 'inactive';
+  trackAttendance?: boolean; // toggle in subject settings (default: true)
+  isSplitSubject?: boolean; // true if this subject splits periods (e.g. Computer App vs Humanities)
+  splitGroupName?: string; // e.g. "Computer Application" or "Humanities"
+  enrolledStudentIds?: string[]; // specific students enrolled if split
+  additionalTeacherIds?: string[]; // teachers given secondary/co-access for this subject
 }
 
 export interface EvaluationLevel {
@@ -121,4 +181,241 @@ export interface StudentSubjectSummary {
   percentage: number;
   finalWeightedMark: number; // out of 30
   isFullyCompleted: boolean;
+}
+
+// ==========================================
+// 🏆 ACHIEVEMENTS
+// ==========================================
+export type AchievementCategory =
+  | 'award'
+  | 'competition'
+  | 'certificate'
+  | 'sports'
+  | 'arts_cultural'
+  | 'recognition'
+  | 'special_recognition';
+
+export interface Achievement {
+  id: string;
+  studentId: string;
+  title: string;
+  category: AchievementCategory;
+  date: string;
+  description: string;
+  positionPrize?: string; // e.g. "1st Prize", "Gold Medal", "State Finalist"
+  position?: string; // alias for positionPrize
+  awardedBy?: string; // Organization / Institution / College
+  issuer?: string; // alias for awardedBy
+  level?: string; // e.g. "College", "State", "National"
+  certificateUrl?: string;
+  createdDate: string;
+}
+
+export type AchievementRecord = Achievement;
+
+// ==========================================
+// 🧭 BEHAVIOR & DISCIPLINE
+// ==========================================
+export type BehaviorType = 'positive' | 'incident' | 'warning' | 'observation' | 'action_taken';
+export type IncidentSeverity = 'low' | 'medium' | 'high';
+
+export interface BehaviorRecord {
+  id: string;
+  studentId: string;
+  type: BehaviorType;
+  title: string;
+  description: string;
+  severity?: IncidentSeverity;
+  actionTaken?: string;
+  points?: number;
+  followUpStatus?: 'open' | 'under_review' | 'resolved';
+  recordedBy: string;
+  recordedById?: string;
+  recordedByName?: string;
+  recordedByRole: string;
+  date: string;
+}
+
+// ==========================================
+// 📅 DAY ACTIVE HOURS & LEAVE CALCULATION
+// ==========================================
+export interface ActiveHourSlot {
+  id: string;
+  label: string; // e.g. "Morning Session 1", "Session 2"
+  startTime: string; // e.g. "07:00"
+  endTime: string; // e.g. "09:15"
+  durationMinutes: number; // calculated minutes e.g. 135
+  isActive: boolean;
+}
+
+export type LeaveType =
+  | 'official'
+  | 'casual'
+  | 'academic'
+  | 'medical'
+  | 'official_leave'
+  | 'casual_leave'
+  | 'academic_leave'
+  | 'medical_leave';
+export type LeaveStatus = 'pending' | 'approved' | 'rejected' | 'arrived';
+
+export interface LeaveApplication {
+  id: string;
+  studentId: string;
+  studentAdmissionNumber: string;
+  studentName: string;
+  classId: string;
+  leaveType: LeaveType;
+  startDate: string;
+  endDate: string;
+  startTime?: string;
+  endTime?: string;
+  slotsIncluded: string[]; // ActiveHourSlot IDs
+  totalDurationMinutes: number; // Total active hours calculated from slots
+  totalDurationFormatted: string; // e.g. "4h 30m"
+  reason: string;
+  status: LeaveStatus;
+  appliedAt: string;
+  reviewedBy?: string;
+  reviewedByName?: string;
+  reviewedAt?: string;
+  hasArrived?: boolean;
+  arrivedAt?: string;
+  remarks?: string;
+}
+
+// ==========================================
+// 📋 MULTI-PERIOD ATTENDANCE (Periods 1 - 9)
+// ==========================================
+export type AttendanceStatus =
+  | 'present'
+  | 'absent'
+  | 'official_leave'
+  | 'casual_leave'
+  | 'academic_leave'
+  | 'medical_leave'
+  | 'late';
+
+export interface AttendanceRecord {
+  id: string;
+  date: string; // YYYY-MM-DD
+  classId: string;
+  subjectId: string;
+  period: number; // 1 to 9
+  studentId: string;
+  status: AttendanceStatus;
+  lateArrivalTime?: string; // e.g. "08:15 AM"
+  lateReason?: string;
+  markedBy: string;
+  markedAt: string;
+  remarks?: string;
+}
+
+export interface AttendanceClearance {
+  id: string;
+  studentId: string;
+  subjectId?: string; // empty string or omitted for all-subject clearance
+  grantedBy: string;
+  grantedByName: string;
+  clearedByName?: string; // alias for grantedByName
+  grantedByRole: string; // e.g. "HoD", "HoS", "Academic Assistant", "Super Admin"
+  clearedByRole?: string; // alias for grantedByRole
+  approvedPercentage?: number;
+  reason: string;
+  clearedDate: string;
+  academicYear: string;
+  notes?: string;
+}
+
+export interface AttendanceRulesConfig {
+  maxOfficialLeavePercent: number; // default: 10
+  maxCasualLeavePercent: number; // default: 15
+  maxTotalLeavesPercent: number; // default: 25 (official + casual + medical)
+  maxOfficialCasualCombinedPercent: number; // default: 15
+  minRequiredAttendancePercent: number; // default: 85 (without medical)
+  academicLeaveCountedAsPresent: boolean; // default: true
+  clearanceAllowedRoles?: string[]; // e.g. ['super_admin', 'Principal', 'HoD', 'HoS', 'Academic Assistant']
+  clearanceTeacherIds?: string[];
+  customRoleRules?: Record<string, Partial<AttendanceRulesConfig>>;
+}
+
+// ==========================================
+// ⏰ PERIOD TIMINGS & TIMETABLE SCHEDULE
+// ==========================================
+export interface TimetablePeriodDefinition {
+  id: string;
+  periodNumber: number; // 1, 2, 3...
+  name: string; // e.g. "Period 1"
+  startTime: string; // e.g. "07:45"
+  endTime: string; // e.g. "08:30"
+  isBreak?: boolean;
+  breakLabel?: string; // e.g. "Interval", "Lunch & Prayer Break"
+}
+
+export type DayOfWeek =
+  | 'Sunday'
+  | 'Monday'
+  | 'Tuesday'
+  | 'Wednesday'
+  | 'Thursday'
+  | 'Friday'
+  | 'Saturday';
+
+export interface TimetableSlot {
+  id: string;
+  dayOfWeek: DayOfWeek;
+  periodNumber: number;
+  classId: string;
+  subjectId: string;
+  teacherId?: string;
+  room?: string;
+  isSplitSlot?: boolean;
+}
+
+// ==========================================
+// 💬 COMPLAINTS & FEEDBACK WITH ROUTING
+// ==========================================
+export type MessageReceiverType =
+  | 'principal'
+  | 'academic_assistant'
+  | 'class_teacher'
+  | 'hod'
+  | 'hos'
+  | 'super_admin';
+
+export interface ComplaintFeedback {
+  id: string;
+  studentId: string;
+  studentAdmissionNumber: string;
+  studentName: string;
+  classId: string;
+  receiverType: MessageReceiverType;
+  title: string;
+  subject?: string; // alias for title
+  category:
+    | 'complaint'
+    | 'feedback'
+    | 'academic'
+    | 'facility'
+    | 'facilities'
+    | 'administration'
+    | 'attendance'
+    | 'general'
+    | 'other';
+  message: string;
+  status:
+    | 'pending'
+    | 'in_progress'
+    | 'resolved'
+    | 'submitted'
+    | 'acknowledged'
+    | 'in_review';
+  response?: string;
+  respondedBy?: string;
+  respondedByName?: string;
+  respondedAt?: string;
+  resolvedAt?: string; // alias for respondedAt when resolved
+  submittedAt: string;
+  createdAt?: string; // alias for submittedAt
+  isAnonymous?: boolean;
 }

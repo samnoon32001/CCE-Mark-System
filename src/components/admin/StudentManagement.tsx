@@ -22,6 +22,7 @@ import {
 import { Modal } from '../common/Modal';
 import { ConfirmDialog } from '../common/ConfirmDialog';
 import { Badge } from '../common/Badge';
+import { StudentDossierModal } from '../student/StudentDossierModal';
 
 export const StudentManagement: React.FC = () => {
   const { currentUser } = useAuth();
@@ -752,7 +753,15 @@ export const StudentManagement: React.FC = () => {
       </Modal>
 
       {/* View Student Details Modal with Subjects and Marks */}
-      {viewingStudent && (() => {
+      {viewingStudent && (
+        <StudentDossierModal
+          student={viewingStudent}
+          isOpen={true}
+          onClose={() => setViewingStudent(null)}
+          onSave={() => setRerender((v) => v + 1)}
+        />
+      )}
+      {false && viewingStudent && (() => {
         const studentClass = state.classes.find((c) => c.id === viewingStudent.classId);
         const studentSubjects = state.subjects.filter((s) => s.classId === viewingStudent.classId);
 

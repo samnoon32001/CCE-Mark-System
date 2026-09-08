@@ -12,11 +12,12 @@ import {
   CheckCircle2,
 } from 'lucide-react';
 import { Badge } from '../common/Badge';
+import { AcademicPerformanceDossier } from './AcademicPerformanceDossier';
 
 export const StudentMarksView: React.FC = () => {
   const { currentUser } = useAuth();
   const state = dataService.getState();
-  const [viewMode, setViewMode] = useState<'matrix' | 'report-card'>('matrix');
+  const [viewMode, setViewMode] = useState<'matrix' | 'report-card' | 'dossier'>('matrix');
 
   const student = state.students.find(
     (s) =>
@@ -139,6 +140,16 @@ export const StudentMarksView: React.FC = () => {
               Detailed Breakdown
             </button>
             <button
+              onClick={() => setViewMode('dossier')}
+              className={`px-3 py-1.5 rounded-lg transition ${
+                viewMode === 'dossier'
+                  ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs'
+                  : 'text-slate-500'
+              }`}
+            >
+              Academic Dossier & Remarks
+            </button>
+            <button
               onClick={() => setViewMode('report-card')}
               className={`px-3 py-1.5 rounded-lg transition ${
                 viewMode === 'report-card'
@@ -206,7 +217,9 @@ export const StudentMarksView: React.FC = () => {
         </div>
       </div>
 
-      {viewMode === 'matrix' ? (
+      {viewMode === 'dossier' ? (
+        <AcademicPerformanceDossier studentId={student.id} />
+      ) : viewMode === 'matrix' ? (
         /* Detailed Subject Marks Table matching Section 18 */
         <div className="bg-white dark:bg-slate-800/80 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-xs overflow-hidden">
           <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
