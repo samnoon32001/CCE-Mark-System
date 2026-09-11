@@ -90,7 +90,12 @@ export interface Teacher {
   createdDate: string;
   specialRoleTitle?: string; // e.g. "Principal", "Academic Assistant", "HoD", "HoS"
   canManageAllAttendance?: boolean; // Granted access to take/view attendance for all subjects
+  roleIds?: string[]; // IDs of assigned institutional roles (e.g. ['role-principal', 'role-degree-hod'])
+  customPermissions?: string[]; // Explicit directly granted permission keys
+  deniedPermissions?: string[]; // Explicit denied permission keys
 }
+
+export type { AppPermission, RoleDefinition } from './utils/permissions';
 
 export interface ClassRoom {
   id: string;
@@ -325,6 +330,29 @@ export interface AttendanceClearance {
   clearedDate: string;
   academicYear: string;
   notes?: string;
+}
+
+export interface StudentLeaveClearanceApplication {
+  id: string;
+  studentId: string;
+  studentName: string;
+  studentAdmissionNumber: string;
+  classId: string;
+  className: string;
+  subjectId: string;
+  subjectName: string;
+  recordIds: string[];
+  dates: string[];
+  periods: number[];
+  clearanceType: 'academic_leave' | 'official_leave' | 'medical_leave';
+  reason: string;
+  status: 'pending' | 'approved' | 'rejected';
+  appliedAt: string;
+  reviewedBy?: string;
+  reviewedByName?: string;
+  reviewedByRole?: string;
+  reviewedAt?: string;
+  reviewRemarks?: string;
 }
 
 export interface AttendanceRulesConfig {

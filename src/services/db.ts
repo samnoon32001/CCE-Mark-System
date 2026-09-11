@@ -23,6 +23,7 @@ import type {
   LeaveApplication,
   AttendanceRecord,
   AttendanceClearance,
+  StudentLeaveClearanceApplication,
   ComplaintFeedback,
   AttendanceRulesConfig,
   MessageReceiverType,
@@ -34,6 +35,7 @@ import type {
   DayOfWeek,
   TimetableSlot,
 } from '../types';
+import { RoleDefinition, INITIAL_DEFAULT_ROLES } from '../utils/permissions';
 
 const STORAGE_KEY = 'student_mark_system_db_v1';
 
@@ -56,12 +58,14 @@ export interface DatabaseState {
   leaveApplications: LeaveApplication[];
   attendanceRecords: AttendanceRecord[];
   attendanceClearances: AttendanceClearance[];
+  studentLeaveClearanceApplications?: StudentLeaveClearanceApplication[];
   complaintsFeedback: ComplaintFeedback[];
   complaints?: ComplaintFeedback[];
   allowedReceiverTypes: MessageReceiverType[];
   attendanceRules: AttendanceRulesConfig;
   timetablePeriods?: TimetablePeriodDefinition[];
   timetableSlots?: TimetableSlot[];
+  roles?: RoleDefinition[];
 }
 
 // Initial robust seed data matching all requirements
@@ -1056,8 +1060,145 @@ const INITIAL_STATE: DatabaseState = {
       markedBy: 'Mr. Robert Vance',
       markedAt: '2025-02-12T10:05:00.000Z',
     },
+    // Seed records with Casual Leaves & Absences across multiple students and dates
+    {
+      id: 'att-1001-eng-p4-cl',
+      date: '2025-02-18',
+      classId: 'class-8a',
+      subjectId: 'sub-8a-eng',
+      period: 1,
+      studentId: 'std-1001',
+      status: 'casual_leave',
+      markedBy: 'Mr. Robert Vance',
+      markedAt: '2025-02-18T08:00:00.000Z',
+      remarks: 'Default casual leave (Unchecked)',
+    },
+    {
+      id: 'att-1001-soc-p1-cl',
+      date: '2025-02-20',
+      classId: 'class-8a',
+      subjectId: 'sub-8a-soc',
+      period: 2,
+      studentId: 'std-1001',
+      status: 'casual_leave',
+      markedBy: 'Mrs. Elena Rostova',
+      markedAt: '2025-02-20T09:30:00.000Z',
+    },
+    {
+      id: 'att-1002-eng-p3-cl',
+      date: '2025-02-18',
+      classId: 'class-8a',
+      subjectId: 'sub-8a-eng',
+      period: 1,
+      studentId: 'std-1002',
+      status: 'casual_leave',
+      markedBy: 'Mr. Robert Vance',
+      markedAt: '2025-02-18T08:00:00.000Z',
+    },
+    {
+      id: 'att-1002-soc-p2-cl',
+      date: '2025-02-20',
+      classId: 'class-8a',
+      subjectId: 'sub-8a-soc',
+      period: 2,
+      studentId: 'std-1002',
+      status: 'casual_leave',
+      markedBy: 'Mrs. Elena Rostova',
+      markedAt: '2025-02-20T09:30:00.000Z',
+    },
+    {
+      id: 'att-1002-soc-p3-cl',
+      date: '2025-02-22',
+      classId: 'class-8a',
+      subjectId: 'sub-8a-soc',
+      period: 3,
+      studentId: 'std-1002',
+      status: 'absent',
+      markedBy: 'Mrs. Elena Rostova',
+      markedAt: '2025-02-22T11:00:00.000Z',
+    },
+    {
+      id: 'att-1003-eng-p1-cl',
+      date: '2025-02-18',
+      classId: 'class-8a',
+      subjectId: 'sub-8a-eng',
+      period: 1,
+      studentId: 'std-1003',
+      status: 'casual_leave',
+      markedBy: 'Mr. Robert Vance',
+      markedAt: '2025-02-18T08:00:00.000Z',
+    },
+    {
+      id: 'att-1003-eng-p2-cl',
+      date: '2025-02-19',
+      classId: 'class-8a',
+      subjectId: 'sub-8a-eng',
+      period: 2,
+      studentId: 'std-1003',
+      status: 'casual_leave',
+      markedBy: 'Mr. Robert Vance',
+      markedAt: '2025-02-19T09:00:00.000Z',
+    },
+    {
+      id: 'att-1003-soc-p1-cl',
+      date: '2025-02-20',
+      classId: 'class-8a',
+      subjectId: 'sub-8a-soc',
+      period: 2,
+      studentId: 'std-1003',
+      status: 'casual_leave',
+      markedBy: 'Mrs. Elena Rostova',
+      markedAt: '2025-02-20T09:30:00.000Z',
+    },
+    {
+      id: 'att-1003-soc-p2-cl',
+      date: '2025-02-22',
+      classId: 'class-8a',
+      subjectId: 'sub-8a-soc',
+      period: 3,
+      studentId: 'std-1003',
+      status: 'absent',
+      markedBy: 'Mrs. Elena Rostova',
+      markedAt: '2025-02-22T11:00:00.000Z',
+    },
   ],
   attendanceClearances: [],
+  studentLeaveClearanceApplications: [
+    {
+      id: 'slc-1',
+      studentId: 'std-1001',
+      studentName: 'Alice Johnson',
+      studentAdmissionNumber: '1001',
+      classId: 'class-8a',
+      className: 'Class 8A',
+      subjectId: 'sub-8a-eng',
+      subjectName: 'English Literature',
+      recordIds: ['att-1001-eng-p4-cl'],
+      dates: ['2025-02-18'],
+      periods: [1],
+      clearanceType: 'academic_leave',
+      reason: 'Represented institution at Inter-College Model UN debate session.',
+      status: 'pending',
+      appliedAt: '2025-02-18T16:00:00.000Z',
+    },
+    {
+      id: 'slc-2',
+      studentId: 'std-1002',
+      studentName: 'Bob Smith',
+      studentAdmissionNumber: '1002',
+      classId: 'class-8a',
+      className: 'Class 8A',
+      subjectId: 'sub-8a-soc',
+      subjectName: 'Social Science',
+      recordIds: ['att-1002-soc-p3-cl'],
+      dates: ['2025-02-22'],
+      periods: [3],
+      clearanceType: 'medical_leave',
+      reason: 'Hospital outpatient consultation with medical prescription attached.',
+      status: 'pending',
+      appliedAt: '2025-02-22T14:30:00.000Z',
+    },
+  ],
   complaintsFeedback: [
     {
       id: 'cmp-1',
@@ -1253,6 +1394,7 @@ const INITIAL_STATE: DatabaseState = {
     { id: 'tt-10a-sat-3', dayOfWeek: 'Saturday', periodNumber: 3, classId: 'class-10a', subjectId: 'sub-10a-sci', teacherId: 'teacher-3', room: 'Hall 10A' },
     { id: 'tt-10a-sat-4', dayOfWeek: 'Saturday', periodNumber: 4, classId: 'class-10a', subjectId: 'sub-10a-hum', teacherId: 'teacher-4', room: 'Room 12', isSplitSlot: true },
   ],
+  roles: INITIAL_DEFAULT_ROLES,
 };
 
 class DataService {
@@ -1283,12 +1425,25 @@ class DataService {
       }
 
       // Safety defaults for newly introduced modules
+      if (!state.roles || state.roles.length === 0) {
+        state.roles = JSON.parse(JSON.stringify(INITIAL_DEFAULT_ROLES));
+      } else {
+        // Guarantee all default system roles exist
+        INITIAL_DEFAULT_ROLES.forEach((defRole) => {
+          if (!state.roles!.some((r) => r.id === defRole.id || r.name.toLowerCase() === defRole.name.toLowerCase())) {
+            state.roles!.push(JSON.parse(JSON.stringify(defRole)));
+          }
+        });
+      }
       if (!state.achievements) state.achievements = JSON.parse(JSON.stringify(INITIAL_STATE.achievements));
       if (!state.behaviorRecords) state.behaviorRecords = JSON.parse(JSON.stringify(INITIAL_STATE.behaviorRecords));
       if (!state.activeHourSlots || state.activeHourSlots.length === 0) state.activeHourSlots = JSON.parse(JSON.stringify(INITIAL_STATE.activeHourSlots));
       if (!state.leaveApplications) state.leaveApplications = JSON.parse(JSON.stringify(INITIAL_STATE.leaveApplications));
       if (!state.attendanceRecords) state.attendanceRecords = JSON.parse(JSON.stringify(INITIAL_STATE.attendanceRecords));
       if (!state.attendanceClearances) state.attendanceClearances = [];
+      if (!state.studentLeaveClearanceApplications || state.studentLeaveClearanceApplications.length === 0) {
+        state.studentLeaveClearanceApplications = JSON.parse(JSON.stringify(INITIAL_STATE.studentLeaveClearanceApplications || []));
+      }
       if (!state.complaintsFeedback) state.complaintsFeedback = JSON.parse(JSON.stringify(INITIAL_STATE.complaintsFeedback));
       if (!state.allowedReceiverTypes || state.allowedReceiverTypes.length === 0) state.allowedReceiverTypes = JSON.parse(JSON.stringify(INITIAL_STATE.allowedReceiverTypes));
       if (!state.attendanceRules) state.attendanceRules = JSON.parse(JSON.stringify(INITIAL_STATE.attendanceRules));
@@ -4037,6 +4192,168 @@ class DataService {
     return true;
   }
 
+  public batchClearAttendanceRecords(
+    params: {
+      recordIds: string[];
+      newStatus: AttendanceStatus;
+      reason?: string;
+    },
+    actor?: { id: string; name: string; role: string }
+  ): { count: number } {
+    let count = 0;
+    const itemsToSave: { collection: string; id: string; data: any }[] = [];
+    const actorLabel = actor?.name || 'Authority';
+
+    params.recordIds.forEach((recordId) => {
+      const idx = this.state.attendanceRecords.findIndex((r) => r.id === recordId);
+      if (idx !== -1) {
+        const current = this.state.attendanceRecords[idx];
+        const statusLabel =
+          params.newStatus === 'academic_leave'
+            ? 'Academic Leave'
+            : params.newStatus === 'official_leave'
+            ? 'Official Leave'
+            : params.newStatus === 'medical_leave'
+            ? 'Medical Leave'
+            : params.newStatus;
+        const updated: AttendanceRecord = {
+          ...current,
+          status: params.newStatus,
+          remarks: params.reason
+            ? `${params.reason} (Cleared as ${statusLabel} by ${actorLabel})`
+            : `Cleared as ${statusLabel} by ${actorLabel}`,
+          markedAt: new Date().toISOString(),
+        };
+        this.state.attendanceRecords[idx] = updated;
+        itemsToSave.push({ collection: 'attendance_records', id: recordId, data: updated });
+        count++;
+      }
+    });
+
+    if (count > 0) {
+      this.saveLocal();
+      this.notify();
+      if (itemsToSave.length > 0) {
+        this.batchSetFirestoreItems(itemsToSave).catch(() => {});
+      }
+      if (actor) {
+        this.addAuditLog({
+          userId: actor.id,
+          userName: actor.name,
+          role: actor.role,
+          action: 'Batch Attendance Clearance',
+          entity: 'AttendanceRecord',
+          entityId: params.recordIds.join(', '),
+          details: `Cleared ${count} attendance records as ${params.newStatus}. Reason: ${params.reason || 'None provided'}`,
+        });
+      }
+    }
+    return { count };
+  }
+
+  public applyStudentLeaveClearance(
+    app: Omit<StudentLeaveClearanceApplication, 'id' | 'appliedAt' | 'status'>
+  ): StudentLeaveClearanceApplication {
+    const id = `slc-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+    const newApp: StudentLeaveClearanceApplication = {
+      ...app,
+      id,
+      status: 'pending',
+      appliedAt: new Date().toISOString(),
+    };
+
+    if (!this.state.studentLeaveClearanceApplications) {
+      this.state.studentLeaveClearanceApplications = [];
+    }
+    this.state.studentLeaveClearanceApplications.unshift(newApp);
+
+    this.saveLocal();
+    this.notify();
+    setDoc(doc(db, 'student_leave_clearance_applications', id), newApp).catch(() => {});
+    return newApp;
+  }
+
+  public reviewStudentLeaveClearance(
+    id: string,
+    status: 'approved' | 'rejected',
+    remarks?: string,
+    actor?: { id: string; name: string; role: string }
+  ): boolean {
+    if (!this.state.studentLeaveClearanceApplications) return false;
+    const idx = this.state.studentLeaveClearanceApplications.findIndex((a) => a.id === id);
+    if (idx === -1) return false;
+
+    const currentApp = this.state.studentLeaveClearanceApplications[idx];
+    const updatedApp: StudentLeaveClearanceApplication = {
+      ...currentApp,
+      status,
+      reviewedBy: actor?.id,
+      reviewedByName: actor?.name,
+      reviewedByRole: actor?.role,
+      reviewedAt: new Date().toISOString(),
+      reviewRemarks: remarks || currentApp.reviewRemarks,
+    };
+
+    this.state.studentLeaveClearanceApplications[idx] = updatedApp;
+
+    // If approved, automatically convert all associated attendance records to requested clearanceType
+    if (status === 'approved') {
+      const actorLabel = actor?.name ? `${actor.name} (${actor.role})` : 'Clearance Authority';
+      const statusLabel =
+        currentApp.clearanceType === 'academic_leave'
+          ? 'Academic Leave'
+          : currentApp.clearanceType === 'official_leave'
+          ? 'Official Leave'
+          : 'Medical Leave';
+
+      currentApp.recordIds.forEach((recId) => {
+        const recIdx = this.state.attendanceRecords.findIndex((r) => r.id === recId);
+        if (recIdx !== -1) {
+          const rec = this.state.attendanceRecords[recIdx];
+          this.state.attendanceRecords[recIdx] = {
+            ...rec,
+            status: currentApp.clearanceType,
+            remarks: `Cleared as ${statusLabel} by ${actorLabel}. Student reason: ${currentApp.reason}`,
+            markedAt: new Date().toISOString(),
+          };
+          setDoc(doc(db, 'attendance_records', recId), this.state.attendanceRecords[recIdx], { merge: true }).catch(() => {});
+        }
+      });
+
+      // Also create an AttendanceClearance audit record
+      this.grantAttendanceClearance(
+        {
+          studentId: currentApp.studentId,
+          subjectId: currentApp.subjectId,
+          grantedBy: actor?.id || 'admin',
+          grantedByName: actor?.name || 'Authority',
+          grantedByRole: actor?.role || 'Authority',
+          reason: `Student clearance application approved: ${currentApp.reason}`,
+          academicYear: this.state.currentAcademicYear || '2025-2026',
+          notes: `Cleared ${currentApp.recordIds.length} session(s) on dates: ${currentApp.dates.join(', ')} as ${statusLabel}`,
+        },
+        actor
+      );
+    }
+
+    if (actor) {
+      this.addAuditLog({
+        userId: actor.id,
+        userName: actor.name,
+        role: actor.role,
+        action: `Clearance Application ${status === 'approved' ? 'Approved' : 'Rejected'}`,
+        entity: 'StudentLeaveClearanceApplication',
+        entityId: id,
+        details: `${status === 'approved' ? 'Approved and cleared' : 'Rejected'} clearance application for ${currentApp.studentName} (${currentApp.studentAdmissionNumber}) - ${currentApp.subjectName}. Remark: ${remarks || 'None'}`,
+      });
+    }
+
+    this.saveLocal();
+    this.notify();
+    setDoc(doc(db, 'student_leave_clearance_applications', id), updatedApp, { merge: true }).catch(() => {});
+    return true;
+  }
+
   public updateAttendanceRules(rules: Partial<AttendanceRulesConfig>): AttendanceRulesConfig {
     this.state.attendanceRules = {
       ...this.state.attendanceRules,
@@ -4331,6 +4648,174 @@ class DataService {
     return this.state.timetableSlots
       .filter((s) => s.classId === classId && s.dayOfWeek.toLowerCase() === dayOfWeek.toLowerCase())
       .sort((a, b) => a.periodNumber - b.periodNumber);
+  }
+
+  // ==========================================
+  // 🔐 ROLES & PERMISSIONS MANAGEMENT
+  // ==========================================
+  public getRoles(): RoleDefinition[] {
+    return (this.state.roles || INITIAL_DEFAULT_ROLES).slice();
+  }
+
+  public saveRole(
+    role: RoleDefinition,
+    actor?: { id: string; name: string; role: string }
+  ): RoleDefinition {
+    if (!this.state.roles) {
+      this.state.roles = JSON.parse(JSON.stringify(INITIAL_DEFAULT_ROLES));
+    }
+
+    const id = role.id || `role-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+    const fullRole: RoleDefinition = { ...role, id };
+    const existingIdx = this.state.roles.findIndex((r) => r.id === id);
+
+    if (existingIdx !== -1) {
+      this.state.roles[existingIdx] = fullRole;
+    } else {
+      this.state.roles.push(fullRole);
+    }
+
+    this.saveLocal();
+    this.notify();
+    setDoc(doc(db, 'roles', id), fullRole).catch(() => {});
+
+    if (actor) {
+      this.addAuditLog({
+        userId: actor.id,
+        userName: actor.name,
+        role: actor.role,
+        action: existingIdx !== -1 ? 'Updated Role' : 'Created Role',
+        entity: 'Role',
+        entityId: id,
+        details: `${existingIdx !== -1 ? 'Updated' : 'Created'} role ${fullRole.name} with ${fullRole.permissions.length} permissions`,
+      });
+    }
+
+    return fullRole;
+  }
+
+  public deleteRole(
+    id: string,
+    actor?: { id: string; name: string; role: string }
+  ): boolean {
+    if (!this.state.roles) return false;
+    const idx = this.state.roles.findIndex((r) => r.id === id);
+    if (idx === -1) return false;
+
+    const roleToDelete = this.state.roles[idx];
+    // Remove this role from any assigned teachers
+    this.state.teachers.forEach((t) => {
+      if (t.roleIds && t.roleIds.includes(id)) {
+        t.roleIds = t.roleIds.filter((rid) => rid !== id);
+      }
+    });
+
+    this.state.roles.splice(idx, 1);
+    this.saveLocal();
+    this.notify();
+    deleteDoc(doc(db, 'roles', id)).catch(() => {});
+
+    if (actor) {
+      this.addAuditLog({
+        userId: actor.id,
+        userName: actor.name,
+        role: actor.role,
+        action: 'Deleted Role',
+        entity: 'Role',
+        entityId: id,
+        details: `Deleted role ${roleToDelete.name}`,
+      });
+    }
+
+    return true;
+  }
+
+  public assignTeacherRoles(
+    teacherId: string,
+    roleIds: string[],
+    customPermissions?: string[],
+    deniedPermissions?: string[],
+    actor?: { id: string; name: string; role: string }
+  ): void {
+    const teacher = this.state.teachers.find((t) => t.id === teacherId);
+    if (!teacher) return;
+
+    teacher.roleIds = roleIds;
+    if (customPermissions !== undefined) {
+      teacher.customPermissions = customPermissions;
+    }
+    if (deniedPermissions !== undefined) {
+      teacher.deniedPermissions = deniedPermissions;
+    }
+
+    // Set primary specialRoleTitle from first assigned role
+    const activeRoles = this.state.roles || INITIAL_DEFAULT_ROLES;
+    const firstRole = activeRoles.find((r) => roleIds.includes(r.id));
+    if (firstRole) {
+      teacher.specialRoleTitle = firstRole.name;
+    } else if (roleIds.length === 0) {
+      teacher.specialRoleTitle = undefined;
+    }
+
+    this.saveLocal();
+    this.notify();
+    setDoc(doc(db, 'teachers', teacherId), teacher).catch(() => {});
+
+    if (actor) {
+      this.addAuditLog({
+        userId: actor.id,
+        userName: actor.name,
+        role: actor.role,
+        action: 'Assigned Teacher Roles',
+        entity: 'Teacher',
+        entityId: teacherId,
+        details: `Updated roles and permissions for ${teacher.name}`,
+      });
+    }
+  }
+
+  public toggleTeacherPermission(
+    teacherId: string,
+    permission: string,
+    grant: boolean,
+    actor?: { id: string; name: string; role: string }
+  ): void {
+    const teacher = this.state.teachers.find((t) => t.id === teacherId);
+    if (!teacher) return;
+
+    const currentCustom = teacher.customPermissions || [];
+    const currentDenied = teacher.deniedPermissions || [];
+
+    if (grant) {
+      // Add to customPermissions, remove from deniedPermissions
+      teacher.customPermissions = Array.from(new Set([...currentCustom, permission]));
+      teacher.deniedPermissions = currentDenied.filter((p) => p !== permission);
+    } else {
+      // Remove from customPermissions, add to deniedPermissions
+      teacher.customPermissions = currentCustom.filter((p) => p !== permission);
+      teacher.deniedPermissions = Array.from(new Set([...currentDenied, permission]));
+    }
+
+    // Legacy sync
+    if (permission === 'attendance_all_subjects') {
+      teacher.canManageAllAttendance = grant;
+    }
+
+    this.saveLocal();
+    this.notify();
+    setDoc(doc(db, 'teachers', teacherId), teacher).catch(() => {});
+
+    if (actor) {
+      this.addAuditLog({
+        userId: actor.id,
+        userName: actor.name,
+        role: actor.role,
+        action: grant ? 'Granted Permission' : 'Revoked Permission',
+        entity: 'Teacher',
+        entityId: teacherId,
+        details: `${grant ? 'Granted' : 'Revoked'} ${permission} for ${teacher.name}`,
+      });
+    }
   }
 
   public getLastSyncTime(): string | null {
