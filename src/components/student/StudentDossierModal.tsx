@@ -33,6 +33,7 @@ import {
   Printer,
 } from 'lucide-react';
 import { Badge } from '../common/Badge';
+import { ImageUploadField } from '../common/ImageUploadField';
 
 interface StudentDossierModalProps {
   student: Student;
@@ -449,14 +450,13 @@ export const StudentDossierModal: React.FC<StudentDossierModalProps> = ({
                       className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg"
                     />
                   </div>
-                  <div>
-                    <label className="block font-medium text-slate-700 dark:text-slate-300 mb-1">Photo URL</label>
-                    <input
-                      type="text"
-                      placeholder="https://..."
-                      value={formData.photoUrl}
-                      onChange={(e) => setFormData({ ...formData, photoUrl: e.target.value })}
-                      className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg"
+                  <div className="col-span-1 sm:col-span-2">
+                    <ImageUploadField
+                      id="student-dossier-photo"
+                      label="Student Photograph (Upload File or URL)"
+                      value={formData.photoUrl || ''}
+                      onChange={(val) => setFormData({ ...formData, photoUrl: val })}
+                      helperText="Photos are compressed to lightweight WebP/JPEG and stored locally in browser storage & synced to cloud Firestore."
                     />
                   </div>
                   <div>

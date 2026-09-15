@@ -24,6 +24,7 @@ import {
   Check,
   UserCheck,
 } from 'lucide-react';
+import { ImageUploadField } from '../common/ImageUploadField';
 import { dataService } from '../../services/db';
 import { useAuth } from '../../context/AuthContext';
 import type {
@@ -175,6 +176,10 @@ export const ShowcaseManagementModal: React.FC<ShowcaseManagementModalProps> = (
     if (cls) {
       setFormSectionOrClass(cls.name);
       setFormClassId(cls.id);
+    }
+
+    if (student.photoUrl) {
+      setFormImageUrl(student.photoUrl);
     }
   };
 
@@ -1039,18 +1044,15 @@ export const ShowcaseManagementModal: React.FC<ShowcaseManagementModalProps> = (
                   </div>
                 </div>
 
-                {/* Image URL & Accent Color */}
+                {/* Student Photo Upload & Accent Color */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">
-                      Student Photo URL
-                    </label>
-                    <input
-                      type="url"
+                  <div className="space-y-1">
+                    <ImageUploadField
+                      id="showcase-photo-upload"
+                      label="Student Photo (Upload File or URL)"
                       value={formImageUrl}
-                      onChange={(e) => setFormImageUrl(e.target.value)}
-                      placeholder="https://..."
-                      className="w-full px-3.5 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-900 dark:text-slate-100"
+                      onChange={(val) => setFormImageUrl(val)}
+                      helperText="Photos are compressed and stored locally in browser storage & synced to cloud Firestore."
                     />
                   </div>
 
