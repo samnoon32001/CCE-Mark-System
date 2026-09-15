@@ -72,29 +72,29 @@ export const ClassToppersModal: React.FC<ClassToppersModalProps> = ({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header Ribbon */}
-        <div className="relative overflow-hidden px-5 py-5 sm:px-8 sm:py-6 bg-gradient-to-r from-amber-500 via-amber-600 to-yellow-600 text-white shrink-0">
+        <div className="relative overflow-hidden px-4 py-4 sm:px-8 sm:py-6 bg-gradient-to-r from-amber-500 via-amber-600 to-yellow-600 text-white shrink-0">
           <div className="absolute -right-8 -bottom-8 opacity-15 pointer-events-none">
-            <Trophy className="w-48 h-48 text-white" />
+            <Trophy className="w-32 h-32 sm:w-48 sm:h-48 text-white" />
           </div>
 
           <div className="flex items-start justify-between relative z-10">
             <div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-xs font-bold text-amber-50 tracking-wide uppercase mb-2">
-                <Sparkles className="w-3.5 h-3.5 text-yellow-200" />
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full bg-white/20 backdrop-blur-md text-[10px] sm:text-xs font-bold text-amber-50 tracking-wide uppercase mb-1.5">
+                <Sparkles className="w-3 h-3 text-yellow-200" />
                 Honor Roll & Class Distinction
               </div>
-              <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white flex items-center gap-2">
+              <h2 className="text-lg sm:text-2xl font-black tracking-tight text-white flex items-center gap-2">
                 Class Academic Toppers
               </h2>
-              <p className="text-xs sm:text-sm text-amber-100 mt-1 max-w-xl font-medium">
-                Celebrating the highest scoring students in each class and division for {examName}.
+              <p className="text-[11px] sm:text-sm text-amber-100 mt-0.5 sm:mt-1 max-w-xl font-medium">
+                Top ranked students across each class for {examName}.
               </p>
             </div>
 
             <button
               id="close-class-toppers-modal-btn"
               onClick={onClose}
-              className="p-2 text-white/80 hover:text-white hover:bg-white/20 rounded-xl transition-colors cursor-pointer"
+              className="p-1.5 sm:p-2 text-white/80 hover:text-white hover:bg-white/20 rounded-xl transition-colors cursor-pointer shrink-0"
               aria-label="Close modal"
             >
               <X className="w-5 h-5" />
@@ -102,30 +102,30 @@ export const ClassToppersModal: React.FC<ClassToppersModalProps> = ({
           </div>
 
           {/* Quick Stats Pill Bar */}
-          <div className="flex items-center gap-3 mt-4 text-xs font-semibold text-amber-100 flex-wrap">
-            <span className="bg-black/20 px-3 py-1 rounded-lg">
-              Total Class Toppers: <strong className="text-white font-bold">{classToppers.length}</strong>
+          <div className="flex items-center gap-1.5 sm:gap-3 mt-2.5 sm:mt-4 text-[10px] sm:text-xs font-semibold text-amber-100 flex-wrap">
+            <span className="bg-black/20 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-md sm:rounded-lg">
+              Toppers: <strong className="text-white font-bold">{classToppers.length}</strong>
             </span>
-            <span className="bg-black/20 px-3 py-1 rounded-lg">
-              Top Score: <strong className="text-white font-bold">99.0%</strong>
+            <span className="bg-black/20 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-md sm:rounded-lg">
+              Highest: <strong className="text-white font-bold">99.0%</strong>
             </span>
-            <span className="bg-black/20 px-3 py-1 rounded-lg">
-              Session: <strong className="text-white font-bold">2026-2027</strong>
+            <span className="bg-black/20 px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-md sm:rounded-lg hidden xs:inline">
+              Session: <strong className="text-white font-bold">2026-27</strong>
             </span>
           </div>
         </div>
 
         {/* Filter & Search Toolbar */}
-        <div className="p-4 sm:p-5 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 shrink-0 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
+        <div className="p-3 sm:p-5 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 shrink-0 flex flex-col sm:flex-row gap-2.5 sm:gap-3 items-stretch sm:items-center justify-between">
           <div className="relative flex-1">
-            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
+            <Search className="w-3.5 h-3.5 sm:w-4 sm:h-4 absolute left-3 sm:left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               id="search-class-toppers-input"
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by student name, admission #, or class (e.g. Class 1)..."
-              className="w-full pl-10 pr-4 py-2 text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-900 dark:text-slate-100"
+              placeholder="Search student, admission #, or class..."
+              className="w-full pl-8 sm:pl-10 pr-4 py-1.5 sm:py-2 text-xs sm:text-sm bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-500 text-slate-900 dark:text-slate-100"
             />
             {searchQuery && (
               <button

@@ -224,41 +224,39 @@ export const DashboardShowcaseBanner: React.FC<DashboardShowcaseBannerProps> = (
     >
       {/* Outer Showcase Container */}
       <div
-        className={`relative overflow-hidden rounded-2xl bg-gradient-to-br ${
+        className={`relative overflow-hidden rounded-xl sm:rounded-2xl bg-gradient-to-br ${
           accentStyles.cardBg
         } border ${
           accentStyles.border
-        } shadow-xl transition-all duration-300 ${
-          isPriorityOne ? 'sm:p-6 p-4 sm:min-h-[220px]' : 'sm:p-5 p-4 sm:min-h-[195px]'
-        }`}
+        } shadow-lg sm:shadow-xl transition-all duration-300 p-3 sm:p-5 md:p-6`}
       >
         {/* Subtle Decorative Background Trophy & Watermark */}
-        <div className="absolute right-0 top-0 bottom-0 w-1/3 opacity-10 pointer-events-none flex items-center justify-end pr-4 overflow-hidden">
-          <Trophy className="w-80 h-80 text-amber-300 transform translate-x-12 translate-y-6" />
+        <div className="absolute right-0 top-0 bottom-0 w-1/3 opacity-5 sm:opacity-10 pointer-events-none flex items-center justify-end pr-4 overflow-hidden">
+          <Trophy className="w-48 h-48 sm:w-80 sm:h-80 text-amber-300 transform translate-x-8 sm:translate-x-12 translate-y-4 sm:translate-y-6" />
         </div>
 
         {/* Ambient Top Glow */}
         <div
-          className={`absolute inset-x-0 top-0 h-32 bg-gradient-to-b ${accentStyles.glow} pointer-events-none`}
+          className={`absolute inset-x-0 top-0 h-20 sm:h-32 bg-gradient-to-b ${accentStyles.glow} pointer-events-none`}
         />
 
         {/* Top Header Bar: Slide info, slide dots & Management button */}
-        <div className="relative z-10 flex items-center justify-between gap-3 mb-3">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider bg-white/10 backdrop-blur-md text-amber-200 border border-white/10">
-              <Sparkles className="w-3.5 h-3.5 text-yellow-300 animate-pulse" />
-              {isPriorityOne ? 'Apex Institutional Honor' : 'Section Honors Spotlight'}
+        <div className="relative z-10 flex items-center justify-between gap-2 mb-2 sm:mb-3">
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap min-w-0">
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-wider bg-white/10 backdrop-blur-md text-amber-200 border border-white/10 shrink-0">
+              <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-yellow-300 animate-pulse" />
+              {isPriorityOne ? 'Apex Honor' : 'Honors Spotlight'}
             </span>
 
-            <span className="text-[11px] font-semibold text-slate-300 hidden sm:inline">
-              {currentCard.examName || "Rabee' Semester Examination 2026-27"}
+            <span className="text-[10px] sm:text-[11px] font-semibold text-slate-300 truncate max-w-[140px] xs:max-w-[200px] sm:max-w-none">
+              {currentCard.examName || "Rabee' Examination"}
             </span>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-1.5 shrink-0">
             {/* Slide Navigation Buttons */}
             {heroAndSectionSlides.length > 1 && (
-              <div className="flex items-center gap-1 bg-black/30 backdrop-blur-md rounded-xl p-1 border border-white/10">
+              <div className="flex items-center gap-0.5 sm:gap-1 bg-black/40 backdrop-blur-md rounded-lg sm:rounded-xl p-0.5 sm:p-1 border border-white/10">
                 <button
                   id="showcase-prev-slide-btn"
                   onClick={() =>
@@ -266,15 +264,15 @@ export const DashboardShowcaseBanner: React.FC<DashboardShowcaseBannerProps> = (
                       prev === 0 ? heroAndSectionSlides.length - 1 : prev - 1
                     )
                   }
-                  className="p-1 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
+                  className="p-1 text-white/70 hover:text-white hover:bg-white/10 rounded-md transition-colors cursor-pointer"
                   title="Previous Slide"
                   aria-label="Previous Slide"
                 >
-                  <ChevronLeft className="w-4 h-4" />
+                  <ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 </button>
 
-                <span className="text-[11px] font-mono font-bold text-white/80 px-1.5">
-                  {currentSlideIndex + 1} / {heroAndSectionSlides.length}
+                <span className="text-[10px] sm:text-[11px] font-mono font-bold text-white/90 px-1 sm:px-1.5">
+                  {currentSlideIndex + 1}/{heroAndSectionSlides.length}
                 </span>
 
                 <button
@@ -282,51 +280,51 @@ export const DashboardShowcaseBanner: React.FC<DashboardShowcaseBannerProps> = (
                   onClick={() =>
                     setCurrentSlideIndex((prev) => (prev + 1) % heroAndSectionSlides.length)
                   }
-                  className="p-1 text-white/70 hover:text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
+                  className="p-1 text-white/70 hover:text-white hover:bg-white/10 rounded-md transition-colors cursor-pointer"
                   title="Next Slide"
                   aria-label="Next Slide"
                 >
-                  <ChevronRight className="w-4 h-4" />
+                  <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 </button>
               </div>
             )}
 
             {/* Permission Gated Manager Trigger */}
             {canManageShowcase && (
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1">
                 <button
                   id="open-showcase-manager-btn"
                   onClick={() => setIsManagementModalOpen(true)}
-                  className="px-2.5 py-1 text-xs font-bold text-amber-200 hover:text-white bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 rounded-xl transition-colors cursor-pointer flex items-center gap-1.5"
+                  className="px-2 py-0.5 sm:px-2.5 sm:py-1 text-[11px] sm:text-xs font-bold text-amber-200 hover:text-white bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 rounded-lg sm:rounded-xl transition-colors cursor-pointer flex items-center gap-1"
                   title="Manage Spotlight Cards (Staff & Admin)"
                 >
-                  <Settings className="w-3.5 h-3.5" />
-                  <span className="hidden sm:inline">Manage Cards</span>
+                  <Settings className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                  <span className="hidden md:inline">Manage</span>
                 </button>
                 <button
                   id="delete-current-slide-btn"
                   onClick={() => setCardToDelete(currentCard)}
-                  className="p-1 text-rose-300 hover:text-rose-100 hover:bg-rose-500/30 rounded-xl border border-rose-500/20 transition-colors cursor-pointer"
+                  className="p-1 text-rose-300 hover:text-rose-100 hover:bg-rose-500/30 rounded-lg sm:rounded-xl border border-rose-500/20 transition-colors cursor-pointer"
                   title="Delete this slide from Spotlight Hub"
                 >
-                  <Trash2 className="w-3.5 h-3.5" />
+                  <Trash2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
                 </button>
               </div>
             )}
           </div>
         </div>
 
-        {/* Main Content: Adaptive size based on Priority 1 vs Priority 2 */}
-        <div className="relative z-10 flex flex-col md:flex-row items-center md:items-start justify-between gap-5">
-          {/* Left Column: Trophy / Student Photo + Meta */}
-          <div className="flex items-center gap-4 sm:gap-5 w-full md:w-auto">
+        {/* Main Content: Adaptive layout - compact horizontal unit on mobile */}
+        <div className="relative z-10 flex items-center justify-between gap-3 sm:gap-5">
+          {/* Left Column: Photo & Details */}
+          <div className="flex items-center gap-2.5 sm:gap-4 min-w-0 flex-1">
             {/* Student Photo / Grand Trophy Ring */}
             <div className="relative shrink-0">
               <div
-                className={`relative rounded-2xl overflow-hidden shadow-2xl transition-all ${
+                className={`relative rounded-xl sm:rounded-2xl overflow-hidden shadow-md sm:shadow-xl transition-all ${
                   isPriorityOne
-                    ? 'w-20 h-20 sm:w-26 sm:h-26 ring-4 ring-amber-400/80'
-                    : 'w-16 h-16 sm:w-20 sm:h-20 ring-2 ring-indigo-400/70'
+                    ? 'w-12 h-12 sm:w-20 sm:h-20 md:w-24 md:h-24 ring-2 sm:ring-4 ring-amber-400/80'
+                    : 'w-11 h-11 sm:w-16 sm:h-16 md:w-18 md:h-18 ring-2 ring-indigo-400/70'
                 }`}
               >
                 {currentCard.imageUrl ? (
@@ -337,7 +335,7 @@ export const DashboardShowcaseBanner: React.FC<DashboardShowcaseBannerProps> = (
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full bg-gradient-to-tr from-amber-600 to-yellow-500 flex items-center justify-center text-white font-black text-2xl">
+                  <div className="w-full h-full bg-gradient-to-tr from-amber-600 to-yellow-500 flex items-center justify-center text-white font-black text-base sm:text-2xl">
                     {currentCard.studentName.charAt(0)}
                   </div>
                 )}
@@ -345,86 +343,84 @@ export const DashboardShowcaseBanner: React.FC<DashboardShowcaseBannerProps> = (
 
               {/* Gold Crown / Trophy Badge */}
               <div
-                className={`absolute -bottom-2 -right-2 rounded-full flex items-center justify-center text-slate-950 font-black shadow-lg ${
+                className={`absolute -bottom-1 -right-1 sm:-bottom-1.5 sm:-right-1.5 rounded-full flex items-center justify-center text-slate-950 font-black shadow-md ${
                   isPriorityOne
-                    ? 'w-8 h-8 bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 ring-2 ring-slate-900'
-                    : 'w-6 h-6 bg-amber-400 ring-2 ring-slate-900'
+                    ? 'w-5 h-5 sm:w-7 sm:h-7 bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 ring-1.5 ring-slate-900'
+                    : 'w-4 h-4 sm:w-6 sm:h-6 bg-amber-400 ring-1.5 ring-slate-900'
                 }`}
               >
                 {isPriorityOne ? (
-                  <Crown className="w-4 h-4 text-slate-950 fill-slate-950" />
+                  <Crown className="w-3 h-3 sm:w-4 sm:h-4 text-slate-950 fill-slate-950" />
                 ) : (
-                  <Medal className="w-3.5 h-3.5 text-slate-950" />
+                  <Medal className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-slate-950" />
                 )}
               </div>
             </div>
 
             {/* Student Name & Title Info */}
             <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2 flex-wrap mb-1">
+              <div className="flex items-center gap-1.5 flex-wrap">
                 <span
-                  className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold ${accentStyles.badgeBg} border`}
+                  className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 sm:px-2 sm:py-0.5 rounded-md sm:rounded-full text-[9px] sm:text-[11px] font-bold ${accentStyles.badgeBg} border`}
                 >
-                  <Trophy className="w-3 h-3 text-amber-400" />
+                  <Trophy className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-amber-400" />
                   {currentCard.badgeText || (isPriorityOne ? 'Apex Topper' : 'Section Topper')}
                 </span>
 
-                <span className="text-xs font-bold text-slate-300">
+                <span className="text-[10px] sm:text-xs font-semibold text-slate-300">
                   {currentCard.sectionOrClass}
                 </span>
               </div>
 
               <h3
-                className={`font-black text-white tracking-tight leading-tight ${
-                  isPriorityOne ? 'text-lg sm:text-2xl' : 'text-base sm:text-xl'
+                className={`font-black text-white tracking-tight leading-tight truncate mt-0.5 ${
+                  isPriorityOne ? 'text-sm sm:text-xl md:text-2xl' : 'text-xs sm:text-lg md:text-xl'
                 }`}
               >
                 {currentCard.title}
               </h3>
 
-              <div className="mt-1 flex items-center gap-2 flex-wrap">
-                <span className="text-sm sm:text-base font-bold text-amber-300">
+              <div className="mt-0.5 flex items-center gap-1.5 flex-wrap">
+                <span className="text-xs sm:text-base font-bold text-amber-300 truncate max-w-[130px] sm:max-w-none">
                   {currentCard.studentName}
                 </span>
                 {currentCard.studentAdmissionNumber && (
-                  <span className="text-xs text-slate-400 font-mono">
-                    (Adm #{currentCard.studentAdmissionNumber})
+                  <span className="text-[10px] sm:text-xs text-slate-400 font-mono hidden xs:inline">
+                    (#{currentCard.studentAdmissionNumber})
                   </span>
                 )}
                 {currentCard.scoreDetails && (
-                  <span className="text-xs text-slate-300 hidden sm:inline">• {currentCard.scoreDetails}</span>
+                  <span className="text-[10px] sm:text-xs text-slate-300 hidden sm:inline">• {currentCard.scoreDetails}</span>
                 )}
               </div>
 
               {currentCard.description && (
-                <p className="text-xs text-slate-300/90 italic mt-1.5 max-w-xl line-clamp-2">
+                <p className="text-[11px] sm:text-xs text-slate-300/90 italic mt-0.5 max-w-xl line-clamp-1 hidden sm:block">
                   "{currentCard.description}"
                 </p>
               )}
             </div>
           </div>
 
-          {/* Right Column: Giant Percentage Readout & Distinction Pill */}
-          <div className="flex md:flex-col items-center md:items-end justify-between w-full md:w-auto shrink-0 pt-2 md:pt-0 border-t md:border-t-0 border-white/10">
-            <div className="text-left md:text-right">
-              <span className="text-[10px] sm:text-xs font-bold text-slate-400 uppercase tracking-wider block">
-                Aggregate Score
-              </span>
-              <div
-                className={`font-black font-mono tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-300 to-white ${
-                  isPriorityOne ? 'text-3xl sm:text-5xl' : 'text-2xl sm:text-4xl'
-                }`}
-              >
-                {currentCard.percentage}
-              </div>
+          {/* Right Column: Score & Rank Pill */}
+          <div className="flex flex-col items-end justify-center shrink-0 pl-1">
+            <span className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+              Aggregate
+            </span>
+            <div
+              className={`font-black font-mono tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-300 to-white leading-none ${
+                isPriorityOne ? 'text-2xl sm:text-4xl md:text-5xl' : 'text-xl sm:text-3xl md:text-4xl'
+              }`}
+            >
+              {currentCard.percentage}
             </div>
 
-            <div className="mt-1 md:mt-2">
+            <div className="mt-1">
               <span
-                className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-black shadow-lg ${accentStyles.pillBg}`}
+                className={`inline-flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg text-[9px] sm:text-xs font-black shadow-md ${accentStyles.pillBg}`}
               >
-                <Flame className="w-3.5 h-3.5" />
-                Rank #1 Honor
+                <Flame className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                <span>Rank #1</span>
               </span>
             </div>
           </div>
@@ -432,15 +428,15 @@ export const DashboardShowcaseBanner: React.FC<DashboardShowcaseBannerProps> = (
 
         {/* Slide Indicator Dots */}
         {heroAndSectionSlides.length > 1 && (
-          <div className="relative z-10 flex items-center justify-center gap-1.5 mt-4">
+          <div className="relative z-10 flex items-center justify-center gap-1 sm:gap-1.5 mt-2.5 sm:mt-3">
             {heroAndSectionSlides.map((slide, idx) => (
               <button
                 key={slide.id}
                 onClick={() => setCurrentSlideIndex(idx)}
-                className={`h-1.5 rounded-full transition-all cursor-pointer ${
+                className={`h-1 sm:h-1.5 rounded-full transition-all cursor-pointer ${
                   idx === currentSlideIndex
-                    ? 'w-7 bg-amber-400 shadow-sm shadow-amber-400/50'
-                    : 'w-2 bg-white/20 hover:bg-white/40'
+                    ? 'w-5 sm:w-7 bg-amber-400 shadow-sm shadow-amber-400/50'
+                    : 'w-1.5 sm:w-2 bg-white/20 hover:bg-white/40'
                 }`}
                 aria-label={`Go to slide ${idx + 1}`}
               />
@@ -448,11 +444,11 @@ export const DashboardShowcaseBanner: React.FC<DashboardShowcaseBannerProps> = (
           </div>
         )}
 
-        {/* Bottom CTA Ribbon: "See class toppers and a arrow icon message and when click on it show them", topper class 1 .... */}
+        {/* Bottom CTA Ribbon: "See class toppers" - streamlined on mobile */}
         <div
           id="see-class-toppers-cta-bar"
           onClick={() => setIsClassToppersModalOpen(true)}
-          className="mt-4 pt-3 border-t border-white/15 flex items-center justify-between gap-3 text-xs font-semibold text-white/90 hover:text-white bg-white/5 hover:bg-white/10 -mx-4 -mb-4 sm:-mx-6 sm:-mb-6 px-4 py-3 sm:px-6 transition-all duration-200 cursor-pointer group"
+          className="mt-2.5 sm:mt-3 pt-2 sm:pt-2.5 border-t border-white/15 flex items-center justify-between gap-2 text-xs font-semibold text-white/90 hover:text-white bg-white/5 hover:bg-white/10 -mx-3 -mb-3 sm:-mx-5 sm:-mb-5 md:-mx-6 md:-mb-6 px-3 py-2 sm:px-5 sm:py-2.5 transition-all duration-200 cursor-pointer group rounded-b-xl sm:rounded-b-2xl"
           role="button"
           tabIndex={0}
           onKeyDown={(e) => {
@@ -462,30 +458,25 @@ export const DashboardShowcaseBanner: React.FC<DashboardShowcaseBannerProps> = (
           }}
           aria-label="See class toppers"
         >
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-7 h-7 rounded-lg bg-amber-400 text-slate-950 flex items-center justify-center font-bold shadow-md shrink-0 group-hover:scale-105 transition-transform">
-              <GraduationCap className="w-4 h-4" />
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-md bg-amber-400 text-slate-950 flex items-center justify-center font-bold shadow-xs shrink-0 group-hover:scale-105 transition-transform">
+              <GraduationCap className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
             </div>
 
-            <div className="min-w-0">
-              <span className="font-bold text-amber-200 group-hover:text-amber-100 flex items-center gap-1.5">
+            <div className="min-w-0 flex items-center gap-1.5 truncate">
+              <span className="text-[11px] sm:text-xs font-bold text-amber-200 group-hover:text-amber-100 shrink-0">
                 See Class Toppers
-                <span className="text-[11px] font-normal text-slate-300 hidden sm:inline">
-                  (Class 1, Class 2, Class 3, Class 4, Class 8-A, Class 10-A...)
-                </span>
               </span>
-              <p className="text-[11px] text-slate-300 truncate hidden md:block">
-                Click to explore top ranked students across every division with full scorecards.
-              </p>
+              <span className="text-[10px] text-slate-300 truncate hidden xs:inline">
+                ({classToppers.length} Classes)
+              </span>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 shrink-0 text-amber-300 group-hover:text-amber-200 font-bold">
-            <span className="hidden sm:inline text-xs">
-              View {classToppers.length} Class Ranks
-            </span>
-            <div className="w-6 h-6 rounded-full bg-white/10 group-hover:bg-amber-400 group-hover:text-slate-950 flex items-center justify-center transition-colors">
-              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+          <div className="flex items-center gap-1 shrink-0 text-amber-300 group-hover:text-amber-200 font-bold text-[10px] sm:text-xs">
+            <span className="hidden sm:inline">Explore All</span>
+            <div className="w-5 h-5 rounded-full bg-white/10 group-hover:bg-amber-400 group-hover:text-slate-950 flex items-center justify-center transition-colors">
+              <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
             </div>
           </div>
         </div>

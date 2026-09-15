@@ -1,20 +1,26 @@
 import React from 'react';
-import { Menu, CalendarCheck, Award, Clock } from 'lucide-react';
+import { Home, CalendarCheck, Award, Clock } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 interface MobileBottomNavProps {
   currentSection: string;
   onSelectSection: (section: any) => void;
-  onToggleMenu: () => void;
+  onToggleMenu?: () => void;
 }
 
 export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
   currentSection,
   onSelectSection,
-  onToggleMenu,
 }) => {
   const { currentUser } = useAuth();
   const user = currentUser;
+
+  // Determine target section for Home tab based on role
+  const getHomeSection = () => {
+    if (user?.role === 'student') return 'student-dashboard';
+    if (user?.role === 'teacher') return 'teacher-dashboard';
+    return 'admin-dashboard';
+  };
 
   // Determine target section for CCE tab based on role
   const getCceSection = () => {
@@ -23,6 +29,10 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
     return 'evaluation-levels';
   };
 
+  const isHomeActive =
+    currentSection === 'admin-dashboard' ||
+    currentSection === 'teacher-dashboard' ||
+    currentSection === 'student-dashboard';
   const isAttendanceActive = currentSection === 'attendance';
   const isCceActive =
     currentSection === 'student-marks' ||
@@ -38,15 +48,19 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
       aria-label="Mobile Bottom Navigation"
     >
       <div className="flex items-center justify-around max-w-lg mx-auto">
-        {/* 1. Menu */}
+        {/* 1. Home */}
         <button
-          id="btn-mobile-nav-menu"
+          id="btn-mobile-nav-home"
           type="button"
-          onClick={onToggleMenu}
-          className="flex flex-col items-center justify-center py-1.5 px-3 rounded-xl transition-all text-slate-600 hover:text-emerald-700 active:scale-95 focus:outline-none"
+          onClick={() => onSelectSection(getHomeSection())}
+          className={`flex flex-col items-center justify-center py-1.5 px-3 rounded-xl transition-all active:scale-95 focus:outline-none ${
+            isHomeActive
+              ? 'text-emerald-700 font-semibold bg-emerald-50/80 shadow-xs'
+              : 'text-slate-600 hover:text-emerald-700'
+          }`}
         >
-          <Menu className="w-5 h-5 mb-0.5" />
-          <span className="text-[11px] font-medium tracking-tight">Menu</span>
+          <Home className={`w-5 h-5 mb-0.5 ${isHomeActive ? 'text-emerald-700 stroke-[2.4]' : ''}`} />
+          <span className="text-[11px] font-medium tracking-tight">Home</span>
         </button>
 
         {/* 2. Hajar (Attendance) */}

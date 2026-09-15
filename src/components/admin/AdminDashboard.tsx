@@ -32,33 +32,6 @@ export const AdminDashboard: React.FC<{ onNavigate: (section: NavSection) => voi
 
   return (
     <div className="space-y-6 animate-fadeIn">
-      {/* Page Title & Intro */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
-            Super Admin Overview
-          </h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-            System metrics, academic distributions, and recent institution activity
-          </p>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => onNavigate('students')}
-            className="px-4 py-2 bg-indigo-600 text-white rounded-md text-xs font-semibold hover:bg-indigo-700 shadow-sm transition-colors cursor-pointer"
-          >
-            + Add Student
-          </button>
-          <button
-            onClick={() => onNavigate('excel-import')}
-            className="px-4 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 rounded-md text-xs font-semibold hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors shadow-xs cursor-pointer"
-          >
-            Import Excel
-          </button>
-        </div>
-      </div>
-
       {/* Spotlight Toppers Banner (Ad style priority carousel) */}
       <DashboardShowcaseBanner />
 
