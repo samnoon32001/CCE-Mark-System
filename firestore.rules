@@ -34,6 +34,9 @@ service cloud.firestore {
     match /system_config/{configId} {
       allow read, write: if true;
     }
+    match /showcase_cards/{cardId} {
+      allow read, write: if true;
+    }
     match /{document=**} {
       allow read, write: if true;
     }

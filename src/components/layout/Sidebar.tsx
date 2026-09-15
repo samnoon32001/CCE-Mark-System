@@ -1,5 +1,7 @@
 import React from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { dataService } from '../../services/db';
+import { hasPermission } from '../../utils/permissions';
 import {
   LayoutDashboard,
   Users,
@@ -23,6 +25,7 @@ import {
   Trophy,
   ShieldAlert,
   MessageSquare,
+  Sparkles,
 } from 'lucide-react';
 
 export type NavSection =
@@ -31,6 +34,7 @@ export type NavSection =
   | 'teachers'
   | 'classes'
   | 'subjects'
+  | 'spotlight-toppers'
   | 'attendance'
   | 'leaves'
   | 'timetable'
@@ -129,6 +133,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
             label="Subjects"
             active={currentSection === 'subjects'}
             onClick={() => handleSelect('subjects')}
+          />
+          <NavItem
+            icon={<Sparkles className="w-5 h-5 text-amber-500" />}
+            label="Spotlight & Toppers"
+            active={currentSection === 'spotlight-toppers'}
+            onClick={() => handleSelect('spotlight-toppers')}
           />
 
           <div className="text-slate-500 text-[10px] uppercase font-semibold tracking-wider mt-5 mb-2 px-3">
@@ -314,6 +324,14 @@ export const Sidebar: React.FC<SidebarProps> = ({
             active={currentSection === 'reports'}
             onClick={() => handleSelect('reports')}
           />
+          {hasPermission(currentUser, 'showcase_manage', dataService.getState()) && (
+            <NavItem
+              icon={<Sparkles className="w-5 h-5 text-amber-500" />}
+              label="Spotlight & Toppers"
+              active={currentSection === 'spotlight-toppers'}
+              onClick={() => handleSelect('spotlight-toppers')}
+            />
+          )}
         </>
       );
     }

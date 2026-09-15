@@ -1,5 +1,6 @@
 import React from 'react';
 import { dataService } from '../../services/db';
+import { DashboardShowcaseBanner } from '../showcase/DashboardShowcaseBanner';
 import {
   Users,
   GraduationCap,
@@ -57,6 +58,9 @@ export const AdminDashboard: React.FC<{ onNavigate: (section: NavSection) => voi
           </button>
         </div>
       </div>
+
+      {/* Spotlight Toppers Banner (Ad style priority carousel) */}
+      <DashboardShowcaseBanner />
 
       {/* Combined Key Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">

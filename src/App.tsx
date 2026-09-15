@@ -25,6 +25,7 @@ import { AchievementsView } from './components/achievements/AchievementsView';
 import { BehaviorDisciplineView } from './components/discipline/BehaviorDisciplineView';
 import { ComplaintsFeedbackView } from './components/feedback/ComplaintsFeedbackView';
 import { AttendanceSettingsView } from './components/attendance/AttendanceSettingsView';
+import { ShowcaseManagementView } from './components/showcase/ShowcaseManagementView';
 import { MobileBottomNav } from './components/layout/MobileBottomNav';
 
 // Teacher Views
@@ -91,6 +92,7 @@ const MainLayout: React.FC = () => {
               {currentSection === 'teachers' && <TeacherManagement />}
               {currentSection === 'classes' && <ClassManagement />}
               {currentSection === 'subjects' && <SubjectManagement />}
+              {currentSection === 'spotlight-toppers' && <ShowcaseManagementView />}
               {currentSection === 'evaluation-levels' && (
                 <EvaluationLevelManagement onNavigate={setCurrentSection} />
               )}

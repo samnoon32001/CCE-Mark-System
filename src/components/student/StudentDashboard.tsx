@@ -2,6 +2,7 @@ import React from 'react';
 import { dataService } from '../../services/db';
 import { useAuth } from '../../context/AuthContext';
 import { calculateCCETotal } from '../../utils/calculations';
+import { DashboardShowcaseBanner } from '../showcase/DashboardShowcaseBanner';
 import {
   GraduationCap,
   Award,
@@ -74,6 +75,9 @@ export const StudentDashboard: React.FC<{ onNavigate: (section: NavSection) => v
 
   return (
     <div className="space-y-6 animate-fadeIn">
+      {/* Spotlight Toppers Banner (Ad style priority carousel) */}
+      <DashboardShowcaseBanner />
+
       {/* Welcome Banner */}
       <div className="bg-slate-900 rounded-xl p-6 sm:p-8 text-white shadow-xs border border-slate-800 flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div>

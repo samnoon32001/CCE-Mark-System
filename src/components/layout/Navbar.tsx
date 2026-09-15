@@ -86,6 +86,8 @@ export const Navbar: React.FC<NavbarProps> = ({
         return 'Class & Section Setup';
       case 'subjects':
         return 'Curriculum Subjects';
+      case 'spotlight-toppers':
+        return 'Spotlight Toppers & Dashboard Ad Cards';
       case 'evaluation-levels':
         return 'Evaluation Levels & Max Marks';
       case 'excel-import':

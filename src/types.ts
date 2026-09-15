@@ -447,3 +447,60 @@ export interface ComplaintFeedback {
   createdAt?: string; // alias for submittedAt
   isAnonymous?: boolean;
 }
+
+// ==========================================
+// 🏆 SHOWCASE BANNER & TOPPERS HUB
+// ==========================================
+export type ShowcaseCardPriority = 1 | 2 | 3; // 1 = Apex Hero (Largest and First), 2 = Section Topper Slide, 3 = Class Topper
+
+export type ShowcaseCardCategory =
+  | 'apex_topper'
+  | 'section_topper'
+  | 'class_topper'
+  | 'announcement'
+  | 'award';
+
+export type ShowcaseCardTargetAudience =
+  | 'all'
+  | 'students_only'
+  | 'teachers_only'
+  | 'admins_only'
+  | 'teachers_and_students'
+  | 'admins_and_teachers'
+  | 'specific_roles'
+  | 'specific_classes'
+  | 'specific_student';
+
+export interface ShowcaseCard {
+  id: string;
+  title: string; // e.g. "Topper of the Rabee' Semester Examination 2026-27"
+  subtitle?: string; // e.g. "Apex Institutional Distinction"
+  studentName: string; // e.g. "Zayd Ahmed Hudawi"
+  studentAdmissionNumber?: string;
+  studentId?: string;
+  percentage: string; // e.g. "98.4%" or "98%"
+  scoreDetails?: string; // e.g. "Score: 492 / 500 • Rank #1"
+  sectionOrClass: string; // e.g. "Degree Department", "Secondary Section", "Class 10 A", "Class 1"
+  classId?: string;
+  category: ShowcaseCardCategory;
+  priority: ShowcaseCardPriority; // 1 = Grand Hero, 2 = Section Topper Slide, 3 = Class Topper
+  badgeText?: string; // e.g. "Apex Institutional Topper 🏆", "Secondary Gold Medalist 🥇"
+  imageUrl?: string;
+  description?: string; // quote or congratulatory message
+  accentGradient?: 'gold' | 'emerald' | 'sapphire' | 'ruby' | 'violet' | 'amber';
+  
+  // Visibility & Target Audience ("in selected and specific user login first dashboards")
+  targetAudience: ShowcaseCardTargetAudience;
+  targetRoles?: UserRole[];
+  targetClassIds?: string[];
+  targetStudentIds?: string[];
+  
+  order: number;
+  isActive: boolean;
+  examName?: string;
+  academicYear?: string;
+  createdAt: string;
+  updatedAt?: string;
+  createdBy?: string;
+  createdByName?: string;
+}

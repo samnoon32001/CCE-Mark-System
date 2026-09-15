@@ -133,6 +133,41 @@
         "timestamp": { "type": "string" }
       },
       "required": ["id", "userId", "action", "entity", "timestamp"]
+    },
+    "ShowcaseCard": {
+      "title": "ShowcaseCard",
+      "description": "Showcase and topper spotlight announcement cards with priorities and audience targeting",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "subtitle": { "type": "string" },
+        "studentName": { "type": "string" },
+        "studentAdmissionNumber": { "type": "string" },
+        "studentId": { "type": "string" },
+        "percentage": { "type": "string" },
+        "scoreDetails": { "type": "string" },
+        "sectionOrClass": { "type": "string" },
+        "classId": { "type": "string" },
+        "category": { "type": "string" },
+        "priority": { "type": "number" },
+        "badgeText": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "description": { "type": "string" },
+        "accentGradient": { "type": "string" },
+        "targetAudience": { "type": "string" },
+        "targetRoles": { "type": "array" },
+        "targetClassIds": { "type": "array" },
+        "order": { "type": "number" },
+        "isActive": { "type": "boolean" },
+        "examName": { "type": "string" },
+        "academicYear": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" },
+        "createdBy": { "type": "string" },
+        "createdByName": { "type": "string" }
+      },
+      "required": ["id", "title", "studentName", "percentage", "priority", "order", "isActive"]
     }
   },
   "firestore": {
@@ -167,6 +202,10 @@
     "/audit_logs/{logId}": {
       "schema": "AuditLog",
       "description": "Audit trails for marks and system modifications"
+    },
+    "/showcase_cards/{cardId}": {
+      "schema": "ShowcaseCard",
+      "description": "Showcase banner and topper cards for user dashboards"
     }
   }
 }

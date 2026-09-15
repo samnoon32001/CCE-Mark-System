@@ -33,6 +33,7 @@ export type AppPermission =
   | 'reports_view'
   | 'audit_logs'
   | 'attendance_settings'
+  | 'showcase_manage'
   | 'system_settings';
 
 export interface PermissionDefinition {
@@ -199,6 +200,13 @@ export const ALL_PERMISSIONS: PermissionDefinition[] = [
     description: 'Configure period tracking toggles, rules, roles and permissions',
   },
   {
+    id: 'showcase_manage',
+    name: 'Showcase & Toppers Hub',
+    category: 'administrative',
+    categoryLabel: 'Portal Administration',
+    description: 'Create and configure spotlight topper announcement cards, priority slides, class toppers, and dashboard visibility',
+  },
+  {
     id: 'system_settings',
     name: 'Portal Settings',
     category: 'administrative',
@@ -244,6 +252,7 @@ export const INITIAL_DEFAULT_ROLES: RoleDefinition[] = [
       'reports_view',
       'audit_logs',
       'attendance_settings',
+      'showcase_manage',
       'system_settings',
     ],
   },
@@ -267,6 +276,7 @@ export const INITIAL_DEFAULT_ROLES: RoleDefinition[] = [
       'evaluation_levels',
       'reports_view',
       'attendance_settings',
+      'showcase_manage',
     ],
   },
   {
@@ -297,6 +307,7 @@ export const INITIAL_DEFAULT_ROLES: RoleDefinition[] = [
       'reports_view',
       'audit_logs',
       'attendance_settings',
+      'showcase_manage',
       'system_settings',
     ],
   },

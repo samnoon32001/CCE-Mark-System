@@ -34,6 +34,7 @@ import type {
   TimetablePeriodDefinition,
   DayOfWeek,
   TimetableSlot,
+  ShowcaseCard,
 } from '../types';
 import { RoleDefinition, INITIAL_DEFAULT_ROLES } from '../utils/permissions';
 
@@ -66,7 +67,234 @@ export interface DatabaseState {
   timetablePeriods?: TimetablePeriodDefinition[];
   timetableSlots?: TimetableSlot[];
   roles?: RoleDefinition[];
+  showcaseCards?: ShowcaseCard[];
 }
+
+export const INITIAL_SHOWCASE_CARDS: ShowcaseCard[] = [
+  {
+    id: 'sc-apex-rabee-2027',
+    title: "Topper of the Rabee' Semester Examination 2026-27",
+    subtitle: "Grand Apex Institutional Distinction",
+    studentName: "Zayd Ahmed Hudawi",
+    studentAdmissionNumber: "2001",
+    studentId: "std-2001",
+    percentage: "98.4%",
+    scoreDetails: "Score: 492 / 500 • Overall Institution Rank #1",
+    sectionOrClass: "Degree Department",
+    category: "apex_topper",
+    priority: 1, // Large & First Hero
+    badgeText: "Apex Institutional Topper 🏆",
+    imageUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400",
+    description: "Honored with the highest aggregate academic honors across all academic divisions in the Rabee' Semester Examination 2026-27.",
+    accentGradient: "gold",
+    targetAudience: "all",
+    order: 1,
+    isActive: true,
+    examName: "Rabee' Semester Examination 2026-27",
+    academicYear: "2026-2027",
+    createdAt: "2026-09-01T08:00:00.000Z",
+  },
+  {
+    id: 'sc-sec-rabee-2027',
+    title: "Secondary Section Topper - Rabee' Semester 2026-27",
+    subtitle: "Secondary Wing Highest Honors",
+    studentName: "Bilal Muhammad",
+    studentAdmissionNumber: "1002",
+    studentId: "std-1002",
+    percentage: "96.8%",
+    scoreDetails: "Score: 484 / 500 • Rank #1 Secondary",
+    sectionOrClass: "Secondary Section",
+    category: "section_topper",
+    priority: 2,
+    badgeText: "Secondary Gold Medalist 🥇",
+    imageUrl: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=400",
+    description: "Exceptional academic performance across languages, sciences, and core curricula in the secondary division.",
+    accentGradient: "emerald",
+    targetAudience: "all",
+    order: 2,
+    isActive: true,
+    examName: "Rabee' Semester Examination 2026-27",
+    academicYear: "2026-2027",
+    createdAt: "2026-09-02T08:00:00.000Z",
+  },
+  {
+    id: 'sc-sr-sec-rabee-2027',
+    title: "Senior Secondary Section Topper - Rabee' Semester 2026-27",
+    subtitle: "Senior Secondary Wing Academic Excellence",
+    studentName: "Faris Abdul Rahman",
+    studentAdmissionNumber: "1005",
+    studentId: "std-1005",
+    percentage: "97.2%",
+    scoreDetails: "Score: 486 / 500 • Rank #1 Senior Secondary",
+    sectionOrClass: "Senior Secondary Section",
+    category: "section_topper",
+    priority: 2,
+    badgeText: "Senior Secondary Distinction ⭐",
+    imageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400",
+    description: "Exemplary mastery and distinction in humanities, mathematics, and comprehensive examination components.",
+    accentGradient: "sapphire",
+    targetAudience: "all",
+    order: 3,
+    isActive: true,
+    examName: "Rabee' Semester Examination 2026-27",
+    academicYear: "2026-2027",
+    createdAt: "2026-09-02T08:30:00.000Z",
+  },
+  {
+    id: 'sc-degree-rabee-2027',
+    title: "Degree Department Topper - Rabee' Semester 2026-27",
+    subtitle: "Department of Higher Islamic & Social Sciences",
+    studentName: "Nawaf Ebrahim",
+    studentAdmissionNumber: "2003",
+    studentId: "std-2003",
+    percentage: "98.1%",
+    scoreDetails: "Score: 490 / 500 • Rank #1 Degree Department",
+    sectionOrClass: "Degree Department",
+    category: "section_topper",
+    priority: 2,
+    badgeText: "Degree Honors Citation 🎖️",
+    imageUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=400",
+    description: "Awarded top academic honors in advanced sharia jurisprudence, contemporary philosophy, and research papers.",
+    accentGradient: "violet",
+    targetAudience: "all",
+    order: 4,
+    isActive: true,
+    examName: "Rabee' Semester Examination 2026-27",
+    academicYear: "2026-2027",
+    createdAt: "2026-09-02T09:00:00.000Z",
+  },
+  // Class Toppers (Priority 3)
+  {
+    id: 'sc-class-1',
+    title: "Class 1 Academic Topper",
+    subtitle: "Class 1 Top Rank",
+    studentName: "Muhammed Nihal",
+    percentage: "99.0%",
+    scoreDetails: "Score: 495 / 500 • Rank 1",
+    sectionOrClass: "Class 1",
+    category: "class_topper",
+    priority: 3,
+    badgeText: "Class 1 Topper 🌟",
+    imageUrl: "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&q=80&w=400",
+    description: "Outstanding marks in foundational Quranic Arabic, English, and Mathematics.",
+    accentGradient: "gold",
+    targetAudience: "all",
+    order: 5,
+    isActive: true,
+    examName: "Rabee' Semester Examination 2026-27",
+    academicYear: "2026-2027",
+    createdAt: "2026-09-03T10:00:00.000Z",
+  },
+  {
+    id: 'sc-class-2',
+    title: "Class 2 Academic Topper",
+    subtitle: "Class 2 Top Rank",
+    studentName: "Aisha Raniya",
+    percentage: "98.6%",
+    scoreDetails: "Score: 493 / 500 • Rank 1",
+    sectionOrClass: "Class 2",
+    category: "class_topper",
+    priority: 3,
+    badgeText: "Class 2 Topper 🌟",
+    imageUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=400",
+    description: "Excellence across all curricular evaluations with straight A+ grades.",
+    accentGradient: "ruby",
+    targetAudience: "all",
+    order: 6,
+    isActive: true,
+    examName: "Rabee' Semester Examination 2026-27",
+    academicYear: "2026-2027",
+    createdAt: "2026-09-03T10:05:00.000Z",
+  },
+  {
+    id: 'sc-class-3',
+    title: "Class 3 Academic Topper",
+    subtitle: "Class 3 Top Rank",
+    studentName: "Rayyan Shareef",
+    percentage: "98.0%",
+    scoreDetails: "Score: 490 / 500 • Rank 1",
+    sectionOrClass: "Class 3",
+    category: "class_topper",
+    priority: 3,
+    badgeText: "Class 3 Topper 🌟",
+    imageUrl: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=400",
+    description: "Highest total marks in Class 3 semester examination.",
+    accentGradient: "emerald",
+    targetAudience: "all",
+    order: 7,
+    isActive: true,
+    examName: "Rabee' Semester Examination 2026-27",
+    academicYear: "2026-2027",
+    createdAt: "2026-09-03T10:10:00.000Z",
+  },
+  {
+    id: 'sc-class-4',
+    title: "Class 4 Academic Topper",
+    subtitle: "Class 4 Top Rank",
+    studentName: "Salim Kabeer",
+    percentage: "97.5%",
+    scoreDetails: "Score: 487 / 500 • Rank 1",
+    sectionOrClass: "Class 4",
+    category: "class_topper",
+    priority: 3,
+    badgeText: "Class 4 Topper 🌟",
+    imageUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=400",
+    description: "Exceptional arithmetic, social science, and Arabic recitation scores.",
+    accentGradient: "sapphire",
+    targetAudience: "all",
+    order: 8,
+    isActive: true,
+    examName: "Rabee' Semester Examination 2026-27",
+    academicYear: "2026-2027",
+    createdAt: "2026-09-03T10:15:00.000Z",
+  },
+  {
+    id: 'sc-class-8a',
+    title: "Class 8-A Academic Topper",
+    subtitle: "Class 8-A Top Rank",
+    studentName: "Alice Johnson",
+    studentAdmissionNumber: "1001",
+    studentId: "std-1001",
+    percentage: "97.8%",
+    scoreDetails: "Score: 489 / 500 • Rank 1 in Class 8-A",
+    sectionOrClass: "Class 8-A",
+    category: "class_topper",
+    priority: 3,
+    badgeText: "Class 8-A Topper 🌟",
+    imageUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400",
+    description: "Top mark in English, Social Science, and CCE continuous evaluations.",
+    accentGradient: "amber",
+    targetAudience: "all",
+    order: 9,
+    isActive: true,
+    examName: "Rabee' Semester Examination 2026-27",
+    academicYear: "2026-2027",
+    createdAt: "2026-09-03T10:20:00.000Z",
+  },
+  {
+    id: 'sc-class-10a',
+    title: "Class 10-A Academic Topper",
+    subtitle: "Class 10-A Top Rank",
+    studentName: "Grace Hopper",
+    studentAdmissionNumber: "2001",
+    studentId: "std-2001",
+    percentage: "98.4%",
+    scoreDetails: "Score: 492 / 500 • Rank 1 in Class 10-A",
+    sectionOrClass: "Class 10-A",
+    category: "class_topper",
+    priority: 3,
+    badgeText: "Class 10-A Topper 🌟",
+    imageUrl: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400",
+    description: "Highest scoring student in Class 10-A with top marks in Mathematics and Science.",
+    accentGradient: "gold",
+    targetAudience: "all",
+    order: 10,
+    isActive: true,
+    examName: "Rabee' Semester Examination 2026-27",
+    academicYear: "2026-2027",
+    createdAt: "2026-09-03T10:25:00.000Z",
+  },
+];
 
 // Initial robust seed data matching all requirements
 const INITIAL_STATE: DatabaseState = {
@@ -1395,6 +1623,7 @@ const INITIAL_STATE: DatabaseState = {
     { id: 'tt-10a-sat-4', dayOfWeek: 'Saturday', periodNumber: 4, classId: 'class-10a', subjectId: 'sub-10a-hum', teacherId: 'teacher-4', room: 'Room 12', isSplitSlot: true },
   ],
   roles: INITIAL_DEFAULT_ROLES,
+  showcaseCards: INITIAL_SHOWCASE_CARDS,
 };
 
 class DataService {
@@ -1420,11 +1649,13 @@ class DataService {
           ...INITIAL_STATE,
           ...parsed,
         };
+        // Preserve user's deleted/cleared state: only seed default if property was never in stored state
+        if (!('showcaseCards' in parsed) || parsed.showcaseCards === undefined) {
+          state.showcaseCards = JSON.parse(JSON.stringify(INITIAL_SHOWCASE_CARDS));
+        }
       } else {
         state = JSON.parse(JSON.stringify(INITIAL_STATE));
       }
-
-      // Safety defaults for newly introduced modules
       if (!state.roles || state.roles.length === 0) {
         state.roles = JSON.parse(JSON.stringify(INITIAL_DEFAULT_ROLES));
       } else {
@@ -1736,6 +1967,7 @@ class DataService {
           attSnap,
           clearanceSnap,
           complaintsSnap,
+          showcaseCardsSnap,
         ] = await Promise.all([
           getDocs(collection(db, 'classes')),
           getDocs(collection(db, 'students')),
@@ -1751,6 +1983,7 @@ class DataService {
           getDocs(collection(db, 'attendance_records')),
           getDocs(collection(db, 'attendance_clearances')),
           getDocs(collection(db, 'complaints_feedback')),
+          getDocs(collection(db, 'showcase_cards')),
         ]);
 
         if (!usersSnap.empty) {
@@ -1878,6 +2111,9 @@ class DataService {
         }
         if (!complaintsSnap.empty) {
           this.state.complaintsFeedback = complaintsSnap.docs.map((d) => d.data() as ComplaintFeedback);
+        }
+        if (!showcaseCardsSnap.empty) {
+          this.state.showcaseCards = showcaseCardsSnap.docs.map((d) => d.data() as ShowcaseCard);
         }
 
         this.saveLocal();
@@ -4816,6 +5052,312 @@ class DataService {
         details: `${grant ? 'Granted' : 'Revoked'} ${permission} for ${teacher.name}`,
       });
     }
+  }
+
+  // ==========================================
+  // 🏆 SHOWCASE & TOPPER SPOTLIGHT MANAGEMENT
+  // ==========================================
+  public getShowcaseCards(): ShowcaseCard[] {
+    const cards = this.state.showcaseCards || [];
+    return [...cards].sort((a, b) => {
+      if (a.priority !== b.priority) return a.priority - b.priority;
+      return (a.order ?? 0) - (b.order ?? 0);
+    });
+  }
+
+  public getVisibleShowcaseCards(
+    userRole?: string,
+    classId?: string,
+    studentAdmissionNumber?: string,
+    studentId?: string
+  ): ShowcaseCard[] {
+    const cards = this.getShowcaseCards().filter((c) => c.isActive);
+    if (!userRole) return cards;
+
+    return cards.filter((card) => {
+      switch (card.targetAudience) {
+        case 'all':
+          return true;
+        case 'students_only':
+          return userRole === 'student';
+        case 'teachers_only':
+          return userRole === 'teacher';
+        case 'admins_only':
+          return userRole === 'super_admin';
+        case 'teachers_and_students':
+          return userRole === 'teacher' || userRole === 'student';
+        case 'admins_and_teachers':
+          return userRole === 'super_admin' || userRole === 'teacher';
+        case 'specific_roles':
+          if (!card.targetRoles || card.targetRoles.length === 0) return true;
+          return card.targetRoles.includes(userRole as any);
+        case 'specific_classes':
+          if (userRole === 'super_admin' || userRole === 'teacher') return true;
+          if (!classId || !card.targetClassIds || card.targetClassIds.length === 0) return true;
+          return card.targetClassIds.includes(classId);
+        case 'specific_student':
+          if (userRole === 'super_admin' || userRole === 'teacher') return true;
+          if (card.targetStudentIds && card.targetStudentIds.length > 0) {
+            if (studentId && card.targetStudentIds.includes(studentId)) return true;
+          }
+          if (card.studentAdmissionNumber && studentAdmissionNumber) {
+            return card.studentAdmissionNumber.trim().toLowerCase() === studentAdmissionNumber.trim().toLowerCase();
+          }
+          if (card.studentId && studentId) {
+            return card.studentId === studentId;
+          }
+          return false;
+        default:
+          return true;
+      }
+    });
+  }
+
+  public addShowcaseCard(
+    card: Omit<ShowcaseCard, 'id' | 'createdAt'>,
+    actor?: { id: string; name: string; role: string }
+  ): ShowcaseCard {
+    if (!this.state.showcaseCards) {
+      this.state.showcaseCards = [];
+    }
+    const newCard: ShowcaseCard = {
+      ...card,
+      id: `sc-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+      createdAt: new Date().toISOString(),
+    };
+
+    this.state.showcaseCards.push(newCard);
+    this.saveLocal();
+    this.notify();
+    setDoc(doc(db, 'showcase_cards', newCard.id), newCard).catch(() => {});
+
+    if (actor) {
+      this.addAuditLog({
+        userId: actor.id,
+        userName: actor.name,
+        role: actor.role,
+        action: 'Created Showcase Card',
+        entity: 'ShowcaseCard',
+        entityId: newCard.id,
+        details: `Created showcase card "${newCard.title}" (${newCard.studentName} - Priority ${newCard.priority})`,
+      });
+    }
+
+    return newCard;
+  }
+
+  public updateShowcaseCard(
+    id: string,
+    updates: Partial<ShowcaseCard>,
+    actor?: { id: string; name: string; role: string }
+  ): boolean {
+    if (!this.state.showcaseCards) return false;
+    const index = this.state.showcaseCards.findIndex((c) => c.id === id);
+    if (index === -1) return false;
+
+    this.state.showcaseCards[index] = {
+      ...this.state.showcaseCards[index],
+      ...updates,
+      updatedAt: new Date().toISOString(),
+    };
+
+    this.saveLocal();
+    this.notify();
+    setDoc(doc(db, 'showcase_cards', id), this.state.showcaseCards[index]).catch(() => {});
+
+    if (actor) {
+      this.addAuditLog({
+        userId: actor.id,
+        userName: actor.name,
+        role: actor.role,
+        action: 'Updated Showcase Card',
+        entity: 'ShowcaseCard',
+        entityId: id,
+        details: `Updated showcase card "${this.state.showcaseCards[index].title}"`,
+      });
+    }
+
+    return true;
+  }
+
+  public deleteShowcaseCard(
+    id: string,
+    actor?: { id: string; name: string; role: string }
+  ): boolean {
+    if (!this.state.showcaseCards) {
+      this.state.showcaseCards = [];
+      return false;
+    }
+    const cleanId = (id || '').trim();
+    const card = this.state.showcaseCards.find((c) => c.id === cleanId || c.id === id);
+    const title = card ? card.title : cleanId;
+
+    this.state = {
+      ...this.state,
+      showcaseCards: this.state.showcaseCards.filter((c) => c.id !== cleanId && c.id !== id),
+    };
+    this.saveLocal();
+    this.notify();
+
+    if (cleanId) {
+      deleteDoc(doc(db, 'showcase_cards', cleanId)).catch((err) => {
+        console.warn(`Error deleting showcase card ${cleanId} from Firestore:`, err);
+      });
+    }
+
+    if (actor) {
+      this.addAuditLog({
+        userId: actor.id,
+        userName: actor.name,
+        role: actor.role,
+        action: 'Deleted Showcase Card',
+        entity: 'ShowcaseCard',
+        entityId: cleanId || id,
+        details: `Deleted showcase card "${title}"`,
+      });
+    }
+
+    return true;
+  }
+
+  public deleteAllShowcaseCards(actor?: { id: string; name: string; role: string }): boolean {
+    const existing = this.state.showcaseCards || [];
+    const count = existing.length;
+    const ids = existing.map((c) => c.id);
+
+    this.state = {
+      ...this.state,
+      showcaseCards: [],
+    };
+    this.saveLocal();
+    this.notify();
+
+    // Delete known card IDs from Firestore
+    if (ids.length > 0) {
+      this.batchDeleteFirestoreDocs('showcase_cards', ids).catch(() => {});
+    }
+
+    // Query and wipe any lingering docs in showcase_cards collection
+    getDocs(collection(db, 'showcase_cards'))
+      .then((snap) => {
+        if (!snap.empty) {
+          const allDocIds = snap.docs.map((d) => d.id);
+          this.batchDeleteFirestoreDocs('showcase_cards', allDocIds).catch(() => {});
+        }
+      })
+      .catch((err) => {
+        console.warn('Error querying showcase_cards for collection wipe:', err);
+      });
+
+    if (actor) {
+      this.addAuditLog({
+        userId: actor.id,
+        userName: actor.name,
+        role: actor.role,
+        action: 'Cleared All Showcase Cards',
+        entity: 'ShowcaseCard',
+        entityId: 'all',
+        details: `Deleted all ${count} added cards from the Spotlight & Toppers Hub`,
+      });
+    }
+
+    return true;
+  }
+
+  public resetShowcaseCardsToDefault(actor?: { id: string; name: string; role: string }): boolean {
+    // Delete existing from Firestore
+    if (this.state.showcaseCards && this.state.showcaseCards.length > 0) {
+      const ids = this.state.showcaseCards.map((c) => c.id);
+      this.batchDeleteFirestoreDocs('showcase_cards', ids).catch(() => {});
+    }
+
+    // Clone initial
+    const cloned = JSON.parse(JSON.stringify(INITIAL_SHOWCASE_CARDS)) as ShowcaseCard[];
+    this.state = {
+      ...this.state,
+      showcaseCards: cloned,
+    };
+    cloned.forEach((c) => {
+      setDoc(doc(db, 'showcase_cards', c.id), c).catch(() => {});
+    });
+
+    this.saveLocal();
+    this.notify();
+
+    if (actor) {
+      this.addAuditLog({
+        userId: actor.id,
+        userName: actor.name,
+        role: actor.role,
+        action: 'Reset Showcase Cards to Default',
+        entity: 'ShowcaseCard',
+        entityId: 'all',
+        details: `Restored default ${cloned.length} showcase topper cards`,
+      });
+    }
+
+    return true;
+  }
+
+  public reorderShowcaseCards(
+    cardIds: string[],
+    actor?: { id: string; name: string; role: string }
+  ): boolean {
+    if (!this.state.showcaseCards) return false;
+
+    cardIds.forEach((id, idx) => {
+      const card = this.state.showcaseCards?.find((c) => c.id === id);
+      if (card) {
+        card.order = idx + 1;
+        setDoc(doc(db, 'showcase_cards', id), card).catch(() => {});
+      }
+    });
+
+    this.saveLocal();
+    this.notify();
+
+    if (actor) {
+      this.addAuditLog({
+        userId: actor.id,
+        userName: actor.name,
+        role: actor.role,
+        action: 'Reordered Showcase Cards',
+        entity: 'ShowcaseCard',
+        entityId: 'multiple',
+        details: `Updated order for ${cardIds.length} showcase cards`,
+      });
+    }
+
+    return true;
+  }
+
+  public toggleShowcaseCardActive(
+    id: string,
+    actor?: { id: string; name: string; role: string }
+  ): boolean {
+    if (!this.state.showcaseCards) return false;
+    const card = this.state.showcaseCards.find((c) => c.id === id);
+    if (!card) return false;
+
+    card.isActive = !card.isActive;
+    card.updatedAt = new Date().toISOString();
+    this.saveLocal();
+    this.notify();
+    setDoc(doc(db, 'showcase_cards', id), card).catch(() => {});
+
+    if (actor) {
+      this.addAuditLog({
+        userId: actor.id,
+        userName: actor.name,
+        role: actor.role,
+        action: card.isActive ? 'Activated Showcase Card' : 'Deactivated Showcase Card',
+        entity: 'ShowcaseCard',
+        entityId: id,
+        details: `${card.isActive ? 'Activated' : 'Deactivated'} showcase card "${card.title}"`,
+      });
+    }
+
+    return true;
   }
 
   public getLastSyncTime(): string | null {
