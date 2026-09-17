@@ -29,40 +29,86 @@ export const TeacherDashboard: React.FC<{ onNavigate: (section: NavSection) => v
   onNavigate,
 }) => {
   const { currentUser, isClassTeacher } = useAuth();
-  const state = dataService.getState();
+  const [dbState, setDbState] = useState(() => dataService.getState());
 
-  // Find teacher record
-  const teacher = state.teachers.find(
-    (t) => t.username === currentUser?.username || t.email === currentUser?.email
-  );
+  useEffect(() => {
+    return dataService.subscribe(() => {
+      setDbState(dataService.getState());
+    });
+  }, []);
 
-  const teacherId = teacher?.id || '';
+  const state = dbState;
 
-  // Assigned subjects
-  const assignedSubjects = state.subjects.filter(
-    (s) => s.assignedTeacherId === teacherId || teacher?.assignedSubjectIds?.includes(s.id)
-  );
+  // Effective teacher resolution
+  const [selectedTeacherId, setSelectedTeacherId] = useState<string>(() => {
+    const matched = state.teachers.find(
+      (t) =>
+        t.id === currentUser?.id ||
+        t.username === currentUser?.username ||
+        t.email === currentUser?.email ||
+        t.name.toLowerCase() === currentUser?.name?.toLowerCase()
+    );
+    return matched?.id || state.teachers[0]?.id || 'teacher-1';
+  });
+
+  // Schedule view mode: 'teacher' or 'class'
+  const [scheduleViewMode, setScheduleViewMode] = useState<'teacher' | 'class'>('teacher');
+  const [selectedClassId, setSelectedClassId] = useState<string>(() => state.classes[0]?.id || 'class-8a');
+
+  // Find active teacher record
+  const effectiveTeacher = useMemo(() => {
+    return (
+      state.teachers.find((t) => t.id === selectedTeacherId) ||
+      state.teachers.find(
+        (t) =>
+          t.id === currentUser?.id ||
+          t.username === currentUser?.username ||
+          t.email === currentUser?.email
+      ) ||
+      state.teachers[0]
+    );
+  }, [state.teachers, selectedTeacherId, currentUser]);
+
+  const teacherId = effectiveTeacher?.id || '';
+
+  // Assigned subjects for the effective teacher
+  const assignedSubjects = useMemo(() => {
+    return state.subjects.filter(
+      (s) => s.assignedTeacherId === teacherId || effectiveTeacher?.assignedSubjectIds?.includes(s.id)
+    );
+  }, [state.subjects, teacherId, effectiveTeacher]);
 
   // Assigned classes (from subjects + direct assignedClassIds)
-  const assignedClassIds = Array.from(
-    new Set([
-      ...(teacher?.assignedClassIds || []),
-      ...assignedSubjects.map((s) => s.classId),
-    ])
-  );
-  const assignedClasses = state.classes.filter((c) => assignedClassIds.includes(c.id));
+  const assignedClassIds = useMemo(() => {
+    return Array.from(
+      new Set([
+        ...(effectiveTeacher?.assignedClassIds || []),
+        ...assignedSubjects.map((s) => s.classId),
+      ])
+    );
+  }, [effectiveTeacher, assignedSubjects]);
+
+  const assignedClasses = useMemo(() => {
+    return state.classes.filter((c) => assignedClassIds.includes(c.id));
+  }, [state.classes, assignedClassIds]);
 
   // Enrolled students in teacher's classes
-  const teacherStudents = state.students.filter((s) => assignedClassIds.includes(s.classId));
+  const teacherStudents = useMemo(() => {
+    return state.students.filter((s) => assignedClassIds.includes(s.classId));
+  }, [state.students, assignedClassIds]);
 
   // Marks entered for teacher's subjects
-  const teacherSubjectIds = assignedSubjects.map((s) => s.id);
-  const teacherMarks = state.marks.filter((m) => teacherSubjectIds.includes(m.subjectId));
+  const teacherSubjectIds = useMemo(() => assignedSubjects.map((s) => s.id), [assignedSubjects]);
+  const teacherMarks = useMemo(() => {
+    return state.marks.filter((m) => teacherSubjectIds.includes(m.subjectId));
+  }, [state.marks, teacherSubjectIds]);
 
   // Class teacher classes
-  const classTeacherClasses = state.classes.filter(
-    (c) => c.classTeacherId === teacherId || teacher?.classTeacherOfClassIds?.includes(c.id)
-  );
+  const classTeacherClasses = useMemo(() => {
+    return state.classes.filter(
+      (c) => c.classTeacherId === teacherId || effectiveTeacher?.classTeacherOfClassIds?.includes(c.id)
+    );
+  }, [state.classes, teacherId, effectiveTeacher]);
 
   // ⏰ Live Time & Timetable Calculations
   const [currentTime, setCurrentTime] = useState<Date>(new Date());
@@ -87,15 +133,14 @@ export const TeacherDashboard: React.FC<{ onNavigate: (section: NavSection) => v
     'Saturday',
   ];
   const todayDayOfWeek = daysOfWeekList[currentTime.getDay()];
-  const [selectedDay, setSelectedDay] = useState<DayOfWeek>(todayDayOfWeek);
 
   const timetablePeriods = useMemo(() => {
-    return dataService.getTimetablePeriods();
-  }, [state]);
+    return (state.timetablePeriods || []).slice().sort((a, b) => a.periodNumber - b.periodNumber);
+  }, [state.timetablePeriods]);
 
   const timetableSlots = useMemo(() => {
-    return dataService.getTimetableSlots();
-  }, [state]);
+    return state.timetableSlots || [];
+  }, [state.timetableSlots]);
 
   // Current time in minutes from 00:00
   const currentMinutes = currentTime.getHours() * 60 + currentTime.getMinutes();
@@ -106,48 +151,82 @@ export const TeacherDashboard: React.FC<{ onNavigate: (section: NavSection) => v
     return (h || 0) * 60 + (m || 0);
   };
 
-  // Compute all periods for today with teacher assignment metadata
-  const todayPeriodsAnalysis = useMemo(() => {
-    return timetablePeriods.map((p) => {
-      // Find teacher slot on today
-      const slot = timetableSlots.find(
-        (s) =>
-          s.dayOfWeek === todayDayOfWeek &&
-          s.periodNumber === p.periodNumber &&
-          (s.teacherId === teacherId || teacherSubjectIds.includes(s.subjectId))
-      );
+  // Real scheduled periods for today taken directly from Timetable & Schedule
+  const todayScheduledPeriods = useMemo(() => {
+    return timetablePeriods
+      .filter((p) => !p.isBreak && !p.breakLabel)
+      .map((p) => {
+        // Look for slots matching today and current schedule view
+        const matchingSlots = timetableSlots.filter((s) => {
+          if (s.dayOfWeek.toLowerCase() !== todayDayOfWeek.toLowerCase()) return false;
+          if (s.periodNumber !== p.periodNumber) return false;
 
-      const subject = slot ? state.subjects.find((s) => s.id === slot.subjectId) : null;
-      const cls = slot ? state.classes.find((c) => c.id === slot.classId) : null;
+          if (scheduleViewMode === 'class') {
+            return s.classId === selectedClassId;
+          } else {
+            const slotSub = state.subjects.find((sub) => sub.id === s.subjectId);
+            return (
+              s.teacherId === teacherId ||
+              slotSub?.assignedTeacherId === teacherId ||
+              slotSub?.additionalTeacherIds?.includes(teacherId) ||
+              effectiveTeacher?.assignedSubjectIds?.includes(s.subjectId)
+            );
+          }
+        });
 
-      const startMinutes = parseTimeToMin(p.startTime);
-      const endMinutes = parseTimeToMin(p.endTime);
-      const isOngoing = currentMinutes >= startMinutes && currentMinutes < endMinutes;
-      const isUpcoming = startMinutes > currentMinutes;
-      const diffMinutes = startMinutes - currentMinutes;
+        const primarySlot = matchingSlots[0] || null;
+        const secondarySlot = matchingSlots[1] || null;
 
-      return {
-        period: p,
-        slot,
-        subject,
-        cls,
-        startMinutes,
-        endMinutes,
-        isOngoing,
-        isUpcoming,
-        diffMinutes,
-      };
-    });
-  }, [timetablePeriods, timetableSlots, todayDayOfWeek, teacherId, teacherSubjectIds, state, currentMinutes]);
+        const subject = primarySlot ? state.subjects.find((s) => s.id === primarySlot.subjectId) : null;
+        const cls = primarySlot ? state.classes.find((c) => c.id === primarySlot.classId) : null;
+        const teacherObj = primarySlot ? state.teachers.find((t) => t.id === primarySlot.teacherId) : null;
 
-  // Determine active/next teaching periods
-  const todayTeachingPeriods = todayPeriodsAnalysis.filter((p) => !p.period.isBreak && p.slot != null);
-  const activeTeachingPeriods = todayTeachingPeriods.length > 0
-    ? todayTeachingPeriods
-    : todayPeriodsAnalysis.filter((p) => !p.period.isBreak);
+        const startMinutes = parseTimeToMin(p.startTime);
+        const endMinutes = parseTimeToMin(p.endTime);
+        const isOngoing = primarySlot != null && currentMinutes >= startMinutes && currentMinutes < endMinutes;
+        const isUpcoming = primarySlot != null && startMinutes > currentMinutes;
+        const diffMinutes = startMinutes - currentMinutes;
 
-  const ongoingPeriod = activeTeachingPeriods.find((p) => p.isOngoing);
-  const nextPeriod = activeTeachingPeriods.find((p) => p.isUpcoming);
+        return {
+          period: p,
+          slot: primarySlot,
+          secondarySlot,
+          subject,
+          cls,
+          teacherObj,
+          startMinutes,
+          endMinutes,
+          isOngoing,
+          isUpcoming,
+          diffMinutes,
+        };
+      });
+  }, [
+    timetablePeriods,
+    timetableSlots,
+    todayDayOfWeek,
+    scheduleViewMode,
+    selectedClassId,
+    teacherId,
+    effectiveTeacher,
+    state.subjects,
+    state.classes,
+    state.teachers,
+    currentMinutes,
+  ]);
+
+  // Scheduled periods today with assigned subjects
+  const actualTeachingPeriodsToday = useMemo(() => {
+    return todayScheduledPeriods.filter((item) => item.slot != null && item.subject != null);
+  }, [todayScheduledPeriods]);
+
+  const ongoingPeriod = useMemo(() => {
+    return actualTeachingPeriodsToday.find((p) => p.isOngoing) || null;
+  }, [actualTeachingPeriodsToday]);
+
+  const nextPeriod = useMemo(() => {
+    return actualTeachingPeriodsToday.find((p) => p.isUpcoming) || null;
+  }, [actualTeachingPeriodsToday]);
 
   // 10-minute alert condition
   const isAlertActive =
@@ -156,73 +235,68 @@ export const TeacherDashboard: React.FC<{ onNavigate: (section: NavSection) => v
 
   const alertDiff = simulateAlert ? 8 : (nextPeriod?.diffMinutes ?? 0);
 
-  // Next period formatted string (e.g. "English S1, 09:45 am")
+  // Next period formatted string taken directly from real Timetable data
   const nextPeriodFormatted = useMemo(() => {
-    if (nextPeriod) {
-      const sub = nextPeriod.subject?.name || (assignedSubjects[0]?.name || 'English');
-      const cls = nextPeriod.cls?.name || (assignedClasses[0]?.name || 'S1');
-      const time = nextPeriod.period.startTime || '09:45 am';
-      return `${sub} ${cls}, ${time}`;
+    if (nextPeriod && nextPeriod.subject && nextPeriod.cls) {
+      return `${nextPeriod.subject.name} ${nextPeriod.cls.name}, ${nextPeriod.period.startTime}`;
     }
-    const fallbackSub = assignedSubjects[0]?.name || 'English';
-    const fallbackCls = assignedClasses[0]?.name || 'S1';
-    return `${fallbackSub} ${fallbackCls}, 09:45 am`;
-  }, [nextPeriod, assignedSubjects, assignedClasses]);
+    if (ongoingPeriod && ongoingPeriod.subject && ongoingPeriod.cls) {
+      return `${ongoingPeriod.subject.name} ${ongoingPeriod.cls.name}, ${ongoingPeriod.period.startTime} (Active Now)`;
+    }
+    if (actualTeachingPeriodsToday.length > 0) {
+      return 'Completed for today';
+    }
+    return 'No scheduled periods today';
+  }, [nextPeriod, ongoingPeriod, actualTeachingPeriodsToday]);
 
-  // Periods for currently selected day (for timetable display)
-  // Omits all interval breaks like Morning Interval, Prayer & Lunch Break as requested
+  // Periods for Today's Time Table (for timetable display)
+  // Omits all interval breaks like Morning Interval, Prayer & Lunch Break
   const displayDayPeriods = useMemo(() => {
     return timetablePeriods
       .filter((p) => !p.isBreak && !p.breakLabel)
       .map((p) => {
-        // Check for slot on selectedDay
-        const slot = timetableSlots.find(
-          (s) =>
-            s.dayOfWeek === selectedDay &&
-            s.periodNumber === p.periodNumber &&
-            (s.teacherId === teacherId || teacherSubjectIds.includes(s.subjectId))
-        );
+        // Look for slot on today's day of week
+        const matchingSlots = timetableSlots.filter((s) => {
+          if (s.dayOfWeek.toLowerCase() !== todayDayOfWeek.toLowerCase()) return false;
+          if (s.periodNumber !== p.periodNumber) return false;
 
-        // If no direct slot, check if teacher is class teacher of any class having a slot
-        const classTeacherSlot =
-          !slot && classTeacherClasses.length > 0
-            ? timetableSlots.find(
-                (s) =>
-                  s.dayOfWeek === selectedDay &&
-                  s.periodNumber === p.periodNumber &&
-                  classTeacherClasses.some((ctc) => ctc.id === s.classId)
-              )
-            : null;
+          if (scheduleViewMode === 'class') {
+            return s.classId === selectedClassId;
+          } else {
+            const slotSub = state.subjects.find((sub) => sub.id === s.subjectId);
+            return (
+              s.teacherId === teacherId ||
+              slotSub?.assignedTeacherId === teacherId ||
+              slotSub?.additionalTeacherIds?.includes(teacherId) ||
+              effectiveTeacher?.assignedSubjectIds?.includes(s.subjectId)
+            );
+          }
+        });
 
-        const effectiveSlot = slot || classTeacherSlot;
-        let subject = effectiveSlot
-          ? state.subjects.find((s) => s.id === effectiveSlot.subjectId)
+        const primarySlot = matchingSlots[0] || null;
+        const secondarySlot = matchingSlots[1] || null;
+
+        const subject = primarySlot ? state.subjects.find((s) => s.id === primarySlot.subjectId) : null;
+        const cls = primarySlot ? state.classes.find((c) => c.id === primarySlot.classId) : null;
+        const teacherObj = primarySlot ? state.teachers.find((t) => t.id === primarySlot.teacherId) : null;
+
+        const secondarySubject = secondarySlot
+          ? state.subjects.find((s) => s.id === secondarySlot.subjectId)
           : null;
-        let cls = effectiveSlot
-          ? state.classes.find((c) => c.id === effectiveSlot.classId)
-          : null;
-
-        // Fallback to assigned subject/class so every period has subject & class listed
-        if (!subject && assignedSubjects.length > 0) {
-          const sIdx = (p.periodNumber - 1) % assignedSubjects.length;
-          subject = assignedSubjects[sIdx];
-        }
-        if (!cls && assignedClasses.length > 0) {
-          const cIdx = (p.periodNumber - 1) % assignedClasses.length;
-          cls = assignedClasses[cIdx];
-        }
 
         const startMinutes = parseTimeToMin(p.startTime);
         const endMinutes = parseTimeToMin(p.endTime);
-        const isToday = selectedDay === todayDayOfWeek;
-        const isOngoing = isToday && currentMinutes >= startMinutes && currentMinutes < endMinutes;
-        const isNext = isToday && nextPeriod?.period.id === p.id;
+        const isOngoing = primarySlot != null && currentMinutes >= startMinutes && currentMinutes < endMinutes;
+        const isNext = nextPeriod?.period.id === p.id;
 
         return {
           period: p,
-          slot: effectiveSlot,
+          slot: primarySlot,
+          secondarySlot,
           subject,
           cls,
+          teacherObj,
+          secondarySubject,
           startMinutes,
           endMinutes,
           isOngoing,
@@ -232,16 +306,16 @@ export const TeacherDashboard: React.FC<{ onNavigate: (section: NavSection) => v
   }, [
     timetablePeriods,
     timetableSlots,
-    selectedDay,
     todayDayOfWeek,
+    scheduleViewMode,
+    selectedClassId,
     teacherId,
-    teacherSubjectIds,
-    classTeacherClasses,
-    state,
+    effectiveTeacher,
+    state.subjects,
+    state.classes,
+    state.teachers,
     currentMinutes,
     nextPeriod,
-    assignedSubjects,
-    assignedClasses,
   ]);
 
   return (
@@ -255,11 +329,11 @@ export const TeacherDashboard: React.FC<{ onNavigate: (section: NavSection) => v
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
           <div className="space-y-1">
             <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
-              Welcome back, {teacher?.name || currentUser?.name}
+              Welcome back, {effectiveTeacher?.name || currentUser?.name}
             </h1>
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
               <span className="text-slate-400">
-                {assignedSubjects.length} Total Subjects • Class Teacher of {classTeacherClasses.length > 0 ? classTeacherClasses.length : 3}
+                {assignedSubjects.length} Total Subjects • Class Teacher of {classTeacherClasses.length > 0 ? classTeacherClasses.map((c) => c.name).join(', ') : (assignedClasses[0]?.name || 'Class 8 A')}
               </span>
               <span className="text-slate-600 hidden sm:inline">•</span>
               <span className="text-slate-300 flex items-center gap-1.5">
@@ -271,7 +345,7 @@ export const TeacherDashboard: React.FC<{ onNavigate: (section: NavSection) => v
             </div>
           </div>
 
-          {/* End of section: Arrow button to view Today's Timetable */}
+          {/* End of section: Arrow button to view Today's Time Table */}
           <div className="flex items-center gap-2 self-start lg:self-center shrink-0">
             <button
               id="btn-toggle-today-timetable"
@@ -284,22 +358,12 @@ export const TeacherDashboard: React.FC<{ onNavigate: (section: NavSection) => v
               }`}
             >
               <Calendar className="w-3.5 h-3.5 text-indigo-400" />
-              <span>Today&apos;s Timetable</span>
+              <span>Today&apos;s Time Table</span>
               {isTimetableOpen ? (
                 <ChevronUp className="w-4 h-4 text-white transition-transform" />
               ) : (
                 <ChevronDown className="w-4 h-4 text-slate-400 transition-transform" />
               )}
-            </button>
-
-            <button
-              id="btn-open-mark-entry"
-              type="button"
-              onClick={() => onNavigate('mark-entry')}
-              className="px-3 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 hover:text-white font-semibold text-xs rounded-xl shadow-xs transition-colors shrink-0 flex items-center gap-1.5 cursor-pointer"
-            >
-              <CheckSquare className="w-3.5 h-3.5 text-slate-400" />
-              <span>Mark Entry →</span>
             </button>
           </div>
         </div>
@@ -324,7 +388,7 @@ export const TeacherDashboard: React.FC<{ onNavigate: (section: NavSection) => v
                 <div className="text-amber-200/90 text-[11px] mt-0.5">
                   {nextPeriod?.subject ? (
                     <>
-                      <strong>{nextPeriod.period.name}</strong>: {nextPeriod.subject.name} ({nextPeriod.cls?.name || 'Class'}) • Room: {nextPeriod.slot?.room || 'Standard Hall'}
+                      <strong>{nextPeriod.period.name}</strong>: {nextPeriod.subject.name} ({nextPeriod.cls?.name || 'Class'}) {nextPeriod.slot?.room ? `• Room: ${nextPeriod.slot.room}` : ''}
                     </>
                   ) : (
                     <>
@@ -363,55 +427,85 @@ export const TeacherDashboard: React.FC<{ onNavigate: (section: NavSection) => v
             id="dashboard-timetable-accordion"
             className="pt-3 border-t border-slate-800 space-y-3 animate-fadeIn"
           >
-            {/* Days Selector & Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+            {/* Header: Today's Time Table title & View Switcher */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-1">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-slate-200">Weekly Schedule:</span>
-                <div className="flex items-center gap-1 overflow-x-auto py-1">
-                  {daysOfWeekList.map((d) => {
-                    const isToday = d === todayDayOfWeek;
-                    const isSelected = d === selectedDay;
-                    return (
-                      <button
-                        key={d}
-                        type="button"
-                        onClick={() => setSelectedDay(d)}
-                        className={`px-2.5 py-1 rounded-lg text-xs font-semibold whitespace-nowrap transition cursor-pointer flex items-center gap-1 ${
-                          isSelected
-                            ? 'bg-indigo-600 text-white shadow-xs'
-                            : 'bg-slate-800/80 text-slate-400 hover:text-slate-200 hover:bg-slate-800'
-                        }`}
-                      >
-                        <span>{d.slice(0, 3)}</span>
-                        {isToday && (
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                        )}
-                      </button>
-                    );
-                  })}
-                </div>
+                <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                  <Clock className="w-3.5 h-3.5 text-indigo-400" />
+                  <span>Today&apos;s Time Table ({todayDayOfWeek})</span>
+                </span>
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" title="Live today"></span>
               </div>
 
-              {/* Status / Alert simulation controls */}
-              <div className="flex items-center gap-2 text-[11px] text-slate-400">
-                <span className="hidden sm:inline">
-                  {selectedDay === todayDayOfWeek ? 'Showing Today' : `Viewing ${selectedDay}`}
-                </span>
+              {/* View Switcher: By Teacher or By Class */}
+              <div className="flex flex-wrap items-center gap-2 text-xs">
+                <div className="flex items-center bg-slate-800 rounded-lg p-0.5 border border-slate-700">
+                  <button
+                    type="button"
+                    onClick={() => setScheduleViewMode('teacher')}
+                    className={`px-2 py-0.5 rounded-md text-[11px] font-semibold transition cursor-pointer ${
+                      scheduleViewMode === 'teacher'
+                        ? 'bg-indigo-600 text-white shadow-xs'
+                        : 'text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    Teacher
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setScheduleViewMode('class')}
+                    className={`px-2 py-0.5 rounded-md text-[11px] font-semibold transition cursor-pointer ${
+                      scheduleViewMode === 'class'
+                        ? 'bg-indigo-600 text-white shadow-xs'
+                        : 'text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    Class
+                  </button>
+                </div>
+
+                {scheduleViewMode === 'teacher' ? (
+                  <select
+                    value={selectedTeacherId}
+                    onChange={(e) => setSelectedTeacherId(e.target.value)}
+                    className="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-lg px-2 py-1 outline-hidden focus:border-indigo-500 cursor-pointer max-w-[150px] truncate"
+                  >
+                    {state.teachers.map((t) => (
+                      <option key={t.id} value={t.id}>
+                        {t.name}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <select
+                    value={selectedClassId}
+                    onChange={(e) => setSelectedClassId(e.target.value)}
+                    className="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-lg px-2 py-1 outline-hidden focus:border-indigo-500 cursor-pointer max-w-[150px] truncate"
+                  >
+                    {state.classes.map((c) => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                )}
+
                 <button
                   type="button"
                   onClick={() => setSimulateAlert(!simulateAlert)}
-                  className="px-2 py-0.5 rounded text-[10px] font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition cursor-pointer"
+                  className="px-2 py-1 rounded text-[10px] font-medium bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 transition cursor-pointer hidden md:inline-block"
                   title="Preview the 10-minute upcoming notification banner"
                 >
-                  {simulateAlert ? 'Stop Alert Preview' : 'Test 10m Alert'}
+                  {simulateAlert ? 'Stop Alert' : 'Test 10m Alert'}
                 </button>
               </div>
             </div>
 
-            {/* Timetable Period Cards Grid - Only Teaching Periods, Distinct Highlights */}
+            {/* Timetable Period Cards Grid - 100% Real Today's Timetable Data */}
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5">
               {displayDayPeriods.map((item) => {
-                const { period, slot, subject, cls, isOngoing, isNext } = item;
+                const { period, slot, subject, cls, teacherObj, secondarySubject, isOngoing, isNext } = item;
+                const hasSlot = slot != null && subject != null;
 
                 return (
                   <div
@@ -421,9 +515,9 @@ export const TeacherDashboard: React.FC<{ onNavigate: (section: NavSection) => v
                         ? 'bg-gradient-to-br from-amber-950/90 via-slate-900 to-orange-950/70 border-2 border-amber-400 shadow-md ring-2 ring-amber-400/50'
                         : isOngoing
                         ? 'bg-gradient-to-br from-emerald-950/90 via-slate-900 to-teal-950/70 border-2 border-emerald-400 shadow-md ring-2 ring-emerald-400/50'
-                        : slot
-                        ? 'bg-slate-800/80 border-slate-700 hover:border-slate-600'
-                        : 'bg-slate-800/40 border-slate-800/80 text-slate-500'
+                        : hasSlot
+                        ? 'bg-slate-800/90 border-slate-700 hover:border-slate-600'
+                        : 'bg-slate-800/30 border-dashed border-slate-800 text-slate-500'
                     }`}
                   >
                     {/* Distinct Badges for Next Period vs Now Active */}
@@ -443,7 +537,7 @@ export const TeacherDashboard: React.FC<{ onNavigate: (section: NavSection) => v
                     <div>
                       {/* Period No and Time */}
                       <div className="flex items-center justify-between text-[11px] mb-1.5">
-                        <span className={`font-bold ${isNext ? 'text-amber-300' : isOngoing ? 'text-emerald-300' : 'text-slate-300'}`}>
+                        <span className={`font-bold ${isNext ? 'text-amber-300' : isOngoing ? 'text-emerald-300' : hasSlot ? 'text-slate-200' : 'text-slate-400'}`}>
                           {period.name}
                         </span>
                         <span className={`font-mono text-[10px] ${isNext ? 'text-amber-200/90' : isOngoing ? 'text-emerald-200/90' : 'text-slate-400'}`}>
@@ -451,35 +545,54 @@ export const TeacherDashboard: React.FC<{ onNavigate: (section: NavSection) => v
                         </span>
                       </div>
 
-                      {/* Subject and Class */}
-                      <div>
-                        <div className="font-bold text-sm text-white leading-tight">
-                          {subject?.name || 'Assigned Subject'}
+                      {/* Subject and Class or Free Period */}
+                      {hasSlot ? (
+                        <div>
+                          <div className="font-bold text-sm text-white leading-tight flex items-center gap-1">
+                            <span>{subject.name}</span>
+                            {secondarySubject && (
+                              <span className="text-[10px] font-normal text-indigo-300 bg-indigo-500/20 px-1 py-0.2 rounded border border-indigo-400/30">
+                                +{secondarySubject.name}
+                              </span>
+                            )}
+                          </div>
+                          <div className={`text-xs mt-0.5 font-medium ${isNext ? 'text-amber-300' : isOngoing ? 'text-emerald-300' : 'text-slate-300'}`}>
+                            {cls ? cls.name : 'Class'} {slot.room ? `• ${slot.room}` : ''}
+                          </div>
+                          {scheduleViewMode === 'class' && teacherObj && (
+                            <div className="text-[11px] text-slate-400 mt-0.5 truncate">
+                              {teacherObj.name}
+                            </div>
+                          )}
                         </div>
-                        <div className={`text-xs mt-0.5 font-medium ${isNext ? 'text-amber-300' : isOngoing ? 'text-emerald-300' : 'text-slate-400'}`}>
-                          {cls?.name || 'Class'}
+                      ) : (
+                        <div className="py-1">
+                          <div className="font-medium text-xs text-slate-400 italic">
+                            Free Period
+                          </div>
+                          <div className="text-[10px] text-slate-500 mt-0.5">
+                            No scheduled class
+                          </div>
                         </div>
-                      </div>
+                      )}
                     </div>
 
-                    {/* Quick Action */}
+                    {/* Quick Action: Attendance */}
                     <div className="mt-2 pt-1.5 border-t border-slate-700/50 flex items-center justify-between text-[10px]">
-                      <button
-                        type="button"
-                        onClick={() => onNavigate('attendance')}
-                        className="text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1 cursor-pointer"
-                      >
-                        <CalendarCheck className="w-3 h-3" />
-                        <span>Attendance</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => onNavigate('mark-entry')}
-                        className="text-indigo-400 hover:text-indigo-300 font-semibold flex items-center gap-1 cursor-pointer"
-                      >
-                        <span>Marks</span>
-                        <ArrowRight className="w-2.5 h-2.5" />
-                      </button>
+                      {hasSlot ? (
+                        <button
+                          type="button"
+                          onClick={() => onNavigate('attendance')}
+                          className="text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1 cursor-pointer"
+                        >
+                          <CalendarCheck className="w-3 h-3" />
+                          <span>Attendance</span>
+                        </button>
+                      ) : (
+                        <div className="text-slate-500 text-[10px] italic">
+                          Available slot
+                        </div>
+                      )}
                     </div>
                   </div>
                 );

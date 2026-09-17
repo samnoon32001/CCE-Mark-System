@@ -2,6 +2,7 @@ import { db } from '../firebase';
 import {
   collection,
   doc,
+  getDoc,
   getDocs,
   setDoc,
   deleteDoc,
@@ -525,6 +526,18 @@ const INITIAL_STATE: DatabaseState = {
     },
   ],
   teachers: [
+    {
+      id: 'teacher-admin',
+      name: 'Ashiq CP Hudawi',
+      phone: '(555) 100-0001',
+      email: 'admin@school.edu',
+      username: 'admin',
+      status: 'active',
+      assignedSubjectIds: ['sub-8a-eng', 'sub-10a-eng'],
+      assignedClassIds: ['class-8a', 'class-10a'],
+      classTeacherOfClassIds: ['class-8a'],
+      createdDate: '2025-01-11',
+    },
     {
       id: 'teacher-1',
       name: 'Mr. Robert Vance',
@@ -1968,6 +1981,10 @@ class DataService {
           clearanceSnap,
           complaintsSnap,
           showcaseCardsSnap,
+          ttPeriodsSnap,
+          ttSlotsSnap,
+          ttPeriodsConfigSnap,
+          ttSlotsConfigSnap,
         ] = await Promise.all([
           getDocs(collection(db, 'classes')),
           getDocs(collection(db, 'students')),
@@ -1984,6 +2001,10 @@ class DataService {
           getDocs(collection(db, 'attendance_clearances')),
           getDocs(collection(db, 'complaints_feedback')),
           getDocs(collection(db, 'showcase_cards')),
+          getDocs(collection(db, 'timetable_periods')).catch(() => ({ empty: true, docs: [] } as any)),
+          getDocs(collection(db, 'timetable_slots')).catch(() => ({ empty: true, docs: [] } as any)),
+          getDoc(doc(db, 'system_config', 'timetable_periods')).catch(() => ({ exists: () => false, data: () => null } as any)),
+          getDoc(doc(db, 'system_config', 'timetable_slots')).catch(() => ({ exists: () => false, data: () => null } as any)),
         ]);
 
         if (!usersSnap.empty) {
@@ -2114,6 +2135,39 @@ class DataService {
         }
         if (!showcaseCardsSnap.empty) {
           this.state.showcaseCards = showcaseCardsSnap.docs.map((d) => d.data() as ShowcaseCard);
+        }
+
+        // Timetable Periods Sync from Firestore
+        if (ttPeriodsConfigSnap.exists && ttPeriodsConfigSnap.exists() && ttPeriodsConfigSnap.data()?.periods) {
+          this.state.timetablePeriods = ttPeriodsConfigSnap.data().periods;
+        } else if (!ttPeriodsSnap.empty) {
+          this.state.timetablePeriods = ttPeriodsSnap.docs.map((d) => d.data() as TimetablePeriodDefinition);
+        }
+
+        // Timetable Slots Sync from Firestore
+        if (ttSlotsConfigSnap.exists && ttSlotsConfigSnap.exists() && ttSlotsConfigSnap.data()?.slots) {
+          this.state.timetableSlots = ttSlotsConfigSnap.data().slots;
+        } else if (!ttSlotsSnap.empty) {
+          this.state.timetableSlots = ttSlotsSnap.docs.map((d) => d.data() as TimetableSlot);
+        }
+
+        // Ensure Ashiq CP Hudawi has a teacher profile in state.teachers
+        const hasAshiqTeacher = this.state.teachers.some(
+          (t) => t.id === 'teacher-admin' || t.username === 'admin' || t.name?.toLowerCase().includes('ashiq')
+        );
+        if (!hasAshiqTeacher) {
+          this.state.teachers.unshift({
+            id: 'teacher-admin',
+            name: 'Ashiq CP Hudawi',
+            phone: '(555) 100-0001',
+            email: 'admin@school.edu',
+            username: 'admin',
+            status: 'active',
+            assignedSubjectIds: ['sub-8a-eng', 'sub-10a-eng'],
+            assignedClassIds: ['class-8a', 'class-10a'],
+            classTeacherOfClassIds: ['class-8a'],
+            createdDate: '2025-01-11',
+          });
         }
 
         this.saveLocal();
