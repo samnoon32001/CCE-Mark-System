@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import {
   Calendar,
+  CalendarCheck,
   Clock,
   CheckCircle2,
   XCircle,
@@ -669,33 +670,29 @@ export const AttendanceLeaveView: React.FC = () => {
         </div>
       )}
 
-      {/* Top Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs">
-        <div>
-          <div className="flex items-center gap-2.5">
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 flex items-center justify-center border border-emerald-100 dark:border-emerald-800">
-              <Calendar className="w-5 h-5" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold text-slate-800 dark:text-white tracking-tight">
-                Attendance Management (Hajar)
-              </h1>
-              {isSuperAdmin && (
-                <p className="text-xs text-slate-500 dark:text-slate-400">
-                  Fast subject-based marking with present-only toggle, automated casual leaves, and clearance.
-                </p>
-              )}
-            </div>
+      {/* Sleek Compact Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 bg-white dark:bg-slate-900 px-4 py-3 sm:px-5 sm:py-3.5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs">
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-emerald-600 dark:bg-emerald-500 text-white flex items-center justify-center shadow-xs shrink-0">
+            <CalendarCheck className="w-5 h-5" />
+          </div>
+          <div className="flex items-center gap-2 flex-wrap">
+            <h1 className="text-base sm:text-lg font-bold text-slate-800 dark:text-white tracking-tight">
+              Hajar Attendance
+            </h1>
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+              Fast Roll Call
+            </span>
           </div>
         </div>
 
         {/* Tab Switcher */}
-        <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl overflow-x-auto">
+        <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl overflow-x-auto shrink-0">
           <button
             id="tab-mark-attendance"
             type="button"
             onClick={() => setActiveTab('mark')}
-            className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all shrink-0 cursor-pointer ${
+            className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all shrink-0 cursor-pointer ${
               activeTab === 'mark'
                 ? 'bg-white dark:bg-slate-900 text-emerald-800 dark:text-emerald-400 shadow-xs'
                 : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
@@ -709,7 +706,7 @@ export const AttendanceLeaveView: React.FC = () => {
               id="tab-attendance-summary"
               type="button"
               onClick={() => setActiveTab('summary')}
-              className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all shrink-0 cursor-pointer ${
+              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all shrink-0 cursor-pointer ${
                 activeTab === 'summary'
                   ? 'bg-white dark:bg-slate-900 text-emerald-800 dark:text-emerald-400 shadow-xs'
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
@@ -724,7 +721,7 @@ export const AttendanceLeaveView: React.FC = () => {
               id="tab-attendance-clearance"
               type="button"
               onClick={() => setActiveTab('clearance')}
-              className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all shrink-0 flex items-center gap-1.5 cursor-pointer ${
+              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all shrink-0 flex items-center gap-1.5 cursor-pointer ${
                 activeTab === 'clearance'
                   ? 'bg-white dark:bg-slate-900 text-emerald-800 dark:text-emerald-400 shadow-xs'
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
@@ -745,7 +742,7 @@ export const AttendanceLeaveView: React.FC = () => {
               id="tab-split-subjects"
               type="button"
               onClick={() => setActiveTab('split-subjects')}
-              className={`px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all shrink-0 cursor-pointer ${
+              className={`px-3 py-1.5 text-xs font-semibold rounded-lg transition-all shrink-0 cursor-pointer ${
                 activeTab === 'split-subjects'
                   ? 'bg-white dark:bg-slate-900 text-emerald-800 dark:text-emerald-400 shadow-xs'
                   : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
@@ -906,137 +903,108 @@ export const AttendanceLeaveView: React.FC = () => {
 
           {/* ACTIVE SUBJECT WORKSPACE: SHORT SUMMARY STATISTICS & STUDENT LIST */}
           {currentSubject && currentClass ? (
-            <div className="space-y-4">
-              {/* Short Summary Statistics Bar (As requested: "when taking each subject show the short summary statistics, like total classes.....") */}
-              <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
-                <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-3 border-b border-slate-100">
-                  <div>
-                    <div className="flex flex-wrap items-center gap-2">
-                      <select
-                        id="select-active-period"
-                        value={selectedPeriod}
-                        onChange={(e) => setSelectedPeriod(Number(e.target.value))}
-                        className="px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 cursor-pointer focus:outline-none"
-                      >
-                        {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((p) => (
-                          <option key={p} value={p}>
-                            Period {p}
-                          </option>
-                        ))}
-                      </select>
-                      <h2 className="text-lg font-bold text-slate-800 dark:text-white">{currentSubject.name}</h2>
+            <div className="space-y-3">
+              {/* Short & Sleek Attendance Session Bar & Compact Stats */}
+              <div className="bg-white dark:bg-slate-900 px-4 py-3 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs space-y-2.5">
+                {/* Top Row: Period, Subject, Session Info & Action Buttons */}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                  <div className="flex items-center gap-2.5 flex-wrap">
+                    <select
+                      id="select-active-period"
+                      value={selectedPeriod}
+                      onChange={(e) => setSelectedPeriod(Number(e.target.value))}
+                      className="px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 cursor-pointer focus:outline-none"
+                    >
+                      {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((p) => (
+                        <option key={p} value={p}>
+                          Period {p}
+                        </option>
+                      ))}
+                    </select>
+                    <h2 className="text-base font-bold text-slate-800 dark:text-white">
+                      {currentSubject.name}{' '}
                       <span className="text-xs font-semibold text-slate-500 dark:text-slate-400">
                         ({currentClass.name})
                       </span>
-                    </div>
-                    <div className="text-xs text-slate-500 mt-0.5">
-                      Session: {selectedDate} ({currentDayOfWeek}) • Period {selectedPeriod}
+                    </h2>
+                    <span className="text-slate-300 dark:text-slate-700 hidden sm:inline">•</span>
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400">
+                      {selectedDate} ({currentDayOfWeek})
                       {currentSubject.isSplitSubject && ` • [Split: ${currentSubject.splitGroupName || 'Elective'}]`}
-                    </div>
+                    </span>
                   </div>
 
-                  {/* Submission Status & Quick Feedback Toast */}
-                  <div className="flex items-center gap-3">
+                  {/* Submission Status & Submit Button in one compact row */}
+                  <div className="flex items-center gap-2 self-start md:self-center shrink-0">
                     {submitFeedback && (
-                      <span className="px-3 py-1 rounded-xl text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 animate-fade-in">
+                      <span className="px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 animate-fade-in">
                         ✓ {submitFeedback}
                       </span>
                     )}
 
                     {isSessionAlreadySaved ? (
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
                         <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                        Saved in Database
+                        Saved
                       </span>
                     ) : (
-                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-semibold bg-amber-50 text-amber-800 border border-amber-200">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-200 dark:border-amber-800">
                         <Clock className="w-3.5 h-3.5 text-amber-600" />
-                        Unsaved / New Session
+                        New / Unsaved
                       </span>
                     )}
 
-                    {/* Submit Button (Top) */}
                     <button
                       id="btn-submit-attendance-top"
                       type="button"
                       onClick={handleSubmitAttendance}
-                      className="flex items-center gap-2 px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold shadow-xs transition-all active:scale-95"
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-lg text-xs font-bold shadow-xs transition-all active:scale-95 cursor-pointer"
                     >
-                      <Check className="w-4 h-4" />
-                      <span>Submit Attendance</span>
+                      <Check className="w-3.5 h-3.5" />
+                      <span>Submit</span>
                     </button>
                   </div>
                 </div>
 
-                {/* Summary Statistics Metrics Grid */}
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 pt-3">
-                  <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
-                    <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-                      Total Classes
-                    </div>
-                    <div className="text-xl font-bold text-slate-800">
-                      {subjectSummaryStats.totalClassesHeld}
-                    </div>
-                    <div className="text-[10px] text-slate-500">Conducted sessions</div>
+                {/* Compact Attendance Statistics Ribbon (Saves massive vertical space) */}
+                <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100 dark:border-slate-800/80 text-xs">
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                    <span className="text-slate-500 dark:text-slate-400">Total Classes:</span>
+                    <span className="font-bold text-slate-800 dark:text-slate-200">{subjectSummaryStats.totalClassesHeld}</span>
                   </div>
 
-                  <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
-                    <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-                      Enrolled
-                    </div>
-                    <div className="text-xl font-bold text-slate-800">
-                      {subjectSummaryStats.totalEnrolled}
-                    </div>
-                    <div className="text-[10px] text-slate-500">Active students</div>
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                    <span className="text-slate-500 dark:text-slate-400">Enrolled:</span>
+                    <span className="font-bold text-slate-800 dark:text-slate-200">{subjectSummaryStats.totalEnrolled}</span>
                   </div>
 
-                  <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200">
-                    <div className="text-[11px] font-semibold text-emerald-800 uppercase tracking-wider">
-                      Present (Now)
-                    </div>
-                    <div className="text-xl font-bold text-emerald-700">
-                      {subjectSummaryStats.presentThisSession}
-                    </div>
-                    <div className="text-[10px] text-emerald-700">Checked present</div>
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300">
+                    <span className="text-emerald-700 dark:text-emerald-400">Present (Now):</span>
+                    <span className="font-bold text-emerald-700 dark:text-emerald-300">{subjectSummaryStats.presentThisSession}</span>
                   </div>
 
-                  <div className="p-2.5 rounded-xl bg-slate-100 border border-slate-300">
-                    <div className="text-[11px] font-semibold text-slate-700 uppercase tracking-wider">
-                      Casual Leave
-                    </div>
-                    <div className="text-xl font-bold text-slate-700">
-                      {subjectSummaryStats.casualLeaveThisSession}
-                    </div>
-                    <div className="text-[10px] text-slate-600">Default unchecked</div>
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300">
+                    <span className="text-slate-500 dark:text-slate-400">Casual Leave:</span>
+                    <span className="font-bold text-slate-700 dark:text-slate-300">{subjectSummaryStats.casualLeaveThisSession}</span>
                   </div>
 
-                  <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
-                    <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-                      Session Rate
-                    </div>
-                    <div className="text-xl font-bold text-emerald-700">
-                      {subjectSummaryStats.sessionRate}%
-                    </div>
-                    <div className="text-[10px] text-slate-500">Attendance this period</div>
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300">
+                    <span className="text-emerald-700 dark:text-emerald-400">Session Rate:</span>
+                    <span className="font-bold text-emerald-700 dark:text-emerald-300">{subjectSummaryStats.sessionRate}%</span>
                   </div>
 
-                  <div className="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
-                    <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
-                      Overall Rate
-                    </div>
-                    <div className="text-xl font-bold text-slate-800">
-                      {subjectSummaryStats.historicalRate}%
-                    </div>
-                    <div className="text-[10px] text-slate-500">Subject average</div>
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                    <span className="text-slate-500 dark:text-slate-400">Overall Rate:</span>
+                    <span className="font-bold text-slate-800 dark:text-slate-200">{subjectSummaryStats.historicalRate}%</span>
                   </div>
                 </div>
               </div>
 
               {/* STUDENT LIST & CHECKBOX TO TICK PRESENT (ONLY) */}
               {/* Default unchecked option is Casual Leave */}
-              <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+              <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-xs overflow-hidden">
                 {/* List Action Toolbar */}
-                <div className="p-3.5 bg-slate-50 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="p-3.5 bg-slate-50/80 dark:bg-slate-800/60 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div className="flex items-center gap-3">
                     <div className="relative">
                       <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -1045,10 +1013,10 @@ export const AttendanceLeaveView: React.FC = () => {
                         placeholder="Search student or admission #..."
                         value={studentSearchQuery}
                         onChange={(e) => setStudentSearchQuery(e.target.value)}
-                        className="text-xs pl-8 pr-3 py-1.5 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-emerald-600 w-56 font-medium"
+                        className="text-xs pl-8 pr-3 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl focus:outline-none focus:border-emerald-600 text-slate-800 dark:text-slate-100 w-56 font-medium"
                       />
                     </div>
-                    <span className="text-xs text-slate-500 hidden md:inline">
+                    <span className="text-xs text-slate-500 dark:text-slate-400 hidden md:inline">
                       Showing {displayedStudents.length} students
                     </span>
                   </div>
@@ -1066,18 +1034,84 @@ export const AttendanceLeaveView: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Table of students */}
-                <div className="overflow-x-auto">
+                {/* Mobile View: High-contrast touch-friendly Cards (No horizontal scrolling) */}
+                <div className="block sm:hidden divide-y divide-slate-100 dark:divide-slate-800">
+                  {displayedStudents.map((student, idx) => {
+                    const isPresent = presentMap[student.id] ?? false;
+
+                    return (
+                      <div
+                        key={`mobile-${student.id}`}
+                        onClick={() => handleToggleStudentPresent(student.id)}
+                        className={`p-3 flex items-center justify-between gap-3 cursor-pointer transition-colors active:scale-[0.99] ${
+                          isPresent
+                            ? 'bg-emerald-50/50 dark:bg-emerald-950/20'
+                            : 'bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/50'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <span className="font-mono text-[11px] text-slate-400 w-5 text-center shrink-0">
+                            {idx + 1}
+                          </span>
+                          <div
+                            className={`w-9 h-9 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 ${
+                              isPresent
+                                ? 'bg-emerald-600 text-white shadow-xs'
+                                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700'
+                            }`}
+                          >
+                            {student.name.charAt(0)}
+                          </div>
+                          <div className="min-w-0">
+                            <div className="font-bold text-slate-800 dark:text-slate-100 text-xs truncate">
+                              {student.name}
+                            </div>
+                            <div className="text-[10px] font-mono text-slate-500 dark:text-slate-400">
+                              Adm #{student.admissionNumber}
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Mobile Toggle Button */}
+                        <div
+                          className="shrink-0"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <button
+                            type="button"
+                            onClick={() => handleToggleStudentPresent(student.id)}
+                            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer border shadow-2xs ${
+                              isPresent
+                                ? 'bg-emerald-600 hover:bg-emerald-700 text-white border-emerald-600'
+                                : 'bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 text-slate-600 dark:text-slate-300 border-slate-300 dark:border-slate-700'
+                            }`}
+                          >
+                            {isPresent ? (
+                              <>
+                                <CheckCircle2 className="w-3.5 h-3.5" />
+                                <span>Present</span>
+                              </>
+                            ) : (
+                              <span>Mark Present</span>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Tablet & Desktop View: Clean 3-Column Table (No redundant Current Status column) */}
+                <div className="hidden sm:block overflow-x-auto">
                   <table className="w-full text-left text-xs">
                     <thead>
-                      <tr className="border-b border-slate-200 bg-slate-50/40 text-slate-600 font-semibold">
+                      <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40 text-slate-600 dark:text-slate-400 font-semibold">
                         <th className="py-3 px-4 w-12 text-center">#</th>
-                        <th className="py-3 px-4">Student</th>
-                        <th className="py-3 px-4">Current Status</th>
-                        <th className="py-3 px-4 text-right">Tick Present (Only)</th>
+                        <th className="py-3 px-4">Student Details</th>
+                        <th className="py-3 px-4 text-right">Attendance Action</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-100">
+                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                       {displayedStudents.map((student, idx) => {
                         const isPresent = presentMap[student.id] ?? false;
 
@@ -1087,65 +1121,64 @@ export const AttendanceLeaveView: React.FC = () => {
                             onClick={() => handleToggleStudentPresent(student.id)}
                             className={`cursor-pointer transition-colors ${
                               isPresent
-                                ? 'hover:bg-emerald-50/30'
-                                : 'bg-slate-50/60 hover:bg-slate-100/70'
+                                ? 'bg-emerald-50/30 dark:bg-emerald-950/20 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/30'
+                                : 'hover:bg-slate-50 dark:hover:bg-slate-800/40'
                             }`}
                           >
-                            <td className="py-3.5 px-4 font-mono text-slate-500 text-center">
+                            <td className="py-3 px-4 font-mono text-slate-400 dark:text-slate-500 text-center">
                               {idx + 1}
                             </td>
-                            <td className="py-3.5 px-4">
-                              <div className="flex items-center gap-2.5">
+                            <td className="py-3 px-4">
+                              <div className="flex items-center gap-3">
                                 <div
-                                  className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs ${
+                                  className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 ${
                                     isPresent
-                                      ? 'bg-emerald-100 text-emerald-800'
-                                      : 'bg-slate-200 text-slate-600'
+                                      ? 'bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300'
+                                      : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700'
                                   }`}
                                 >
                                   {student.name.charAt(0)}
                                 </div>
                                 <div>
-                                  <div className="font-bold text-slate-800 text-sm">
-                                    {student.name}
+                                  <div className="font-bold text-slate-800 dark:text-slate-200 text-sm flex items-center gap-2">
+                                    <span>{student.name}</span>
+                                    {isPresent && (
+                                      <span className="inline-flex items-center gap-1 px-2 py-0.2 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300">
+                                        Present
+                                      </span>
+                                    )}
                                   </div>
-                                  <div className="text-[11px] font-mono text-slate-500">
+                                  <div className="text-[11px] font-mono text-slate-500 dark:text-slate-400">
                                     Adm #{student.admissionNumber}
                                   </div>
                                 </div>
                               </div>
                             </td>
-                            <td className="py-3.5 px-4">
-                              {isPresent ? (
-                                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 shadow-2xs">
-                                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                                  Present
-                                </span>
-                              ) : (
-                                <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-300">
-                                  Casual Leave (Default)
-                                </span>
-                              )}
-                            </td>
                             <td
-                              className="py-3.5 px-4 text-right"
+                              className="py-3 px-4 text-right"
                               onClick={(e) => e.stopPropagation()}
                             >
-                              <label
-                                className={`inline-flex items-center gap-2 cursor-pointer px-3 py-1.5 rounded-xl border transition-all select-none ${
+                              <button
+                                type="button"
+                                onClick={() => handleToggleStudentPresent(student.id)}
+                                className={`inline-flex items-center gap-2 cursor-pointer px-4 py-1.5 rounded-xl border transition-all text-xs font-bold shadow-2xs ${
                                   isPresent
-                                    ? 'bg-emerald-700 text-white border-emerald-700 shadow-xs'
-                                    : 'bg-white hover:bg-slate-100 text-slate-700 border-slate-300'
+                                    ? 'bg-emerald-700 hover:bg-emerald-800 text-white border-emerald-700 shadow-xs ring-2 ring-emerald-500/20'
+                                    : 'bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-700/60 text-slate-700 dark:text-slate-300 border-slate-300 dark:border-slate-700'
                                 }`}
                               >
-                                <input
-                                  type="checkbox"
-                                  checked={isPresent}
-                                  onChange={() => handleToggleStudentPresent(student.id)}
-                                  className="w-4 h-4 rounded text-emerald-600 focus:ring-emerald-500 cursor-pointer"
-                                />
-                                <span className="text-xs font-bold">Present</span>
-                              </label>
+                                {isPresent ? (
+                                  <>
+                                    <CheckCircle2 className="w-4 h-4 text-white" />
+                                    <span>Present</span>
+                                  </>
+                                ) : (
+                                  <>
+                                    <Square className="w-3.5 h-3.5 text-slate-400" />
+                                    <span>Tick Present</span>
+                                  </>
+                                )}
+                              </button>
                             </td>
                           </tr>
                         );
@@ -1155,18 +1188,18 @@ export const AttendanceLeaveView: React.FC = () => {
                 </div>
 
                 {/* Bottom Submit Footer */}
-                <div className="p-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3">
-                  <div className="text-xs text-slate-600">
-                    Marking for <strong>{currentSubject.name}</strong> • Period {selectedPeriod} •{' '}
-                    <strong>{subjectSummaryStats.presentThisSession} Present</strong>,{' '}
-                    <strong>{subjectSummaryStats.casualLeaveThisSession} Casual Leave</strong>
+                <div className="p-4 bg-slate-50/80 dark:bg-slate-800/60 border-t border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
+                  <div className="text-xs text-slate-600 dark:text-slate-400">
+                    Marking for <strong className="text-slate-800 dark:text-slate-200">{currentSubject.name}</strong> • Period {selectedPeriod} •{' '}
+                    <strong className="text-emerald-700 dark:text-emerald-400">{subjectSummaryStats.presentThisSession} Present</strong>,{' '}
+                    <strong className="text-slate-700 dark:text-slate-300">{subjectSummaryStats.casualLeaveThisSession} Casual Leave</strong>
                   </div>
 
                   <button
                     id="btn-submit-attendance-bottom"
                     type="button"
                     onClick={handleSubmitAttendance}
-                    className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-sm font-bold shadow-xs transition-all active:scale-95"
+                    className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-sm font-bold shadow-xs transition-all active:scale-95 cursor-pointer"
                   >
                     <Check className="w-4 h-4" />
                     <span>
