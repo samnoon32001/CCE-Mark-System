@@ -63,6 +63,7 @@ export const TeacherManagement: React.FC = () => {
   const [formAssignedClassIds, setFormAssignedClassIds] = useState<string[]>([]);
   const [formAssignedSubjectIds, setFormAssignedSubjectIds] = useState<string[]>([]);
   const [formClassTeacherOfClassIds, setFormClassTeacherOfClassIds] = useState<string[]>([]);
+  const [formSelectedSubjectToAdd, setFormSelectedSubjectToAdd] = useState<string>('');
   const [formError, setFormError] = useState<string | null>(null);
 
   const filteredTeachers = state.teachers.filter((t) => {
@@ -88,6 +89,7 @@ export const TeacherManagement: React.FC = () => {
     setFormAssignedClassIds([]);
     setFormAssignedSubjectIds([]);
     setFormClassTeacherOfClassIds([]);
+    setFormSelectedSubjectToAdd('');
     setFormError(null);
     setIsAddEditModalOpen(true);
   };
@@ -104,6 +106,7 @@ export const TeacherManagement: React.FC = () => {
     setFormAssignedClassIds(teacher.assignedClassIds || []);
     setFormAssignedSubjectIds(teacher.assignedSubjectIds || []);
     setFormClassTeacherOfClassIds(teacher.classTeacherOfClassIds || []);
+    setFormSelectedSubjectToAdd('');
     setFormError(null);
     setIsAddEditModalOpen(true);
   };
@@ -576,6 +579,92 @@ export const TeacherManagement: React.FC = () => {
                 <option value="active">Active</option>
                 <option value="inactive">Inactive</option>
               </select>
+            </div>
+          </div>
+
+          {/* Assigned Subjects (CRUD) */}
+          <div className="p-3.5 bg-purple-50/70 dark:bg-purple-950/30 rounded-xl border border-purple-200 dark:border-purple-800 space-y-3">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-semibold text-purple-900 dark:text-purple-300 flex items-center gap-1.5">
+                <BookOpen className="w-4 h-4 text-purple-600" />
+                Assigned Subjects ({formAssignedSubjectIds.length})
+              </label>
+              <span className="text-[11px] text-purple-700 dark:text-purple-400 font-medium">
+                Add or remove subjects for this teacher
+              </span>
+            </div>
+
+            {/* List of currently assigned subjects with Close (X) icon to remove */}
+            <div className="flex flex-wrap gap-2 min-h-[38px] p-2 bg-white dark:bg-slate-900 rounded-lg border border-purple-200 dark:border-purple-900/60 items-center">
+              {formAssignedSubjectIds.length === 0 ? (
+                <span className="text-xs text-slate-400 italic">No subjects assigned yet. Select below and click + to add.</span>
+              ) : (
+                formAssignedSubjectIds.map((subId) => {
+                  const sub = state.subjects.find((s) => s.id === subId);
+                  const cls = sub ? state.classes.find((c) => c.id === sub.classId) : null;
+                  return (
+                    <span
+                      key={subId}
+                      className="inline-flex items-center gap-1.5 pl-2.5 pr-1.5 py-1 rounded-md text-xs font-medium bg-purple-100 dark:bg-purple-900/60 text-purple-800 dark:text-purple-200 border border-purple-300 dark:border-purple-700 shadow-2xs"
+                    >
+                      <span>
+                        {sub?.name || 'Unknown Subject'} {cls ? `(${cls.name})` : ''}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setFormAssignedSubjectIds(formAssignedSubjectIds.filter((id) => id !== subId));
+                        }}
+                        className="p-0.5 hover:bg-purple-200 dark:hover:bg-purple-800 text-purple-700 dark:text-purple-300 rounded transition-colors cursor-pointer"
+                        title={`Remove ${sub?.name || 'subject'}`}
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </span>
+                  );
+                })
+              )}
+            </div>
+
+            {/* Subject Selector and + Add Button */}
+            <div className="flex items-center gap-2 pt-1">
+              <select
+                value={formSelectedSubjectToAdd}
+                onChange={(e) => setFormSelectedSubjectToAdd(e.target.value)}
+                className="flex-1 px-3 py-1.5 text-xs border border-slate-300 dark:border-slate-700 rounded-lg bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 focus:ring-2 focus:ring-purple-500"
+              >
+                <option value="">-- Select a subject to assign --</option>
+                {state.subjects
+                  .filter((s) => !formAssignedSubjectIds.includes(s.id))
+                  .map((s) => {
+                    const cls = state.classes.find((c) => c.id === s.classId);
+                    return (
+                      <option key={s.id} value={s.id}>
+                        {s.name} ({cls?.name || 'No Class'} • {s.code})
+                      </option>
+                    );
+                  })}
+              </select>
+
+              <button
+                type="button"
+                disabled={!formSelectedSubjectToAdd}
+                onClick={() => {
+                  if (formSelectedSubjectToAdd && !formAssignedSubjectIds.includes(formSelectedSubjectToAdd)) {
+                    setFormAssignedSubjectIds([...formAssignedSubjectIds, formSelectedSubjectToAdd]);
+                    setFormSelectedSubjectToAdd('');
+                  }
+                }}
+                className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-xs ${
+                  formSelectedSubjectToAdd
+                    ? 'bg-purple-600 hover:bg-purple-700 text-white cursor-pointer active:scale-95'
+                    : 'bg-slate-200 dark:bg-slate-800 text-slate-400 cursor-not-allowed'
+                }`}
+                title="Add Subject to Teacher"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Add</span>
+              </button>
             </div>
           </div>
 

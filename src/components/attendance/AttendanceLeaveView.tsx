@@ -348,8 +348,12 @@ export const AttendanceLeaveView: React.FC = () => {
       });
     }
     setPresentMap(initialMap);
-    setSubmitFeedback(null);
   }, [selectedSubjectId, selectedPeriod, selectedDate, currentSubjectStudents.length, currentSessionRecords.length]);
+
+  // Clear success feedback when navigating away from subject/period/date
+  useEffect(() => {
+    setSubmitFeedback(null);
+  }, [selectedSubjectId, selectedPeriod, selectedDate]);
 
   // Check if session is already saved in DB
   const isSessionAlreadySaved = currentSessionRecords.length > 0;
@@ -642,6 +646,29 @@ export const AttendanceLeaveView: React.FC = () => {
   // =========================================================================
   return (
     <div id="attendance-hajar-view" className="space-y-6 pb-12">
+      {/* Prominent Floating Submission Success Banner */}
+      {submitFeedback && (
+        <div className="fixed top-20 right-4 sm:right-8 z-50 max-w-md animate-bounce-short shadow-2xl">
+          <div className="flex items-center gap-3 p-4 bg-emerald-700 text-white rounded-2xl border-2 border-emerald-400 shadow-xl">
+            <div className="p-2 bg-emerald-800 rounded-xl">
+              <CheckCircle2 className="w-6 h-6 text-emerald-200" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-black tracking-wide">Attendance Submitted Successfully!</div>
+              <div className="text-xs text-emerald-100 mt-0.5 font-medium">{submitFeedback}</div>
+            </div>
+            <button
+              type="button"
+              onClick={() => setSubmitFeedback(null)}
+              className="p-1 text-emerald-200 hover:text-white hover:bg-emerald-600/60 rounded-lg transition-colors cursor-pointer"
+              title="Close notification"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Top Header Banner */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white dark:bg-slate-900 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-xs">
         <div>

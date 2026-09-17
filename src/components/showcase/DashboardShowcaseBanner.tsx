@@ -228,35 +228,35 @@ export const DashboardShowcaseBanner: React.FC<DashboardShowcaseBannerProps> = (
           accentStyles.cardBg
         } border ${
           accentStyles.border
-        } shadow-lg sm:shadow-xl transition-all duration-300 p-3 sm:p-5 md:p-6`}
+        } shadow-md sm:shadow-xl transition-all duration-300 p-2.5 xs:p-3 sm:p-5 md:p-6`}
       >
         {/* Subtle Decorative Background Trophy & Watermark */}
         <div className="absolute right-0 top-0 bottom-0 w-1/3 opacity-5 sm:opacity-10 pointer-events-none flex items-center justify-end pr-4 overflow-hidden">
-          <Trophy className="w-48 h-48 sm:w-80 sm:h-80 text-amber-300 transform translate-x-8 sm:translate-x-12 translate-y-4 sm:translate-y-6" />
+          <Trophy className="w-32 h-32 sm:w-80 sm:h-80 text-amber-300 transform translate-x-8 sm:translate-x-12 translate-y-4 sm:translate-y-6" />
         </div>
 
         {/* Ambient Top Glow */}
         <div
-          className={`absolute inset-x-0 top-0 h-20 sm:h-32 bg-gradient-to-b ${accentStyles.glow} pointer-events-none`}
+          className={`absolute inset-x-0 top-0 h-14 sm:h-32 bg-gradient-to-b ${accentStyles.glow} pointer-events-none`}
         />
 
         {/* Top Header Bar: Slide info, slide dots & Management button */}
-        <div className="relative z-10 flex items-center justify-between gap-2 mb-2 sm:mb-3">
-          <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap min-w-0">
-            <span className="inline-flex items-center gap-1 px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-[10px] sm:text-xs font-black uppercase tracking-wider bg-white/10 backdrop-blur-md text-amber-200 border border-white/10 shrink-0">
-              <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-yellow-300 animate-pulse" />
+        <div className="relative z-10 flex items-center justify-between gap-1.5 mb-1.5 sm:mb-3">
+          <div className="flex items-center gap-1 sm:gap-2 flex-wrap min-w-0">
+            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 sm:px-3 sm:py-1 rounded-full text-[9px] sm:text-xs font-black uppercase tracking-wider bg-white/10 backdrop-blur-md text-amber-200 border border-white/10 shrink-0">
+              <Sparkles className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-yellow-300 animate-pulse" />
               {isPriorityOne ? 'Apex Honor' : 'Honors Spotlight'}
             </span>
 
-            <span className="text-[10px] sm:text-[11px] font-semibold text-slate-300 truncate max-w-[140px] xs:max-w-[200px] sm:max-w-none">
+            <span className="text-[9px] sm:text-[11px] font-semibold text-slate-300 truncate max-w-[120px] xs:max-w-[180px] sm:max-w-none">
               {currentCard.examName || "Rabee' Examination"}
             </span>
           </div>
 
-          <div className="flex items-center gap-1.5 shrink-0">
+          <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
             {/* Slide Navigation Buttons */}
             {heroAndSectionSlides.length > 1 && (
-              <div className="flex items-center gap-0.5 sm:gap-1 bg-black/40 backdrop-blur-md rounded-lg sm:rounded-xl p-0.5 sm:p-1 border border-white/10">
+              <div className="flex items-center gap-0.5 sm:gap-1 bg-black/40 backdrop-blur-md rounded-md sm:rounded-xl p-0.5 sm:p-1 border border-white/10">
                 <button
                   id="showcase-prev-slide-btn"
                   onClick={() =>
@@ -264,14 +264,14 @@ export const DashboardShowcaseBanner: React.FC<DashboardShowcaseBannerProps> = (
                       prev === 0 ? heroAndSectionSlides.length - 1 : prev - 1
                     )
                   }
-                  className="p-1 text-white/70 hover:text-white hover:bg-white/10 rounded-md transition-colors cursor-pointer"
+                  className="p-0.5 sm:p-1 text-white/70 hover:text-white hover:bg-white/10 rounded transition-colors cursor-pointer"
                   title="Previous Slide"
                   aria-label="Previous Slide"
                 >
-                  <ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4" />
                 </button>
 
-                <span className="text-[10px] sm:text-[11px] font-mono font-bold text-white/90 px-1 sm:px-1.5">
+                <span className="text-[9px] sm:text-[11px] font-mono font-bold text-white/90 px-0.5 sm:px-1.5">
                   {currentSlideIndex + 1}/{heroAndSectionSlides.length}
                 </span>
 
@@ -280,11 +280,11 @@ export const DashboardShowcaseBanner: React.FC<DashboardShowcaseBannerProps> = (
                   onClick={() =>
                     setCurrentSlideIndex((prev) => (prev + 1) % heroAndSectionSlides.length)
                   }
-                  className="p-1 text-white/70 hover:text-white hover:bg-white/10 rounded-md transition-colors cursor-pointer"
+                  className="p-0.5 sm:p-1 text-white/70 hover:text-white hover:bg-white/10 rounded transition-colors cursor-pointer"
                   title="Next Slide"
                   aria-label="Next Slide"
                 >
-                  <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
                 </button>
               </div>
             )}
@@ -295,36 +295,36 @@ export const DashboardShowcaseBanner: React.FC<DashboardShowcaseBannerProps> = (
                 <button
                   id="open-showcase-manager-btn"
                   onClick={() => setIsManagementModalOpen(true)}
-                  className="px-2 py-0.5 sm:px-2.5 sm:py-1 text-[11px] sm:text-xs font-bold text-amber-200 hover:text-white bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 rounded-lg sm:rounded-xl transition-colors cursor-pointer flex items-center gap-1"
+                  className="px-1.5 py-0.5 sm:px-2.5 sm:py-1 text-[10px] sm:text-xs font-bold text-amber-200 hover:text-white bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/30 rounded-md sm:rounded-xl transition-colors cursor-pointer flex items-center gap-1"
                   title="Manage Spotlight Cards (Staff & Admin)"
                 >
-                  <Settings className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                  <Settings className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5" />
                   <span className="hidden md:inline">Manage</span>
                 </button>
                 <button
                   id="delete-current-slide-btn"
                   onClick={() => setCardToDelete(currentCard)}
-                  className="p-1 text-rose-300 hover:text-rose-100 hover:bg-rose-500/30 rounded-lg sm:rounded-xl border border-rose-500/20 transition-colors cursor-pointer"
+                  className="p-0.5 sm:p-1 text-rose-300 hover:text-rose-100 hover:bg-rose-500/30 rounded-md sm:rounded-xl border border-rose-500/20 transition-colors cursor-pointer"
                   title="Delete this slide from Spotlight Hub"
                 >
-                  <Trash2 className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+                  <Trash2 className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5" />
                 </button>
               </div>
             )}
           </div>
         </div>
 
-        {/* Main Content: Adaptive layout - compact horizontal unit on mobile */}
-        <div className="relative z-10 flex items-center justify-between gap-3 sm:gap-5">
+        {/* Main Content: Adaptive layout - ultra sleek & compact on mobile */}
+        <div className="relative z-10 flex items-center justify-between gap-2 sm:gap-5">
           {/* Left Column: Photo & Details */}
-          <div className="flex items-center gap-2.5 sm:gap-4 min-w-0 flex-1">
+          <div className="flex items-center gap-2 sm:gap-4 min-w-0 flex-1">
             {/* Student Photo / Grand Trophy Ring */}
             <div className="relative shrink-0">
               <div
-                className={`relative rounded-xl sm:rounded-2xl overflow-hidden shadow-md sm:shadow-xl transition-all ${
+                className={`relative rounded-lg sm:rounded-2xl overflow-hidden shadow-xs sm:shadow-xl transition-all ${
                   isPriorityOne
-                    ? 'w-12 h-12 sm:w-20 sm:h-20 md:w-24 md:h-24 ring-2 sm:ring-4 ring-amber-400/80'
-                    : 'w-11 h-11 sm:w-16 sm:h-16 md:w-18 md:h-18 ring-2 ring-indigo-400/70'
+                    ? 'w-10 h-10 xs:w-11 xs:h-11 sm:w-20 sm:h-20 md:w-24 md:h-24 ring-1.5 sm:ring-4 ring-amber-400/80'
+                    : 'w-9 h-9 xs:w-10 xs:h-10 sm:w-16 sm:h-16 md:w-18 md:h-18 ring-1.5 ring-indigo-400/70'
                 }`}
               >
                 {currentCard.imageUrl ? (
@@ -335,7 +335,7 @@ export const DashboardShowcaseBanner: React.FC<DashboardShowcaseBannerProps> = (
                     className="w-full h-full object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full bg-gradient-to-tr from-amber-600 to-yellow-500 flex items-center justify-center text-white font-black text-base sm:text-2xl">
+                  <div className="w-full h-full bg-gradient-to-tr from-amber-600 to-yellow-500 flex items-center justify-center text-white font-black text-sm sm:text-2xl">
                     {currentCard.studentName.charAt(0)}
                   </div>
                 )}
@@ -345,52 +345,52 @@ export const DashboardShowcaseBanner: React.FC<DashboardShowcaseBannerProps> = (
               <div
                 className={`absolute -bottom-1 -right-1 sm:-bottom-1.5 sm:-right-1.5 rounded-full flex items-center justify-center text-slate-950 font-black shadow-md ${
                   isPriorityOne
-                    ? 'w-5 h-5 sm:w-7 sm:h-7 bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 ring-1.5 ring-slate-900'
-                    : 'w-4 h-4 sm:w-6 sm:h-6 bg-amber-400 ring-1.5 ring-slate-900'
+                    ? 'w-4 h-4 sm:w-7 sm:h-7 bg-gradient-to-r from-amber-300 via-yellow-400 to-amber-500 ring-1 ring-slate-900'
+                    : 'w-3.5 h-3.5 sm:w-6 sm:h-6 bg-amber-400 ring-1 ring-slate-900'
                 }`}
               >
                 {isPriorityOne ? (
-                  <Crown className="w-3 h-3 sm:w-4 sm:h-4 text-slate-950 fill-slate-950" />
+                  <Crown className="w-2.5 h-2.5 sm:w-4 sm:h-4 text-slate-950 fill-slate-950" />
                 ) : (
-                  <Medal className="w-2.5 h-2.5 sm:w-3.5 sm:h-3.5 text-slate-950" />
+                  <Medal className="w-2 h-2 sm:w-3.5 sm:h-3.5 text-slate-950" />
                 )}
               </div>
             </div>
 
             {/* Student Name & Title Info */}
             <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-1.5 flex-wrap">
+              <div className="flex items-center gap-1 sm:gap-1.5 flex-wrap">
                 <span
-                  className={`inline-flex items-center gap-0.5 px-1.5 py-0.5 sm:px-2 sm:py-0.5 rounded-md sm:rounded-full text-[9px] sm:text-[11px] font-bold ${accentStyles.badgeBg} border`}
+                  className={`inline-flex items-center gap-0.5 px-1 py-0.5 sm:px-2 sm:py-0.5 rounded sm:rounded-full text-[8px] sm:text-[11px] font-bold ${accentStyles.badgeBg} border`}
                 >
-                  <Trophy className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-amber-400" />
+                  <Trophy className="w-2 h-2 sm:w-3 sm:h-3 text-amber-400" />
                   {currentCard.badgeText || (isPriorityOne ? 'Apex Topper' : 'Section Topper')}
                 </span>
 
-                <span className="text-[10px] sm:text-xs font-semibold text-slate-300">
+                <span className="text-[9px] sm:text-xs font-semibold text-slate-300 truncate max-w-[90px] sm:max-w-none">
                   {currentCard.sectionOrClass}
                 </span>
               </div>
 
               <h3
-                className={`font-black text-white tracking-tight leading-tight truncate mt-0.5 ${
-                  isPriorityOne ? 'text-sm sm:text-xl md:text-2xl' : 'text-xs sm:text-lg md:text-xl'
+                className={`font-black text-white tracking-tight leading-snug truncate mt-0.5 ${
+                  isPriorityOne ? 'text-xs xs:text-sm sm:text-xl md:text-2xl' : 'text-[11px] xs:text-xs sm:text-lg md:text-xl'
                 }`}
               >
                 {currentCard.title}
               </h3>
 
-              <div className="mt-0.5 flex items-center gap-1.5 flex-wrap">
-                <span className="text-xs sm:text-base font-bold text-amber-300 truncate max-w-[130px] sm:max-w-none">
+              <div className="mt-0.5 flex items-center gap-1 sm:gap-1.5 flex-wrap">
+                <span className="text-[11px] xs:text-xs sm:text-base font-bold text-amber-300 truncate max-w-[120px] sm:max-w-none">
                   {currentCard.studentName}
                 </span>
                 {currentCard.studentAdmissionNumber && (
-                  <span className="text-[10px] sm:text-xs text-slate-400 font-mono hidden xs:inline">
+                  <span className="text-[9px] sm:text-xs text-slate-400 font-mono hidden xs:inline">
                     (#{currentCard.studentAdmissionNumber})
                   </span>
                 )}
                 {currentCard.scoreDetails && (
-                  <span className="text-[10px] sm:text-xs text-slate-300 hidden sm:inline">• {currentCard.scoreDetails}</span>
+                  <span className="text-[9px] sm:text-xs text-slate-300 hidden sm:inline">• {currentCard.scoreDetails}</span>
                 )}
               </div>
 
@@ -404,22 +404,22 @@ export const DashboardShowcaseBanner: React.FC<DashboardShowcaseBannerProps> = (
 
           {/* Right Column: Score & Rank Pill */}
           <div className="flex flex-col items-end justify-center shrink-0 pl-1">
-            <span className="text-[9px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
+            <span className="text-[8px] sm:text-[10px] font-bold text-slate-400 uppercase tracking-wider block">
               Aggregate
             </span>
             <div
               className={`font-black font-mono tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-yellow-300 to-white leading-none ${
-                isPriorityOne ? 'text-2xl sm:text-4xl md:text-5xl' : 'text-xl sm:text-3xl md:text-4xl'
+                isPriorityOne ? 'text-xl xs:text-2xl sm:text-4xl md:text-5xl' : 'text-lg xs:text-xl sm:text-3xl md:text-4xl'
               }`}
             >
               {currentCard.percentage}
             </div>
 
-            <div className="mt-1">
+            <div className="mt-0.5 sm:mt-1">
               <span
-                className={`inline-flex items-center gap-1 px-2 py-0.5 sm:px-2.5 sm:py-1 rounded-lg text-[9px] sm:text-xs font-black shadow-md ${accentStyles.pillBg}`}
+                className={`inline-flex items-center gap-0.5 sm:gap-1 px-1.5 py-0.5 sm:px-2.5 sm:py-1 rounded sm:rounded-lg text-[8px] xs:text-[9px] sm:text-xs font-black shadow-sm ${accentStyles.pillBg}`}
               >
-                <Flame className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
+                <Flame className="w-2 h-2 sm:w-3 sm:h-3" />
                 <span>Rank #1</span>
               </span>
             </div>
@@ -428,14 +428,14 @@ export const DashboardShowcaseBanner: React.FC<DashboardShowcaseBannerProps> = (
 
         {/* Slide Indicator Dots */}
         {heroAndSectionSlides.length > 1 && (
-          <div className="relative z-10 flex items-center justify-center gap-1 sm:gap-1.5 mt-2.5 sm:mt-3">
+          <div className="relative z-10 flex items-center justify-center gap-1 sm:gap-1.5 mt-1.5 sm:mt-3">
             {heroAndSectionSlides.map((slide, idx) => (
               <button
                 key={slide.id}
                 onClick={() => setCurrentSlideIndex(idx)}
                 className={`h-1 sm:h-1.5 rounded-full transition-all cursor-pointer ${
                   idx === currentSlideIndex
-                    ? 'w-5 sm:w-7 bg-amber-400 shadow-sm shadow-amber-400/50'
+                    ? 'w-4 sm:w-7 bg-amber-400 shadow-xs shadow-amber-400/50'
                     : 'w-1.5 sm:w-2 bg-white/20 hover:bg-white/40'
                 }`}
                 aria-label={`Go to slide ${idx + 1}`}
@@ -444,11 +444,11 @@ export const DashboardShowcaseBanner: React.FC<DashboardShowcaseBannerProps> = (
           </div>
         )}
 
-        {/* Bottom CTA Ribbon: "See class toppers" - streamlined on mobile */}
+        {/* Bottom CTA Ribbon: "See class toppers" - compact and streamlined on mobile */}
         <div
           id="see-class-toppers-cta-bar"
           onClick={() => setIsClassToppersModalOpen(true)}
-          className="mt-2.5 sm:mt-3 pt-2 sm:pt-2.5 border-t border-white/15 flex items-center justify-between gap-2 text-xs font-semibold text-white/90 hover:text-white bg-white/5 hover:bg-white/10 -mx-3 -mb-3 sm:-mx-5 sm:-mb-5 md:-mx-6 md:-mb-6 px-3 py-2 sm:px-5 sm:py-2.5 transition-all duration-200 cursor-pointer group rounded-b-xl sm:rounded-b-2xl"
+          className="mt-1.5 sm:mt-3 pt-1.5 sm:pt-2.5 border-t border-white/15 flex items-center justify-between gap-1 text-[10px] sm:text-xs font-semibold text-white/90 hover:text-white bg-white/5 hover:bg-white/10 -mx-2.5 -mb-2.5 xs:-mx-3 xs:-mb-3 sm:-mx-5 sm:-mb-5 md:-mx-6 md:-mb-6 px-2.5 py-1.5 sm:px-5 sm:py-2.5 transition-all duration-200 cursor-pointer group rounded-b-xl sm:rounded-b-2xl"
           role="button"
           tabIndex={0}
           onKeyDown={(e) => {

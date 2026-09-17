@@ -1,6 +1,9 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { dataService } from '../../services/db';
 import { DashboardShowcaseBanner } from '../showcase/DashboardShowcaseBanner';
+import { Modal } from '../common/Modal';
+import { ImageUploadField } from '../common/ImageUploadField';
+import { useAuth } from '../../context/AuthContext';
 import {
   Users,
   GraduationCap,
@@ -11,12 +14,16 @@ import {
   Clock,
   ArrowRight,
   CheckCircle2,
+  UserPlus,
+  FileSpreadsheet,
+  AlertCircle,
 } from 'lucide-react';
 import type { NavSection } from '../layout/Sidebar';
 
 export const AdminDashboard: React.FC<{ onNavigate: (section: NavSection) => void }> = ({
   onNavigate,
 }) => {
+  const { currentUser } = useAuth();
   const state = dataService.getState();
 
   const totalStudents = state.students.length;
@@ -30,137 +37,281 @@ export const AdminDashboard: React.FC<{ onNavigate: (section: NavSection) => voi
   const recentLogs = state.auditLogs.slice(0, 6);
   const recentStudents = state.students.slice(-5).reverse();
 
+  // Quick Add Student Modal State
+  const [isAddStudentOpen, setIsAddStudentOpen] = useState(false);
+  const [formAdmissionNumber, setFormAdmissionNumber] = useState('');
+  const [formName, setFormName] = useState('');
+  const [formClassId, setFormClassId] = useState(state.classes[0]?.id || '');
+  const [formPhone, setFormPhone] = useState('');
+  const [formEmail, setFormEmail] = useState('');
+  const [formPhoto, setFormPhoto] = useState('');
+  const [formPassword, setFormPassword] = useState('');
+  const [formError, setFormError] = useState<string | null>(null);
+  const [quickAddSuccess, setQuickAddSuccess] = useState<string | null>(null);
+
+  const handleOpenAddStudent = () => {
+    setFormAdmissionNumber('');
+    setFormName('');
+    setFormClassId(state.classes[0]?.id || '');
+    setFormPhone('');
+    setFormEmail('');
+    setFormPhoto('');
+    setFormPassword('');
+    setFormError(null);
+    setIsAddStudentOpen(true);
+  };
+
+  const handleQuickAddStudent = (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormError(null);
+
+    const cleanAdmission = formAdmissionNumber.trim();
+    const cleanName = formName.trim();
+
+    if (!cleanAdmission || !cleanName || !formClassId) {
+      setFormError('Admission number, full name, and class are required.');
+      return;
+    }
+
+    // Check unique admission number
+    const duplicateAdmission = state.students.find(
+      (s) => s.admissionNumber.toLowerCase() === cleanAdmission.toLowerCase()
+    );
+    if (duplicateAdmission) {
+      setFormError(`Admission number "${cleanAdmission}" is already in use by ${duplicateAdmission.name}.`);
+      return;
+    }
+
+    const actor = currentUser
+      ? { id: currentUser.id, name: currentUser.name, role: currentUser.role }
+      : undefined;
+
+    dataService.addStudent(
+      {
+        admissionNumber: cleanAdmission,
+        name: cleanName,
+        classId: formClassId,
+        phone: formPhone.trim() || undefined,
+        email: formEmail.trim() || undefined,
+        photoUrl: formPhoto || undefined,
+        username: cleanAdmission,
+        status: 'active',
+      },
+      formPassword.trim() || 'student123',
+      actor
+    );
+
+    setIsAddStudentOpen(false);
+    setQuickAddSuccess(`Student "${cleanName}" (${cleanAdmission}) added successfully!`);
+    setTimeout(() => setQuickAddSuccess(null), 4000);
+  };
+
   return (
     <div className="space-y-6 animate-fadeIn">
       {/* Spotlight Toppers Banner (Ad style priority carousel) */}
       <DashboardShowcaseBanner />
 
-      {/* Combined Key Summary Cards */}
+      {/* Success Notification Toast for Quick Add */}
+      {quickAddSuccess && (
+        <div className="p-3.5 bg-emerald-50 dark:bg-emerald-950/70 border border-emerald-300 dark:border-emerald-800 rounded-xl text-emerald-800 dark:text-emerald-200 text-sm font-semibold flex items-center justify-between shadow-sm animate-fadeIn">
+          <div className="flex items-center gap-2.5">
+            <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+            <span>{quickAddSuccess}</span>
+          </div>
+          <button
+            onClick={() => onNavigate('students')}
+            className="text-xs underline font-bold hover:text-emerald-900 dark:hover:text-white"
+          >
+            View in Student Directory →
+          </button>
+        </div>
+      )}
+
+      {/* Quick Action Header Bar */}
+      <div className="flex items-center justify-between gap-3 flex-wrap">
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+            System Overview & Count Statistics
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            id="dashboard-quick-add-student-btn"
+            onClick={handleOpenAddStudent}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs transition active:scale-95 cursor-pointer"
+          >
+            <UserPlus className="w-3.5 h-3.5" />
+            <span>Add Student</span>
+          </button>
+          <button
+            id="dashboard-quick-import-excel-btn"
+            onClick={() => onNavigate('excel-import')}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs transition active:scale-95 cursor-pointer"
+          >
+            <FileSpreadsheet className="w-3.5 h-3.5" />
+            <span>Import Excel</span>
+          </button>
+        </div>
+      </div>
+
+      {/* 4 Coloured Count Cards (Old Model with vibrant colors) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-        {/* Students Combined Card */}
+        {/* Card 1: Students Enrolment (Vibrant Blue/Indigo Card) */}
         <div
+          id="stat-card-students"
           onClick={() => onNavigate('students')}
-          className="bg-white dark:bg-slate-900 rounded-xl p-5 border border-slate-200 dark:border-slate-800 shadow-xs hover:border-indigo-400 dark:hover:border-indigo-600 transition cursor-pointer flex flex-col justify-between"
+          className="relative overflow-hidden bg-gradient-to-br from-blue-600 via-blue-600 to-indigo-700 text-white rounded-2xl p-5 shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 cursor-pointer border border-blue-400/30 flex flex-col justify-between group"
         >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+          {/* Subtle Watermark */}
+          <Users className="absolute -right-3 -bottom-3 w-28 h-28 text-white/10 group-hover:scale-105 transition-transform pointer-events-none" />
+
+          <div className="relative z-10 flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-blue-100">
               Students Enrolment
             </span>
-            <div className="p-2 bg-blue-50 dark:bg-blue-950/50 rounded-lg text-blue-600 dark:text-blue-400">
+            <div className="p-2 bg-white/20 text-white rounded-xl backdrop-blur-xs shadow-inner">
               <Users className="w-5 h-5" />
             </div>
           </div>
-          <div className="mt-3">
+
+          <div className="relative z-10 mt-4">
             <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-extrabold font-mono text-slate-900 dark:text-white">
+              <span className="text-3xl sm:text-4xl font-black font-mono tracking-tight text-white">
                 {totalStudents}
               </span>
-              <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Total Registered</span>
+              <span className="text-xs text-blue-100 font-medium">
+                Total Registered
+              </span>
             </div>
-            <div className="flex items-center gap-2 mt-3 pt-3 border-t border-slate-100 dark:border-slate-800 text-xs">
-              <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold">
-                <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+
+            <div className="flex items-center gap-2 mt-3.5 pt-3 border-t border-white/20 text-xs">
+              <span className="inline-flex items-center gap-1.5 font-bold text-white">
+                <span className="w-2 h-2 rounded-full bg-emerald-300 shadow-xs"></span>
                 {activeStudents} Active
               </span>
-              <span className="text-slate-300 dark:text-slate-700">•</span>
-              <span className="text-slate-500 dark:text-slate-400">
+              <span className="text-blue-200/60">•</span>
+              <span className="text-blue-100/90 font-medium">
                 {totalStudents - activeStudents} Inactive
               </span>
             </div>
           </div>
         </div>
 
-        {/* Teachers Combined Card */}
+        {/* Card 2: Faculty & Teachers (Vibrant Purple/Violet Card) */}
         <div
+          id="stat-card-teachers"
           onClick={() => onNavigate('teachers')}
-          className="bg-white dark:bg-slate-900 rounded-xl p-5 border border-slate-200 dark:border-slate-800 shadow-xs hover:border-purple-400 dark:hover:border-purple-600 transition cursor-pointer flex flex-col justify-between"
+          className="relative overflow-hidden bg-gradient-to-br from-purple-600 via-purple-600 to-fuchsia-700 text-white rounded-2xl p-5 shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 cursor-pointer border border-purple-400/30 flex flex-col justify-between group"
         >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+          {/* Subtle Watermark */}
+          <GraduationCap className="absolute -right-3 -bottom-3 w-28 h-28 text-white/10 group-hover:scale-105 transition-transform pointer-events-none" />
+
+          <div className="relative z-10 flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-purple-100">
               Faculty & Teachers
             </span>
-            <div className="p-2 bg-purple-50 dark:bg-purple-950/50 rounded-lg text-purple-600 dark:text-purple-400">
+            <div className="p-2 bg-white/20 text-white rounded-xl backdrop-blur-xs shadow-inner">
               <GraduationCap className="w-5 h-5" />
             </div>
           </div>
-          <div className="mt-3">
+
+          <div className="relative z-10 mt-4">
             <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-extrabold font-mono text-slate-900 dark:text-white">
+              <span className="text-3xl sm:text-4xl font-black font-mono tracking-tight text-white">
                 {totalTeachers}
               </span>
-              <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Total Faculty</span>
+              <span className="text-xs text-purple-100 font-medium">
+                Total Faculty
+              </span>
             </div>
-            <div className="flex items-center gap-2 mt-3 pt-3 border-t border-slate-100 dark:border-slate-800 text-xs">
-              <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold">
-                <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+
+            <div className="flex items-center gap-2 mt-3.5 pt-3 border-t border-white/20 text-xs">
+              <span className="inline-flex items-center gap-1.5 font-bold text-white">
+                <span className="w-2 h-2 rounded-full bg-emerald-300 shadow-xs"></span>
                 {activeTeachers} Active
               </span>
-              <span className="text-slate-300 dark:text-slate-700">•</span>
-              <span className="text-slate-500 dark:text-slate-400">
+              <span className="text-purple-200/60">•</span>
+              <span className="text-purple-100/90 font-medium">
                 {totalTeachers - activeTeachers} Inactive
               </span>
             </div>
           </div>
         </div>
 
-        {/* Classes Card */}
+        {/* Card 3: Classes & Sections (Vibrant Amber/Orange Card) */}
         <div
+          id="stat-card-classes"
           onClick={() => onNavigate('classes')}
-          className="bg-white dark:bg-slate-900 rounded-xl p-5 border border-slate-200 dark:border-slate-800 shadow-xs hover:border-amber-400 dark:hover:border-amber-600 transition cursor-pointer flex flex-col justify-between"
+          className="relative overflow-hidden bg-gradient-to-br from-amber-500 via-amber-600 to-orange-600 text-white rounded-2xl p-5 shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 cursor-pointer border border-amber-400/30 flex flex-col justify-between group"
         >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+          {/* Subtle Watermark */}
+          <School className="absolute -right-3 -bottom-3 w-28 h-28 text-white/10 group-hover:scale-105 transition-transform pointer-events-none" />
+
+          <div className="relative z-10 flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-amber-100">
               Classes & Sections
             </span>
-            <div className="p-2 bg-amber-50 dark:bg-amber-950/50 rounded-lg text-amber-600 dark:text-amber-400">
+            <div className="p-2 bg-white/20 text-white rounded-xl backdrop-blur-xs shadow-inner">
               <School className="w-5 h-5" />
             </div>
           </div>
-          <div className="mt-3">
+
+          <div className="relative z-10 mt-4">
             <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-extrabold font-mono text-slate-900 dark:text-white">
+              <span className="text-3xl sm:text-4xl font-black font-mono tracking-tight text-white">
                 {totalClasses}
               </span>
-              <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Active Divisions</span>
+              <span className="text-xs text-amber-100 font-medium">
+                Active Divisions
+              </span>
             </div>
-            <div className="flex items-center gap-2 mt-3 pt-3 border-t border-slate-100 dark:border-slate-800 text-xs">
-              <span className="text-indigo-600 dark:text-indigo-400 font-semibold">
+
+            <div className="flex items-center gap-2 mt-3.5 pt-3 border-t border-white/20 text-xs">
+              <span className="font-bold text-white">
                 AY {state.currentAcademicYear}
               </span>
-              <span className="text-slate-300 dark:text-slate-700">•</span>
-              <span className="text-slate-500 dark:text-slate-400">
+              <span className="text-amber-200/60">•</span>
+              <span className="text-amber-100/90 font-medium">
                 {totalSubjects} Subjects
               </span>
             </div>
           </div>
         </div>
 
-        {/* Evaluation Progress Card */}
+        {/* Card 4: Assessment Matrix (Vibrant Emerald/Teal Card) */}
         <div
+          id="stat-card-assessments"
           onClick={() => onNavigate('evaluation-levels')}
-          className="bg-white dark:bg-slate-900 rounded-xl p-5 border border-slate-200 dark:border-slate-800 shadow-xs hover:border-emerald-400 dark:hover:border-emerald-600 transition cursor-pointer flex flex-col justify-between"
+          className="relative overflow-hidden bg-gradient-to-br from-emerald-600 via-teal-600 to-emerald-700 text-white rounded-2xl p-5 shadow-md hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 cursor-pointer border border-emerald-400/30 flex flex-col justify-between group"
         >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+          {/* Subtle Watermark */}
+          <BookOpen className="absolute -right-3 -bottom-3 w-28 h-28 text-white/10 group-hover:scale-105 transition-transform pointer-events-none" />
+
+          <div className="relative z-10 flex items-center justify-between">
+            <span className="text-xs font-bold uppercase tracking-wider text-emerald-100">
               Assessment Matrix
             </span>
-            <div className="p-2 bg-emerald-50 dark:bg-emerald-950/50 rounded-lg text-emerald-600 dark:text-emerald-400">
+            <div className="p-2 bg-white/20 text-white rounded-xl backdrop-blur-xs shadow-inner">
               <BookOpen className="w-5 h-5" />
             </div>
           </div>
-          <div className="mt-3">
+
+          <div className="relative z-10 mt-4">
             <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-extrabold font-mono text-slate-900 dark:text-white">
+              <span className="text-3xl sm:text-4xl font-black font-mono tracking-tight text-white">
                 {totalMarks}
               </span>
-              <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Entries Logged</span>
+              <span className="text-xs text-emerald-100 font-medium">
+                Entries Logged
+              </span>
             </div>
-            <div className="flex items-center gap-2 mt-3 pt-3 border-t border-slate-100 dark:border-slate-800 text-xs">
-              <span className="text-slate-700 dark:text-slate-300 font-semibold">
+
+            <div className="flex items-center gap-2 mt-3.5 pt-3 border-t border-white/20 text-xs">
+              <span className="font-bold text-white">
                 {state.evaluationLevels.length} CCE Levels
               </span>
-              <span className="text-slate-300 dark:text-slate-700">•</span>
-              <span className="text-emerald-600 dark:text-emerald-400 font-medium">
+              <span className="text-emerald-200/60">•</span>
+              <span className="text-emerald-100/90 font-medium">
                 Factor 30 Standard
               </span>
             </div>
@@ -380,6 +531,142 @@ export const AdminDashboard: React.FC<{ onNavigate: (section: NavSection) => voi
           </div>
         </div>
       </div>
+
+      {/* Quick Add Student Modal */}
+      <Modal
+        isOpen={isAddStudentOpen}
+        onClose={() => setIsAddStudentOpen(false)}
+        title="Quick Student Admission"
+        maxWidth="lg"
+      >
+        <form onSubmit={handleQuickAddStudent} className="space-y-4">
+          {formError && (
+            <div className="p-3 rounded-lg bg-rose-50 dark:bg-rose-950/60 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-300 text-xs flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{formError}</span>
+            </div>
+          )}
+
+          {/* Student Photo Upload */}
+          <ImageUploadField
+            id="quick-add-student-photo"
+            label="Student Photo (Optional)"
+            value={formPhoto}
+            onChange={setFormPhoto}
+            helperText="Upload image file or paste web URL. Compresses automatically."
+            aspectRatio="square"
+          />
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                Admission Number *
+              </label>
+              <input
+                type="text"
+                value={formAdmissionNumber}
+                onChange={(e) => setFormAdmissionNumber(e.target.value)}
+                placeholder="e.g. ADM2026-042"
+                required
+                className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 font-mono"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                Assigned Class *
+              </label>
+              <select
+                value={formClassId}
+                onChange={(e) => setFormClassId(e.target.value)}
+                required
+                className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
+              >
+                {state.classes.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name} ({c.academicYear})
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+              Full Student Name *
+            </label>
+            <input
+              type="text"
+              value={formName}
+              onChange={(e) => setFormName(e.target.value)}
+              placeholder="e.g. Bilal Ahmed"
+              required
+              className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
+            />
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                Parent / Student Phone (Optional)
+              </label>
+              <input
+                type="tel"
+                value={formPhone}
+                onChange={(e) => setFormPhone(e.target.value)}
+                placeholder="+91 9876543210"
+                className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+                Email Address (Optional)
+              </label>
+              <input
+                type="email"
+                value={formEmail}
+                onChange={(e) => setFormEmail(e.target.value)}
+                placeholder="student@example.com"
+                className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
+              Portal Initial Password (Optional)
+            </label>
+            <input
+              type="password"
+              value={formPassword}
+              onChange={(e) => setFormPassword(e.target.value)}
+              placeholder="Default: student123"
+              className="w-full px-3 py-2 text-sm rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-white focus:ring-2 focus:ring-indigo-500 font-mono"
+            />
+            <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
+              Username will automatically match Admission Number.
+            </p>
+          </div>
+
+          <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+            <button
+              type="button"
+              onClick={() => setIsAddStudentOpen(false)}
+              className="px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition cursor-pointer"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-5 py-2 text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition shadow-xs flex items-center gap-1.5 cursor-pointer"
+            >
+              <UserPlus className="w-3.5 h-3.5" />
+              Complete Admission
+            </button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 };
