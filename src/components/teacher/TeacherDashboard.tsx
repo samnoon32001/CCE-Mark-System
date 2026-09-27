@@ -48,12 +48,29 @@ export const TeacherDashboard: React.FC<{ onNavigate: (section: NavSection) => v
         t.email === currentUser?.email ||
         t.name.toLowerCase() === currentUser?.name?.toLowerCase()
     );
-    return matched?.id || state.teachers[0]?.id || 'teacher-1';
+    return matched?.id || state.teachers[0]?.id || '';
   });
 
   // Schedule view mode: 'teacher' or 'class'
   const [scheduleViewMode, setScheduleViewMode] = useState<'teacher' | 'class'>('teacher');
-  const [selectedClassId, setSelectedClassId] = useState<string>(() => state.classes[0]?.id || 'class-8a');
+  const [selectedClassId, setSelectedClassId] = useState<string>(() => state.classes[0]?.id || '');
+
+  // Keep selectedClassId and selectedTeacherId in sync if data loads from database
+  useEffect(() => {
+    if (state.classes.length > 0 && (!selectedClassId || !state.classes.some((c) => c.id === selectedClassId))) {
+      setSelectedClassId(state.classes[0].id);
+    }
+    if (state.teachers.length > 0 && (!selectedTeacherId || !state.teachers.some((t) => t.id === selectedTeacherId))) {
+      const matched = state.teachers.find(
+        (t) =>
+          t.id === currentUser?.id ||
+          t.username === currentUser?.username ||
+          t.email === currentUser?.email ||
+          t.name.toLowerCase() === currentUser?.name?.toLowerCase()
+      );
+      setSelectedTeacherId(matched?.id || state.teachers[0].id);
+    }
+  }, [state.classes, state.teachers, selectedClassId, selectedTeacherId, currentUser]);
 
   // Find active teacher record
   const effectiveTeacher = useMemo(() => {
@@ -333,7 +350,7 @@ export const TeacherDashboard: React.FC<{ onNavigate: (section: NavSection) => v
             </h1>
             <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
               <span className="text-slate-400">
-                {assignedSubjects.length} Total Subjects • Class Teacher of {classTeacherClasses.length > 0 ? classTeacherClasses.map((c) => c.name).join(', ') : (assignedClasses[0]?.name || 'Class 8 A')}
+                {assignedSubjects.length} Total Subjects • Class Teacher of {classTeacherClasses.length > 0 ? classTeacherClasses.map((c) => c.name).join(', ') : (assignedClasses.length > 0 ? assignedClasses.map((c) => c.name).slice(0, 3).join(', ') : 'None')}
               </span>
               <span className="text-slate-600 hidden sm:inline">•</span>
               <span className="text-slate-300 flex items-center gap-1.5">

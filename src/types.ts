@@ -143,6 +143,7 @@ export interface Mark {
   date: string;
   enteredBy: string; // Teacher name or ID
   lastUpdated: string;
+  academicYear?: string;
 }
 
 export interface AuditLog {
@@ -270,6 +271,7 @@ export interface LeaveApplication {
   studentAdmissionNumber: string;
   studentName: string;
   classId: string;
+  academicYear?: string;
   leaveType: LeaveType;
   startDate: string;
   endDate: string;
@@ -304,6 +306,7 @@ export type AttendanceStatus =
 export interface AttendanceRecord {
   id: string;
   date: string; // YYYY-MM-DD
+  academicYear?: string; // Academic year e.g. '2026-2027'
   classId: string;
   subjectId: string;
   period: number; // 1 to 9
@@ -339,6 +342,7 @@ export interface StudentLeaveClearanceApplication {
   studentAdmissionNumber: string;
   classId: string;
   className: string;
+  academicYear?: string;
   subjectId: string;
   subjectName: string;
   recordIds: string[];

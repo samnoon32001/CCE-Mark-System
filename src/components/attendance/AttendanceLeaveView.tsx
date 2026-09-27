@@ -120,7 +120,8 @@ export const AttendanceLeaveView: React.FC = () => {
   // Print view state
   const [isPrintMode, setIsPrintMode] = useState<boolean>(false);
   // Summary filter state
-  const [summaryClassId, setSummaryClassId] = useState<string>('class-8a');
+  const [summaryAcademicYear, setSummaryAcademicYear] = useState<string>(() => dbState.currentAcademicYear || '2026-2027');
+  const [summaryClassId, setSummaryClassId] = useState<string>(() => dbState.classes?.[0]?.id || '');
   const [summarySubjectId, setSummarySubjectId] = useState<string>('ALL');
 
   useEffect(() => {
@@ -137,6 +138,43 @@ export const AttendanceLeaveView: React.FC = () => {
   const clearances = dbState.attendanceClearances || [];
   const studentApplications = dbState.studentLeaveClearanceApplications || [];
   const rules = dbState.attendanceRules;
+
+  // Keep academic year synchronized
+  useEffect(() => {
+    if (dbState.currentAcademicYear && !summaryAcademicYear) {
+      setSummaryAcademicYear(dbState.currentAcademicYear);
+    }
+  }, [dbState.currentAcademicYear, summaryAcademicYear]);
+
+  // Classes filtered by selected academic year for summary
+  const availableSummaryClasses = useMemo(() => {
+    if (!summaryAcademicYear) return classes;
+    const filtered = classes.filter((c) => c.academicYear === summaryAcademicYear);
+    return filtered.length > 0 ? filtered : classes;
+  }, [classes, summaryAcademicYear]);
+
+  // Keep summaryClassId pointing to a valid class
+  useEffect(() => {
+    if (availableSummaryClasses.length > 0) {
+      if (!summaryClassId || !availableSummaryClasses.some((c) => c.id === summaryClassId)) {
+        setSummaryClassId(availableSummaryClasses[0].id);
+      }
+    }
+  }, [availableSummaryClasses, summaryClassId]);
+
+  // Filter attendance records by academic year for reports
+  const recordsForSummaryYear = useMemo(() => {
+    return attendanceRecords.filter((r) => {
+      if (summaryAcademicYear && r.academicYear) {
+        return r.academicYear === summaryAcademicYear;
+      }
+      const c = classes.find((cl) => cl.id === r.classId);
+      if (c?.academicYear && summaryAcademicYear) {
+        return c.academicYear === summaryAcademicYear;
+      }
+      return true;
+    });
+  }, [attendanceRecords, summaryAcademicYear, classes]);
 
   const pendingClearanceAppsCount = useMemo(() => {
     return studentApplications.filter((a) => a.status === 'pending').length;
@@ -418,7 +456,7 @@ export const AttendanceLeaveView: React.FC = () => {
   };
 
   // Submit attendance to database after user confirms in the alert modal
-  const handleConfirmSubmitAttendance = () => {
+  const handleConfirmSubmitAttendance = async () => {
     if (!currentSubject || !currentClass) return;
 
     const recordsToSave = currentSubjectStudents.map((std) => {
@@ -430,11 +468,14 @@ export const AttendanceLeaveView: React.FC = () => {
       };
     });
 
-    dataService.savePeriodAttendance({
+    const targetAcademicYear = currentClass.academicYear || dbState.currentAcademicYear || '2026-2027';
+
+    await dataService.savePeriodAttendance({
       date: selectedDate,
       classId: currentClass.id,
       subjectId: currentSubject.id,
       period: selectedPeriod,
+      academicYear: targetAcademicYear,
       records: recordsToSave,
       markedBy: user?.name || currentTeacherObj?.name || 'Teacher',
     });
@@ -443,7 +484,7 @@ export const AttendanceLeaveView: React.FC = () => {
     const casualLeaveCount = recordsToSave.length - presentCount;
 
     setSubmitFeedback(
-      `Attendance saved successfully: ${presentCount} Present, ${casualLeaveCount} Casual Leave.`
+      `Attendance saved to database: ${presentCount} Present, ${casualLeaveCount} Casual Leave (Academic Year ${targetAcademicYear}).`
     );
 
     setShowConfirmModal(false);
@@ -563,12 +604,13 @@ export const AttendanceLeaveView: React.FC = () => {
       const stats = calculateStudentSubjectAttendance(
         student.id,
         summarySubjectId,
-        attendanceRecords,
+        recordsForSummaryYear,
         clearances,
         rules
       );
 
       return {
+        'Academic Year': summaryAcademicYear || dbState.currentAcademicYear || '2026-2027',
         'Admission No': student.admissionNumber,
         'Student Name': student.name,
         Class: classes.find((c) => c.id === summaryClassId)?.name || summaryClassId,
@@ -591,9 +633,9 @@ export const AttendanceLeaveView: React.FC = () => {
 
     const worksheet = XLSX.utils.json_to_sheet(summaryData);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Attendance Summary');
+    XLSX.utils.book_append_sheet(workbook, worksheet, `Attendance ${summaryAcademicYear}`);
 
-    const fileName = `Attendance_Report_${summaryClassId}_${selectedDate}.xlsx`;
+    const fileName = `Attendance_Report_${summaryClassId}_${summaryAcademicYear}_${selectedDate}.xlsx`;
     XLSX.writeFile(workbook, fileName);
   };
 
@@ -966,37 +1008,19 @@ export const AttendanceLeaveView: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Compact Attendance Statistics Ribbon (Saves massive vertical space) */}
-                <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-slate-100 dark:border-slate-800/80 text-xs">
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-                    <span className="text-slate-500 dark:text-slate-400">Total Classes:</span>
-                    <span className="font-bold text-slate-800 dark:text-slate-200">{subjectSummaryStats.totalClassesHeld}</span>
-                  </div>
-
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-                    <span className="text-slate-500 dark:text-slate-400">Enrolled:</span>
-                    <span className="font-bold text-slate-800 dark:text-slate-200">{subjectSummaryStats.totalEnrolled}</span>
-                  </div>
-
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300">
-                    <span className="text-emerald-700 dark:text-emerald-400">Present (Now):</span>
-                    <span className="font-bold text-emerald-700 dark:text-emerald-300">{subjectSummaryStats.presentThisSession}</span>
-                  </div>
-
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-300">
-                    <span className="text-slate-500 dark:text-slate-400">Casual Leave:</span>
-                    <span className="font-bold text-slate-700 dark:text-slate-300">{subjectSummaryStats.casualLeaveThisSession}</span>
-                  </div>
-
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300">
-                    <span className="text-emerald-700 dark:text-emerald-400">Session Rate:</span>
-                    <span className="font-bold text-emerald-700 dark:text-emerald-300">{subjectSummaryStats.sessionRate}%</span>
-                  </div>
-
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
-                    <span className="text-slate-500 dark:text-slate-400">Overall Rate:</span>
-                    <span className="font-bold text-slate-800 dark:text-slate-200">{subjectSummaryStats.historicalRate}%</span>
-                  </div>
+                {/* Ultra-slim inline Attendance Statistics to save screen space */}
+                <div className="flex flex-wrap items-center gap-x-3.5 gap-y-1 pt-2 border-t border-slate-100 dark:border-slate-800/80 text-[11px] text-slate-600 dark:text-slate-400">
+                  <span>Classes Held: <strong className="text-slate-800 dark:text-slate-200">{subjectSummaryStats.totalClassesHeld}</strong></span>
+                  <span className="text-slate-300 dark:text-slate-700">•</span>
+                  <span>Enrolled: <strong className="text-slate-800 dark:text-slate-200">{subjectSummaryStats.totalEnrolled}</strong></span>
+                  <span className="text-slate-300 dark:text-slate-700">•</span>
+                  <span className="text-emerald-700 dark:text-emerald-400">Present (Now): <strong className="font-bold">{subjectSummaryStats.presentThisSession}</strong></span>
+                  <span className="text-slate-300 dark:text-slate-700">•</span>
+                  <span className="text-amber-700 dark:text-amber-400">Casual Leave: <strong className="font-bold">{subjectSummaryStats.casualLeaveThisSession}</strong></span>
+                  <span className="text-slate-300 dark:text-slate-700">•</span>
+                  <span>Session Rate: <strong className="text-emerald-600 dark:text-emerald-400">{subjectSummaryStats.sessionRate}%</strong></span>
+                  <span className="text-slate-300 dark:text-slate-700 hidden sm:inline">•</span>
+                  <span className="hidden sm:inline">Overall: <strong className="text-slate-800 dark:text-slate-200">{subjectSummaryStats.historicalRate}%</strong></span>
                 </div>
               </div>
 
@@ -1230,15 +1254,30 @@ export const AttendanceLeaveView: React.FC = () => {
           <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
             <div className="flex flex-wrap items-center gap-3">
               <div>
+                <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">Academic Year</label>
+                <select
+                  value={summaryAcademicYear}
+                  onChange={(e) => setSummaryAcademicYear(e.target.value)}
+                  className="text-sm font-semibold py-1.5 px-3 bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:border-emerald-600"
+                >
+                  {(dbState.academicYears || []).map((ay) => (
+                    <option key={ay.id} value={ay.year}>
+                      {ay.year} {ay.year === dbState.currentAcademicYear ? '(Current)' : ''}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
                 <label className="block text-[11px] font-semibold text-slate-600 mb-0.5">Class</label>
                 <select
                   value={summaryClassId}
                   onChange={(e) => setSummaryClassId(e.target.value)}
                   className="text-sm font-semibold py-1.5 px-3 bg-slate-50 border border-slate-300 rounded-xl focus:outline-none focus:border-emerald-600"
                 >
-                  {classes.map((c) => (
+                  {availableSummaryClasses.map((c) => (
                     <option key={c.id} value={c.id}>
-                      {c.name}
+                      {c.name} {c.academicYear ? `(${c.academicYear})` : ''}
                     </option>
                   ))}
                 </select>
@@ -1267,7 +1306,7 @@ export const AttendanceLeaveView: React.FC = () => {
               <button
                 type="button"
                 onClick={handleExportExcel}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-xl text-xs font-semibold shadow-xs transition-all"
+                className="flex items-center gap-1.5 px-3.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 rounded-xl text-xs font-semibold shadow-xs transition-all cursor-pointer"
               >
                 <Download className="w-4 h-4" />
                 <span>Export Excel</span>
@@ -1275,7 +1314,7 @@ export const AttendanceLeaveView: React.FC = () => {
               <button
                 type="button"
                 onClick={() => window.print()}
-                className="flex items-center gap-1.5 px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 rounded-xl text-xs font-semibold transition-all"
+                className="flex items-center gap-1.5 px-3.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 rounded-xl text-xs font-semibold transition-all cursor-pointer"
               >
                 <Printer className="w-4 h-4" />
                 <span>Print</span>
@@ -1308,7 +1347,7 @@ export const AttendanceLeaveView: React.FC = () => {
                       const stats = calculateStudentSubjectAttendance(
                         student.id,
                         summarySubjectId,
-                        attendanceRecords,
+                        recordsForSummaryYear,
                         clearances,
                         rules
                       );

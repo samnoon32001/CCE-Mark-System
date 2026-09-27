@@ -71,242 +71,45 @@ export interface DatabaseState {
   showcaseCards?: ShowcaseCard[];
 }
 
-export const INITIAL_SHOWCASE_CARDS: ShowcaseCard[] = [
-  {
-    id: 'sc-apex-rabee-2027',
-    title: "Topper of the Rabee' Semester Examination 2026-27",
-    subtitle: "Grand Apex Institutional Distinction",
-    studentName: "Zayd Ahmed Hudawi",
-    studentAdmissionNumber: "2001",
-    studentId: "std-2001",
-    percentage: "98.4%",
-    scoreDetails: "Score: 492 / 500 • Overall Institution Rank #1",
-    sectionOrClass: "Degree Department",
-    category: "apex_topper",
-    priority: 1, // Large & First Hero
-    badgeText: "Apex Institutional Topper 🏆",
-    imageUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400",
-    description: "Honored with the highest aggregate academic honors across all academic divisions in the Rabee' Semester Examination 2026-27.",
-    accentGradient: "gold",
-    targetAudience: "all",
-    order: 1,
-    isActive: true,
-    examName: "Rabee' Semester Examination 2026-27",
-    academicYear: "2026-2027",
-    createdAt: "2026-09-01T08:00:00.000Z",
-  },
-  {
-    id: 'sc-sec-rabee-2027',
-    title: "Secondary Section Topper - Rabee' Semester 2026-27",
-    subtitle: "Secondary Wing Highest Honors",
-    studentName: "Bilal Muhammad",
-    studentAdmissionNumber: "1002",
-    studentId: "std-1002",
-    percentage: "96.8%",
-    scoreDetails: "Score: 484 / 500 • Rank #1 Secondary",
-    sectionOrClass: "Secondary Section",
-    category: "section_topper",
-    priority: 2,
-    badgeText: "Secondary Gold Medalist 🥇",
-    imageUrl: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?auto=format&fit=crop&q=80&w=400",
-    description: "Exceptional academic performance across languages, sciences, and core curricula in the secondary division.",
-    accentGradient: "emerald",
-    targetAudience: "all",
-    order: 2,
-    isActive: true,
-    examName: "Rabee' Semester Examination 2026-27",
-    academicYear: "2026-2027",
-    createdAt: "2026-09-02T08:00:00.000Z",
-  },
-  {
-    id: 'sc-sr-sec-rabee-2027',
-    title: "Senior Secondary Section Topper - Rabee' Semester 2026-27",
-    subtitle: "Senior Secondary Wing Academic Excellence",
-    studentName: "Faris Abdul Rahman",
-    studentAdmissionNumber: "1005",
-    studentId: "std-1005",
-    percentage: "97.2%",
-    scoreDetails: "Score: 486 / 500 • Rank #1 Senior Secondary",
-    sectionOrClass: "Senior Secondary Section",
-    category: "section_topper",
-    priority: 2,
-    badgeText: "Senior Secondary Distinction ⭐",
-    imageUrl: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=400",
-    description: "Exemplary mastery and distinction in humanities, mathematics, and comprehensive examination components.",
-    accentGradient: "sapphire",
-    targetAudience: "all",
-    order: 3,
-    isActive: true,
-    examName: "Rabee' Semester Examination 2026-27",
-    academicYear: "2026-2027",
-    createdAt: "2026-09-02T08:30:00.000Z",
-  },
-  {
-    id: 'sc-degree-rabee-2027',
-    title: "Degree Department Topper - Rabee' Semester 2026-27",
-    subtitle: "Department of Higher Islamic & Social Sciences",
-    studentName: "Nawaf Ebrahim",
-    studentAdmissionNumber: "2003",
-    studentId: "std-2003",
-    percentage: "98.1%",
-    scoreDetails: "Score: 490 / 500 • Rank #1 Degree Department",
-    sectionOrClass: "Degree Department",
-    category: "section_topper",
-    priority: 2,
-    badgeText: "Degree Honors Citation 🎖️",
-    imageUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=400",
-    description: "Awarded top academic honors in advanced sharia jurisprudence, contemporary philosophy, and research papers.",
-    accentGradient: "violet",
-    targetAudience: "all",
-    order: 4,
-    isActive: true,
-    examName: "Rabee' Semester Examination 2026-27",
-    academicYear: "2026-2027",
-    createdAt: "2026-09-02T09:00:00.000Z",
-  },
-  // Class Toppers (Priority 3)
-  {
-    id: 'sc-class-1',
-    title: "Class 1 Academic Topper",
-    subtitle: "Class 1 Top Rank",
-    studentName: "Muhammed Nihal",
-    percentage: "99.0%",
-    scoreDetails: "Score: 495 / 500 • Rank 1",
-    sectionOrClass: "Class 1",
-    category: "class_topper",
-    priority: 3,
-    badgeText: "Class 1 Topper 🌟",
-    imageUrl: "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&q=80&w=400",
-    description: "Outstanding marks in foundational Quranic Arabic, English, and Mathematics.",
-    accentGradient: "gold",
-    targetAudience: "all",
-    order: 5,
-    isActive: true,
-    examName: "Rabee' Semester Examination 2026-27",
-    academicYear: "2026-2027",
-    createdAt: "2026-09-03T10:00:00.000Z",
-  },
-  {
-    id: 'sc-class-2',
-    title: "Class 2 Academic Topper",
-    subtitle: "Class 2 Top Rank",
-    studentName: "Aisha Raniya",
-    percentage: "98.6%",
-    scoreDetails: "Score: 493 / 500 • Rank 1",
-    sectionOrClass: "Class 2",
-    category: "class_topper",
-    priority: 3,
-    badgeText: "Class 2 Topper 🌟",
-    imageUrl: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&q=80&w=400",
-    description: "Excellence across all curricular evaluations with straight A+ grades.",
-    accentGradient: "ruby",
-    targetAudience: "all",
-    order: 6,
-    isActive: true,
-    examName: "Rabee' Semester Examination 2026-27",
-    academicYear: "2026-2027",
-    createdAt: "2026-09-03T10:05:00.000Z",
-  },
-  {
-    id: 'sc-class-3',
-    title: "Class 3 Academic Topper",
-    subtitle: "Class 3 Top Rank",
-    studentName: "Rayyan Shareef",
-    percentage: "98.0%",
-    scoreDetails: "Score: 490 / 500 • Rank 1",
-    sectionOrClass: "Class 3",
-    category: "class_topper",
-    priority: 3,
-    badgeText: "Class 3 Topper 🌟",
-    imageUrl: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&q=80&w=400",
-    description: "Highest total marks in Class 3 semester examination.",
-    accentGradient: "emerald",
-    targetAudience: "all",
-    order: 7,
-    isActive: true,
-    examName: "Rabee' Semester Examination 2026-27",
-    academicYear: "2026-2027",
-    createdAt: "2026-09-03T10:10:00.000Z",
-  },
-  {
-    id: 'sc-class-4',
-    title: "Class 4 Academic Topper",
-    subtitle: "Class 4 Top Rank",
-    studentName: "Salim Kabeer",
-    percentage: "97.5%",
-    scoreDetails: "Score: 487 / 500 • Rank 1",
-    sectionOrClass: "Class 4",
-    category: "class_topper",
-    priority: 3,
-    badgeText: "Class 4 Topper 🌟",
-    imageUrl: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=400",
-    description: "Exceptional arithmetic, social science, and Arabic recitation scores.",
-    accentGradient: "sapphire",
-    targetAudience: "all",
-    order: 8,
-    isActive: true,
-    examName: "Rabee' Semester Examination 2026-27",
-    academicYear: "2026-2027",
-    createdAt: "2026-09-03T10:15:00.000Z",
-  },
-  {
-    id: 'sc-class-8a',
-    title: "Class 8-A Academic Topper",
-    subtitle: "Class 8-A Top Rank",
-    studentName: "Alice Johnson",
-    studentAdmissionNumber: "1001",
-    studentId: "std-1001",
-    percentage: "97.8%",
-    scoreDetails: "Score: 489 / 500 • Rank 1 in Class 8-A",
-    sectionOrClass: "Class 8-A",
-    category: "class_topper",
-    priority: 3,
-    badgeText: "Class 8-A Topper 🌟",
-    imageUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400",
-    description: "Top mark in English, Social Science, and CCE continuous evaluations.",
-    accentGradient: "amber",
-    targetAudience: "all",
-    order: 9,
-    isActive: true,
-    examName: "Rabee' Semester Examination 2026-27",
-    academicYear: "2026-2027",
-    createdAt: "2026-09-03T10:20:00.000Z",
-  },
-  {
-    id: 'sc-class-10a',
-    title: "Class 10-A Academic Topper",
-    subtitle: "Class 10-A Top Rank",
-    studentName: "Grace Hopper",
-    studentAdmissionNumber: "2001",
-    studentId: "std-2001",
-    percentage: "98.4%",
-    scoreDetails: "Score: 492 / 500 • Rank 1 in Class 10-A",
-    sectionOrClass: "Class 10-A",
-    category: "class_topper",
-    priority: 3,
-    badgeText: "Class 10-A Topper 🌟",
-    imageUrl: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400",
-    description: "Highest scoring student in Class 10-A with top marks in Mathematics and Science.",
-    accentGradient: "gold",
-    targetAudience: "all",
-    order: 10,
-    isActive: true,
-    examName: "Rabee' Semester Examination 2026-27",
-    academicYear: "2026-2027",
-    createdAt: "2026-09-03T10:25:00.000Z",
-  },
+export function cleanForFirestore<T>(obj: T): T {
+  if (obj === null || obj === undefined) return obj;
+  if (Array.isArray(obj)) {
+    return obj.map(cleanForFirestore) as any;
+  }
+  if (typeof obj === 'object') {
+    const cleaned: any = {};
+    for (const [key, value] of Object.entries(obj)) {
+      if (value !== undefined) {
+        cleaned[key] = cleanForFirestore(value);
+      }
+    }
+    return cleaned;
+  }
+  return obj;
+}
+
+export const INITIAL_SHOWCASE_CARDS: ShowcaseCard[] = [];
+
+export const INITIAL_TIMETABLE_PERIODS: TimetablePeriodDefinition[] = [
+  { id: 'p-1', periodNumber: 1, name: 'Period 1', startTime: '07:00', endTime: '08:00', isBreak: false },
+  { id: 'p-2', periodNumber: 2, name: 'Period 2', startTime: '08:00', endTime: '09:00', isBreak: false },
+  { id: 'p-3', periodNumber: 3, name: 'Period 3', startTime: '09:00', endTime: '09:45', isBreak: false },
+  { id: 'p-4', periodNumber: 4, name: 'Period 4', startTime: '10:00', endTime: '10:50', isBreak: false },
+  { id: 'p-5', periodNumber: 5, name: 'Period 5', startTime: '10:50', endTime: '11:40', isBreak: false },
+  { id: 'p-6', periodNumber: 6, name: 'Period 6', startTime: '11:40', endTime: '12:30', isBreak: false },
+  { id: 'p-7', periodNumber: 7, name: 'Period 7', startTime: '14:00', endTime: '14:45', isBreak: false },
+  { id: 'p-8', periodNumber: 8, name: 'Period 8', startTime: '14:45', endTime: '15:30', isBreak: false },
+  { id: 'p-9', periodNumber: 9, name: 'Period 9', startTime: '15:30', endTime: '16:15', isBreak: false },
 ];
 
-// Initial robust seed data matching all requirements
-const INITIAL_STATE: DatabaseState = {
+export const INITIAL_STATE: DatabaseState = {
   isLevelAddingLocked: false,
   isMarkEntryLocked: false,
   academicYears: [
-    { id: 'ay-1', year: '2025-2026', isCurrent: true },
-    { id: 'ay-2', year: '2024-2025', isCurrent: false },
-    { id: 'ay-3', year: '2026-2027', isCurrent: false },
+    { id: 'ay-2026-2027', year: '2026-2027', isCurrent: true },
+    { id: 'ay-2025-2026', year: '2025-2026', isCurrent: false },
   ],
-  currentAcademicYear: '2025-2026',
+  currentAcademicYear: '2026-2027',
   users: [
     {
       id: 'user-admin',
@@ -317,900 +120,18 @@ const INITIAL_STATE: DatabaseState = {
       phone: '(555) 100-0001',
       status: 'active',
       password: 'admin123',
-      createdAt: '2025-01-10T08:00:00.000Z',
-    },
-    {
-      id: 'user-teacher-1',
-      username: 'robert.vance',
-      role: 'teacher',
-      name: 'Mr. Robert Vance',
-      email: 'r.vance@school.edu',
-      phone: '(555) 234-5678',
-      status: 'active',
-      password: 'teacher123',
-      createdAt: '2025-01-11T09:00:00.000Z',
-    },
-    {
-      id: 'user-teacher-2',
-      username: 'sarah.connor',
-      role: 'teacher',
-      name: 'Ms. Sarah Connor',
-      email: 's.connor@school.edu',
-      phone: '(555) 345-6789',
-      status: 'active',
-      password: 'teacher123',
-      createdAt: '2025-01-11T09:15:00.000Z',
-    },
-    {
-      id: 'user-teacher-3',
-      username: 'albert.stone',
-      role: 'teacher',
-      name: 'Dr. Albert Stone',
-      email: 'a.stone@school.edu',
-      phone: '(555) 456-7890',
-      status: 'active',
-      password: 'teacher123',
-      createdAt: '2025-01-11T09:30:00.000Z',
-    },
-    {
-      id: 'user-teacher-4',
-      username: 'elena.rostova',
-      role: 'teacher',
-      name: 'Mrs. Elena Rostova',
-      email: 'e.rostova@school.edu',
-      phone: '(555) 567-8901',
-      status: 'active',
-      password: 'teacher123',
-      createdAt: '2025-01-11T09:45:00.000Z',
-    },
-    // Student Users with systematic credentials: username = admissionNumber, password = admissionNumber 3 times
-    {
-      id: 'user-std-1001',
-      username: '1001',
-      admissionNumber: '1001',
-      role: 'student',
-      name: 'Alice Johnson',
-      email: 'alice.j@school.edu',
-      phone: '(555) 111-1001',
-      status: 'active',
-      password: '100110011001',
-      createdAt: '2025-01-15T10:00:00.000Z',
-    },
-    {
-      id: 'user-std-1002',
-      username: '1002',
-      admissionNumber: '1002',
-      role: 'student',
-      name: 'Brian Smith',
-      email: 'brian.s@school.edu',
-      phone: '(555) 111-1002',
-      status: 'active',
-      password: '100210021002',
-      createdAt: '2025-01-15T10:00:00.000Z',
-    },
-    {
-      id: 'user-std-1003',
-      username: '1003',
-      admissionNumber: '1003',
-      role: 'student',
-      name: 'Chloe Davis',
-      email: 'chloe.d@school.edu',
-      phone: '(555) 111-1003',
-      status: 'active',
-      password: '100310031003',
-      createdAt: '2025-01-15T10:00:00.000Z',
-    },
-    {
-      id: 'user-std-1004',
-      username: '1004',
-      admissionNumber: '1004',
-      role: 'student',
-      name: 'Daniel Martinez',
-      email: 'daniel.m@school.edu',
-      phone: '(555) 111-1004',
-      status: 'active',
-      password: '100410041004',
-      createdAt: '2025-01-15T10:00:00.000Z',
-    },
-    {
-      id: 'user-std-1005',
-      username: '1005',
-      admissionNumber: '1005',
-      role: 'student',
-      name: 'Emily Taylor',
-      email: 'emily.t@school.edu',
-      phone: '(555) 111-1005',
-      status: 'active',
-      password: '100510051005',
-      createdAt: '2025-01-15T10:00:00.000Z',
-    },
-    {
-      id: 'user-std-1006',
-      username: '1006',
-      admissionNumber: '1006',
-      role: 'student',
-      name: 'Frank Thomas',
-      email: 'frank.t@school.edu',
-      phone: '(555) 111-1006',
-      status: 'active',
-      password: '100610061006',
-      createdAt: '2025-01-15T10:00:00.000Z',
-    },
-    {
-      id: 'user-std-2001',
-      username: '2001',
-      admissionNumber: '2001',
-      role: 'student',
-      name: 'Grace Hopper',
-      email: 'grace.h@school.edu',
-      phone: '(555) 222-2001',
-      status: 'active',
-      password: '200120012001',
-      createdAt: '2025-01-15T10:00:00.000Z',
-    },
-    {
-      id: 'user-std-2002',
-      username: '2002',
-      admissionNumber: '2002',
-      role: 'student',
-      name: 'Henry Ford',
-      email: 'henry.f@school.edu',
-      phone: '(555) 222-2002',
-      status: 'active',
-      password: '200220022002',
-      createdAt: '2025-01-15T10:00:00.000Z',
-    },
-    {
-      id: 'user-std-2003',
-      username: '2003',
-      admissionNumber: '2003',
-      role: 'student',
-      name: 'Isabella Clark',
-      email: 'isabella.c@school.edu',
-      phone: '(555) 222-2003',
-      status: 'active',
-      password: '200320032003',
-      createdAt: '2025-01-15T10:00:00.000Z',
-    },
-    {
-      id: 'user-std-2004',
-      username: '2004',
-      admissionNumber: '2004',
-      role: 'student',
-      name: 'Jack Robinson',
-      email: 'jack.r@school.edu',
-      phone: '(555) 222-2004',
-      status: 'active',
-      password: '200420042004',
-      createdAt: '2025-01-15T10:00:00.000Z',
-    },
-    {
-      id: 'user-std-2005',
-      username: '2005',
-      admissionNumber: '2005',
-      role: 'student',
-      name: 'Katherine Lewis',
-      email: 'katherine.l@school.edu',
-      phone: '(555) 222-2005',
-      status: 'active',
-      password: '200520052005',
-      createdAt: '2025-01-15T10:00:00.000Z',
-    },
-    {
-      id: 'user-std-2006',
-      username: '2006',
-      admissionNumber: '2006',
-      role: 'student',
-      name: 'Liam Wilson',
-      email: 'liam.w@school.edu',
-      phone: '(555) 222-2006',
-      status: 'active',
-      password: '200620062006',
-      createdAt: '2025-01-15T10:00:00.000Z',
+      createdAt: '2026-09-01T08:00:00.000Z',
     },
   ],
-  classes: [
-    {
-      id: 'class-8a',
-      name: 'Class 8 A',
-      academicYear: '2025-2026',
-      classTeacherId: 'teacher-1', // Robert Vance
-      status: 'active',
-    },
-    {
-      id: 'class-10a',
-      name: 'Class 10 A',
-      academicYear: '2025-2026',
-      classTeacherId: 'teacher-2', // Sarah Connor
-      status: 'active',
-    },
-  ],
-  teachers: [
-    {
-      id: 'teacher-admin',
-      name: 'Ashiq CP Hudawi',
-      phone: '(555) 100-0001',
-      email: 'admin@school.edu',
-      username: 'admin',
-      status: 'active',
-      assignedSubjectIds: ['sub-8a-eng', 'sub-10a-eng'],
-      assignedClassIds: ['class-8a', 'class-10a'],
-      classTeacherOfClassIds: ['class-8a'],
-      createdDate: '2025-01-11',
-    },
-    {
-      id: 'teacher-1',
-      name: 'Mr. Robert Vance',
-      phone: '(555) 234-5678',
-      email: 'r.vance@school.edu',
-      username: 'robert.vance',
-      status: 'active',
-      assignedSubjectIds: ['sub-8a-eng', 'sub-10a-eng'],
-      assignedClassIds: ['class-8a', 'class-10a'],
-      classTeacherOfClassIds: ['class-8a'],
-      createdDate: '2025-01-11',
-    },
-    {
-      id: 'teacher-2',
-      name: 'Ms. Sarah Connor',
-      phone: '(555) 345-6789',
-      email: 's.connor@school.edu',
-      username: 'sarah.connor',
-      status: 'active',
-      assignedSubjectIds: ['sub-8a-mat', 'sub-10a-mat'],
-      assignedClassIds: ['class-8a', 'class-10a'],
-      classTeacherOfClassIds: ['class-10a'],
-      createdDate: '2025-01-11',
-    },
-    {
-      id: 'teacher-3',
-      name: 'Dr. Albert Stone',
-      phone: '(555) 456-7890',
-      email: 'a.stone@school.edu',
-      username: 'albert.stone',
-      status: 'active',
-      assignedSubjectIds: ['sub-8a-sci', 'sub-10a-sci'],
-      assignedClassIds: ['class-8a', 'class-10a'],
-      classTeacherOfClassIds: [],
-      createdDate: '2025-01-11',
-    },
-    {
-      id: 'teacher-4',
-      name: 'Mrs. Elena Rostova',
-      phone: '(555) 567-8901',
-      email: 'e.rostova@school.edu',
-      username: 'elena.rostova',
-      status: 'active',
-      assignedSubjectIds: ['sub-8a-soc'],
-      assignedClassIds: ['class-8a'],
-      classTeacherOfClassIds: [],
-      createdDate: '2025-01-11',
-    },
-  ],
-  students: [
-    {
-      id: 'std-1001',
-      admissionNumber: '1001',
-      name: 'Alice Johnson',
-      classId: 'class-8a',
-      phone: '(555) 111-1001',
-      email: 'alice.j@school.edu',
-      username: 'alice1001',
-      status: 'active',
-      createdDate: '2025-01-15',
-    },
-    {
-      id: 'std-1002',
-      admissionNumber: '1002',
-      name: 'Brian Smith',
-      classId: 'class-8a',
-      phone: '(555) 111-1002',
-      email: 'brian.s@school.edu',
-      username: 'brian1002',
-      status: 'active',
-      createdDate: '2025-01-15',
-    },
-    {
-      id: 'std-1003',
-      admissionNumber: '1003',
-      name: 'Chloe Davis',
-      classId: 'class-8a',
-      phone: '(555) 111-1003',
-      email: 'chloe.d@school.edu',
-      username: 'chloe1003',
-      status: 'active',
-      createdDate: '2025-01-15',
-    },
-    {
-      id: 'std-1004',
-      admissionNumber: '1004',
-      name: 'Daniel Martinez',
-      classId: 'class-8a',
-      phone: '(555) 111-1004',
-      email: 'daniel.m@school.edu',
-      username: 'daniel1004',
-      status: 'active',
-      createdDate: '2025-01-15',
-    },
-    {
-      id: 'std-1005',
-      admissionNumber: '1005',
-      name: 'Emily Taylor',
-      classId: 'class-8a',
-      phone: '(555) 111-1005',
-      email: 'emily.t@school.edu',
-      username: 'emily1005',
-      status: 'active',
-      createdDate: '2025-01-15',
-    },
-    {
-      id: 'std-1006',
-      admissionNumber: '1006',
-      name: 'Frank Thomas',
-      classId: 'class-8a',
-      phone: '(555) 111-1006',
-      email: 'frank.t@school.edu',
-      username: 'frank1006',
-      status: 'active',
-      createdDate: '2025-01-15',
-    },
-    // Class 10 A students
-    {
-      id: 'std-2001',
-      admissionNumber: '2001',
-      name: 'Grace Hopper',
-      classId: 'class-10a',
-      phone: '(555) 222-2001',
-      email: 'grace.h@school.edu',
-      username: 'grace2001',
-      status: 'active',
-      createdDate: '2025-01-15',
-    },
-    {
-      id: 'std-2002',
-      admissionNumber: '2002',
-      name: 'Henry Ford',
-      classId: 'class-10a',
-      phone: '(555) 222-2002',
-      email: 'henry.f@school.edu',
-      username: 'henry2002',
-      status: 'active',
-      createdDate: '2025-01-15',
-    },
-    {
-      id: 'std-2003',
-      admissionNumber: '2003',
-      name: 'Isabella Clark',
-      classId: 'class-10a',
-      phone: '(555) 222-2003',
-      email: 'isabella.c@school.edu',
-      username: 'isabella2003',
-      status: 'active',
-      createdDate: '2025-01-15',
-    },
-    {
-      id: 'std-2004',
-      admissionNumber: '2004',
-      name: 'Jack Robinson',
-      classId: 'class-10a',
-      phone: '(555) 222-2004',
-      email: 'jack.r@school.edu',
-      username: 'jack2004',
-      status: 'active',
-      createdDate: '2025-01-15',
-    },
-    {
-      id: 'std-2005',
-      admissionNumber: '2005',
-      name: 'Katherine Lewis',
-      classId: 'class-10a',
-      phone: '(555) 222-2005',
-      email: 'katherine.l@school.edu',
-      username: 'katherine2005',
-      status: 'active',
-      createdDate: '2025-01-15',
-    },
-    {
-      id: 'std-2006',
-      admissionNumber: '2006',
-      name: 'Liam Wilson',
-      classId: 'class-10a',
-      phone: '(555) 222-2006',
-      email: 'liam.w@school.edu',
-      username: 'liam2006',
-      status: 'active',
-      createdDate: '2025-01-15',
-    },
-  ],
-  subjects: [
-    {
-      id: 'sub-8a-eng',
-      name: 'English',
-      code: 'ENG801',
-      classId: 'class-8a',
-      assignedTeacherId: 'teacher-1',
-      status: 'active',
-    },
-    {
-      id: 'sub-8a-mat',
-      name: 'Mathematics',
-      code: 'MAT801',
-      classId: 'class-8a',
-      assignedTeacherId: 'teacher-2',
-      status: 'active',
-    },
-    {
-      id: 'sub-8a-sci',
-      name: 'Science',
-      code: 'SCI801',
-      classId: 'class-8a',
-      assignedTeacherId: 'teacher-3',
-      status: 'active',
-    },
-    {
-      id: 'sub-8a-soc',
-      name: 'Social Science',
-      code: 'SOC801',
-      classId: 'class-8a',
-      assignedTeacherId: 'teacher-4',
-      status: 'active',
-    },
-    {
-      id: 'sub-10a-eng',
-      name: 'English',
-      code: 'ENG1001',
-      classId: 'class-10a',
-      assignedTeacherId: 'teacher-1',
-      status: 'active',
-    },
-    {
-      id: 'sub-10a-mat',
-      name: 'Mathematics',
-      code: 'MAT1001',
-      classId: 'class-10a',
-      assignedTeacherId: 'teacher-2',
-      status: 'active',
-    },
-    {
-      id: 'sub-10a-sci',
-      name: 'Science',
-      code: 'SCI1001',
-      classId: 'class-10a',
-      assignedTeacherId: 'teacher-3',
-      status: 'active',
-      trackAttendance: true,
-    },
-    {
-      id: 'sub-10a-ca',
-      name: 'Computer Application',
-      code: 'CA1001',
-      classId: 'class-10a',
-      assignedTeacherId: 'teacher-2',
-      additionalTeacherIds: ['teacher-1'],
-      status: 'active',
-      trackAttendance: true,
-      isSplitSubject: true,
-      splitGroupName: 'Computer Application',
-      enrolledStudentIds: ['std-2001', 'std-2002', 'std-2003'],
-    },
-    {
-      id: 'sub-10a-hum',
-      name: 'Humanities',
-      code: 'HUM1001',
-      classId: 'class-10a',
-      assignedTeacherId: 'teacher-4',
-      additionalTeacherIds: ['teacher-3'],
-      status: 'active',
-      trackAttendance: true,
-      isSplitSubject: true,
-      splitGroupName: 'Humanities',
-      enrolledStudentIds: ['std-2004', 'std-2005', 'std-2006'],
-    },
-  ],
-  evaluationLevels: [
-    // English Class 8A (Total Max = 100)
-    {
-      id: 'eval-eng8-1',
-      subjectId: 'sub-8a-eng',
-      name: 'Assignment',
-      maximumMark: 20,
-      displayOrder: 1,
-      status: 'active',
-    },
-    {
-      id: 'eval-eng8-2',
-      subjectId: 'sub-8a-eng',
-      name: 'Debate',
-      maximumMark: 10,
-      displayOrder: 2,
-      status: 'active',
-    },
-    {
-      id: 'eval-eng8-3',
-      subjectId: 'sub-8a-eng',
-      name: 'Presentation',
-      maximumMark: 20,
-      displayOrder: 3,
-      status: 'active',
-    },
-    {
-      id: 'eval-eng8-4',
-      subjectId: 'sub-8a-eng',
-      name: 'Project',
-      maximumMark: 50,
-      displayOrder: 4,
-      status: 'active',
-    },
-    // Mathematics Class 8A (Total Max = 100)
-    {
-      id: 'eval-mat8-1',
-      subjectId: 'sub-8a-mat',
-      name: 'Assignment',
-      maximumMark: 20,
-      displayOrder: 1,
-      status: 'active',
-    },
-    {
-      id: 'eval-mat8-2',
-      subjectId: 'sub-8a-mat',
-      name: 'Quiz',
-      maximumMark: 20,
-      displayOrder: 2,
-      status: 'active',
-    },
-    {
-      id: 'eval-mat8-3',
-      subjectId: 'sub-8a-mat',
-      name: 'Project',
-      maximumMark: 60,
-      displayOrder: 3,
-      status: 'active',
-    },
-    // Science Class 8A (Total Max = 100)
-    {
-      id: 'eval-sci8-1',
-      subjectId: 'sub-8a-sci',
-      name: 'Lab Practical',
-      maximumMark: 25,
-      displayOrder: 1,
-      status: 'active',
-    },
-    {
-      id: 'eval-sci8-2',
-      subjectId: 'sub-8a-sci',
-      name: 'Theory Test',
-      maximumMark: 25,
-      displayOrder: 2,
-      status: 'active',
-    },
-    {
-      id: 'eval-sci8-3',
-      subjectId: 'sub-8a-sci',
-      name: 'Science Fair Project',
-      maximumMark: 50,
-      displayOrder: 3,
-      status: 'active',
-    },
-    // Social Science Class 8A (Total Max = 70 -> Tests variable max marks!)
-    {
-      id: 'eval-soc8-1',
-      subjectId: 'sub-8a-soc',
-      name: 'Assignment',
-      maximumMark: 25,
-      displayOrder: 1,
-      status: 'active',
-    },
-    {
-      id: 'eval-soc8-2',
-      subjectId: 'sub-8a-soc',
-      name: 'Debate',
-      maximumMark: 15,
-      displayOrder: 2,
-      status: 'active',
-    },
-    {
-      id: 'eval-soc8-3',
-      subjectId: 'sub-8a-soc',
-      name: 'Project',
-      maximumMark: 30,
-      displayOrder: 3,
-      status: 'active',
-    },
-    // English Class 10A
-    {
-      id: 'eval-eng10-1',
-      subjectId: 'sub-10a-eng',
-      name: 'Assignment',
-      maximumMark: 20,
-      displayOrder: 1,
-      status: 'active',
-    },
-    {
-      id: 'eval-eng10-2',
-      subjectId: 'sub-10a-eng',
-      name: 'Debate',
-      maximumMark: 10,
-      displayOrder: 2,
-      status: 'active',
-    },
-    {
-      id: 'eval-eng10-3',
-      subjectId: 'sub-10a-eng',
-      name: 'Presentation',
-      maximumMark: 20,
-      displayOrder: 3,
-      status: 'active',
-    },
-    {
-      id: 'eval-eng10-4',
-      subjectId: 'sub-10a-eng',
-      name: 'Project',
-      maximumMark: 50,
-      displayOrder: 4,
-      status: 'active',
-    },
-  ],
-  marks: [
-    // Alice Johnson (std-1001) in English (sub-8a-eng)
-    // 18/20 + 8/10 + 15/20 + 40/50 = 81/100 -> 24.30 / 30!
-    {
-      id: 'mark-1001-eng-1',
-      studentId: 'std-1001',
-      classId: 'class-8a',
-      subjectId: 'sub-8a-eng',
-      evaluationLevelId: 'eval-eng8-1',
-      maximumMark: 20,
-      obtainedMark: 18,
-      date: '2025-02-10',
-      enteredBy: 'Mr. Robert Vance',
-      lastUpdated: '2025-02-10T14:30:00Z',
-    },
-    {
-      id: 'mark-1001-eng-2',
-      studentId: 'std-1001',
-      classId: 'class-8a',
-      subjectId: 'sub-8a-eng',
-      evaluationLevelId: 'eval-eng8-2',
-      maximumMark: 10,
-      obtainedMark: 8,
-      date: '2025-02-12',
-      enteredBy: 'Mr. Robert Vance',
-      lastUpdated: '2025-02-12T11:20:00Z',
-    },
-    {
-      id: 'mark-1001-eng-3',
-      studentId: 'std-1001',
-      classId: 'class-8a',
-      subjectId: 'sub-8a-eng',
-      evaluationLevelId: 'eval-eng8-3',
-      maximumMark: 20,
-      obtainedMark: 15,
-      date: '2025-02-15',
-      enteredBy: 'Mr. Robert Vance',
-      lastUpdated: '2025-02-15T15:00:00Z',
-    },
-    {
-      id: 'mark-1001-eng-4',
-      studentId: 'std-1001',
-      classId: 'class-8a',
-      subjectId: 'sub-8a-eng',
-      evaluationLevelId: 'eval-eng8-4',
-      maximumMark: 50,
-      obtainedMark: 40,
-      date: '2025-02-20',
-      enteredBy: 'Mr. Robert Vance',
-      lastUpdated: '2025-02-20T16:45:00Z',
-    },
-
-    // Brian Smith (std-1002) in English
-    {
-      id: 'mark-1002-eng-1',
-      studentId: 'std-1002',
-      classId: 'class-8a',
-      subjectId: 'sub-8a-eng',
-      evaluationLevelId: 'eval-eng8-1',
-      maximumMark: 20,
-      obtainedMark: 15,
-      date: '2025-02-10',
-      enteredBy: 'Mr. Robert Vance',
-      lastUpdated: '2025-02-10T14:30:00Z',
-    },
-    // Debate is PENDING for Brian Smith
-    {
-      id: 'mark-1002-eng-3',
-      studentId: 'std-1002',
-      classId: 'class-8a',
-      subjectId: 'sub-8a-eng',
-      evaluationLevelId: 'eval-eng8-3',
-      maximumMark: 20,
-      obtainedMark: 16,
-      date: '2025-02-15',
-      enteredBy: 'Mr. Robert Vance',
-      lastUpdated: '2025-02-15T15:00:00Z',
-    },
-    {
-      id: 'mark-1002-eng-4',
-      studentId: 'std-1002',
-      classId: 'class-8a',
-      subjectId: 'sub-8a-eng',
-      evaluationLevelId: 'eval-eng8-4',
-      maximumMark: 50,
-      obtainedMark: 44,
-      date: '2025-02-20',
-      enteredBy: 'Mr. Robert Vance',
-      lastUpdated: '2025-02-20T16:45:00Z',
-    },
-
-    // Chloe Davis (std-1003) in English
-    {
-      id: 'mark-1003-eng-1',
-      studentId: 'std-1003',
-      classId: 'class-8a',
-      subjectId: 'sub-8a-eng',
-      evaluationLevelId: 'eval-eng8-1',
-      maximumMark: 20,
-      obtainedMark: 20,
-      date: '2025-02-10',
-      enteredBy: 'Mr. Robert Vance',
-      lastUpdated: '2025-02-10T14:30:00Z',
-    },
-    {
-      id: 'mark-1003-eng-2',
-      studentId: 'std-1003',
-      classId: 'class-8a',
-      subjectId: 'sub-8a-eng',
-      evaluationLevelId: 'eval-eng8-2',
-      maximumMark: 10,
-      obtainedMark: 9,
-      date: '2025-02-12',
-      enteredBy: 'Mr. Robert Vance',
-      lastUpdated: '2025-02-12T11:20:00Z',
-    },
-    {
-      id: 'mark-1003-eng-3',
-      studentId: 'std-1003',
-      classId: 'class-8a',
-      subjectId: 'sub-8a-eng',
-      evaluationLevelId: 'eval-eng8-3',
-      maximumMark: 20,
-      obtainedMark: 18,
-      date: '2025-02-15',
-      enteredBy: 'Mr. Robert Vance',
-      lastUpdated: '2025-02-15T15:00:00Z',
-    },
-    {
-      id: 'mark-1003-eng-4',
-      studentId: 'std-1003',
-      classId: 'class-8a',
-      subjectId: 'sub-8a-eng',
-      evaluationLevelId: 'eval-eng8-4',
-      maximumMark: 50,
-      obtainedMark: 43,
-      date: '2025-02-20',
-      enteredBy: 'Mr. Robert Vance',
-      lastUpdated: '2025-02-20T16:45:00Z',
-    },
-
-    // Alice Johnson in Social Science (sub-8a-soc, max 70)
-    // 22/25 + 12/15 + 22/30 = 56 / 70 -> 24.00 / 30!
-    {
-      id: 'mark-1001-soc-1',
-      studentId: 'std-1001',
-      classId: 'class-8a',
-      subjectId: 'sub-8a-soc',
-      evaluationLevelId: 'eval-soc8-1',
-      maximumMark: 25,
-      obtainedMark: 22,
-      date: '2025-02-14',
-      enteredBy: 'Mrs. Elena Rostova',
-      lastUpdated: '2025-02-14T10:00:00Z',
-    },
-    {
-      id: 'mark-1001-soc-2',
-      studentId: 'std-1001',
-      classId: 'class-8a',
-      subjectId: 'sub-8a-soc',
-      evaluationLevelId: 'eval-soc8-2',
-      maximumMark: 15,
-      obtainedMark: 12,
-      date: '2025-02-16',
-      enteredBy: 'Mrs. Elena Rostova',
-      lastUpdated: '2025-02-16T11:00:00Z',
-    },
-    {
-      id: 'mark-1001-soc-3',
-      studentId: 'std-1001',
-      classId: 'class-8a',
-      subjectId: 'sub-8a-soc',
-      evaluationLevelId: 'eval-soc8-3',
-      maximumMark: 30,
-      obtainedMark: 22,
-      date: '2025-02-19',
-      enteredBy: 'Mrs. Elena Rostova',
-      lastUpdated: '2025-02-19T14:00:00Z',
-    },
-  ],
-  auditLogs: [
-    {
-      id: 'log-1',
-      userId: 'user-admin',
-      userName: 'Ashiq CP Hudawi',
-      role: 'super_admin',
-      action: 'System Initialized',
-      entity: 'System',
-      entityId: 'SYS',
-      details: 'Initial classes, subjects, and evaluation levels configured',
-      timestamp: '2025-01-10T08:00:00.000Z',
-    },
-    {
-      id: 'log-2',
-      userId: 'user-teacher-1',
-      userName: 'Mr. Robert Vance',
-      role: 'teacher',
-      action: 'Entered Marks',
-      entity: 'Mark',
-      entityId: 'sub-8a-eng',
-      details: 'Entered Assignment marks for Class 8 A English (Alice Johnson: 18/20)',
-      timestamp: '2025-02-10T14:30:00.000Z',
-    },
-    {
-      id: 'log-3',
-      userId: 'user-teacher-1',
-      userName: 'Mr. Robert Vance',
-      role: 'teacher',
-      action: 'Entered Marks',
-      entity: 'Mark',
-      entityId: 'sub-8a-eng',
-      details: 'Completed CCE Project evaluation for Class 8 A English',
-      timestamp: '2025-02-20T16:45:00.000Z',
-    },
-  ],
-  achievements: [
-    {
-      id: 'ach-1',
-      studentId: 'std-1001',
-      title: 'State Inter-College Elocution Contest',
-      category: 'competition',
-      date: '2025-01-20',
-      description: 'Secured First Prize with distinction representing DHDC in the Inter-College Elocution championship.',
-      positionPrize: '1st Prize & Gold Medal',
-      awardedBy: 'State Higher Education Council',
-      createdDate: '2025-01-21T10:00:00.000Z',
-    },
-    {
-      id: 'ach-2',
-      studentId: 'std-1002',
-      title: 'Annual Athletic Meet 400m Relay',
-      category: 'sports',
-      date: '2025-02-05',
-      description: 'Anchored the team to silver medal victory at the inter-district collegiate athletics meet.',
-      positionPrize: 'Silver Medal (2nd Position)',
-      awardedBy: 'District Collegiate Sports Board',
-      createdDate: '2025-02-06T11:00:00.000Z',
-    },
-  ],
-  behaviorRecords: [
-    {
-      id: 'beh-1',
-      studentId: 'std-1001',
-      type: 'positive',
-      title: 'Exemplary Leadership in Peer Mentoring',
-      description: 'Alice voluntarily organized remedial study sessions for classmates in English literature debate preparation.',
-      recordedBy: 'Mr. Robert Vance',
-      recordedByRole: 'Class Teacher',
-      date: '2025-02-12',
-    },
-    {
-      id: 'beh-2',
-      studentId: 'std-1002',
-      type: 'observation',
-      title: 'Laboratory Discipline Improvement',
-      description: 'Bob demonstrated notable attentiveness and adherence to scientific lab safety protocols.',
-      recordedBy: 'Dr. Albert Stone',
-      recordedByRole: 'Subject Teacher',
-      date: '2025-02-15',
-    },
-  ],
+  classes: [],
+  teachers: [],
+  students: [],
+  subjects: [],
+  evaluationLevels: [],
+  marks: [],
+  auditLogs: [],
+  achievements: [],
+  behaviorRecords: [],
   activeHourSlots: [
     { id: 'slot-1', label: 'Morning Session 1', startTime: '07:00', endTime: '09:15', durationMinutes: 135, isActive: true },
     { id: 'slot-2', label: 'Morning Session 2', startTime: '09:45', endTime: '11:15', durationMinutes: 90, isActive: true },
@@ -1218,258 +139,12 @@ const INITIAL_STATE: DatabaseState = {
     { id: 'slot-4', label: 'Afternoon Session 1', startTime: '14:00', endTime: '15:20', durationMinutes: 80, isActive: true },
     { id: 'slot-5', label: 'Afternoon Session 2', startTime: '15:30', endTime: '16:10', durationMinutes: 40, isActive: true },
   ],
-  leaveApplications: [
-    {
-      id: 'leave-1',
-      studentId: 'std-1001',
-      studentAdmissionNumber: '1001',
-      studentName: 'Alice Johnson',
-      classId: 'class-8a',
-      leaveType: 'casual',
-      startDate: '2025-02-18',
-      endDate: '2025-02-18',
-      slotsIncluded: ['slot-1', 'slot-2'],
-      totalDurationMinutes: 225,
-      totalDurationFormatted: '3h 45m',
-      reason: 'Family urgent commitment in the morning session.',
-      status: 'arrived',
-      appliedAt: '2025-02-17T18:00:00.000Z',
-      reviewedBy: 'user-teacher-1',
-      reviewedByName: 'Mr. Robert Vance',
-      reviewedAt: '2025-02-18T06:30:00.000Z',
-      hasArrived: true,
-      arrivedAt: '2025-02-18T11:20:00.000Z',
-      remarks: 'Student reported to class teacher at 11:20 AM and marked arrived.',
-    },
-  ],
-  attendanceRecords: [
-    {
-      id: 'att-1001-eng-p1',
-      date: '2025-02-10',
-      classId: 'class-8a',
-      subjectId: 'sub-8a-eng',
-      period: 1,
-      studentId: 'std-1001',
-      status: 'present',
-      markedBy: 'Mr. Robert Vance',
-      markedAt: '2025-02-10T07:15:00.000Z',
-    },
-    {
-      id: 'att-1001-eng-p2',
-      date: '2025-02-12',
-      classId: 'class-8a',
-      subjectId: 'sub-8a-eng',
-      period: 2,
-      studentId: 'std-1001',
-      status: 'academic_leave',
-      markedBy: 'Mr. Robert Vance',
-      markedAt: '2025-02-12T09:50:00.000Z',
-      remarks: 'Attending college debate rehearsal (Counted as Present)',
-    },
-    {
-      id: 'att-1001-eng-p3',
-      date: '2025-02-14',
-      classId: 'class-8a',
-      subjectId: 'sub-8a-eng',
-      period: 3,
-      studentId: 'std-1001',
-      status: 'present',
-      markedBy: 'Mr. Robert Vance',
-      markedAt: '2025-02-14T11:30:00.000Z',
-    },
-    {
-      id: 'att-1002-eng-p1',
-      date: '2025-02-10',
-      classId: 'class-8a',
-      subjectId: 'sub-8a-eng',
-      period: 1,
-      studentId: 'std-1002',
-      status: 'present',
-      markedBy: 'Mr. Robert Vance',
-      markedAt: '2025-02-10T07:15:00.000Z',
-    },
-    {
-      id: 'att-1002-eng-p2',
-      date: '2025-02-12',
-      classId: 'class-8a',
-      subjectId: 'sub-8a-eng',
-      period: 2,
-      studentId: 'std-1002',
-      status: 'late',
-      lateArrivalTime: '10:05 AM',
-      lateReason: 'College bus traffic delay',
-      markedBy: 'Mr. Robert Vance',
-      markedAt: '2025-02-12T10:05:00.000Z',
-    },
-    // Seed records with Casual Leaves & Absences across multiple students and dates
-    {
-      id: 'att-1001-eng-p4-cl',
-      date: '2025-02-18',
-      classId: 'class-8a',
-      subjectId: 'sub-8a-eng',
-      period: 1,
-      studentId: 'std-1001',
-      status: 'casual_leave',
-      markedBy: 'Mr. Robert Vance',
-      markedAt: '2025-02-18T08:00:00.000Z',
-      remarks: 'Default casual leave (Unchecked)',
-    },
-    {
-      id: 'att-1001-soc-p1-cl',
-      date: '2025-02-20',
-      classId: 'class-8a',
-      subjectId: 'sub-8a-soc',
-      period: 2,
-      studentId: 'std-1001',
-      status: 'casual_leave',
-      markedBy: 'Mrs. Elena Rostova',
-      markedAt: '2025-02-20T09:30:00.000Z',
-    },
-    {
-      id: 'att-1002-eng-p3-cl',
-      date: '2025-02-18',
-      classId: 'class-8a',
-      subjectId: 'sub-8a-eng',
-      period: 1,
-      studentId: 'std-1002',
-      status: 'casual_leave',
-      markedBy: 'Mr. Robert Vance',
-      markedAt: '2025-02-18T08:00:00.000Z',
-    },
-    {
-      id: 'att-1002-soc-p2-cl',
-      date: '2025-02-20',
-      classId: 'class-8a',
-      subjectId: 'sub-8a-soc',
-      period: 2,
-      studentId: 'std-1002',
-      status: 'casual_leave',
-      markedBy: 'Mrs. Elena Rostova',
-      markedAt: '2025-02-20T09:30:00.000Z',
-    },
-    {
-      id: 'att-1002-soc-p3-cl',
-      date: '2025-02-22',
-      classId: 'class-8a',
-      subjectId: 'sub-8a-soc',
-      period: 3,
-      studentId: 'std-1002',
-      status: 'absent',
-      markedBy: 'Mrs. Elena Rostova',
-      markedAt: '2025-02-22T11:00:00.000Z',
-    },
-    {
-      id: 'att-1003-eng-p1-cl',
-      date: '2025-02-18',
-      classId: 'class-8a',
-      subjectId: 'sub-8a-eng',
-      period: 1,
-      studentId: 'std-1003',
-      status: 'casual_leave',
-      markedBy: 'Mr. Robert Vance',
-      markedAt: '2025-02-18T08:00:00.000Z',
-    },
-    {
-      id: 'att-1003-eng-p2-cl',
-      date: '2025-02-19',
-      classId: 'class-8a',
-      subjectId: 'sub-8a-eng',
-      period: 2,
-      studentId: 'std-1003',
-      status: 'casual_leave',
-      markedBy: 'Mr. Robert Vance',
-      markedAt: '2025-02-19T09:00:00.000Z',
-    },
-    {
-      id: 'att-1003-soc-p1-cl',
-      date: '2025-02-20',
-      classId: 'class-8a',
-      subjectId: 'sub-8a-soc',
-      period: 2,
-      studentId: 'std-1003',
-      status: 'casual_leave',
-      markedBy: 'Mrs. Elena Rostova',
-      markedAt: '2025-02-20T09:30:00.000Z',
-    },
-    {
-      id: 'att-1003-soc-p2-cl',
-      date: '2025-02-22',
-      classId: 'class-8a',
-      subjectId: 'sub-8a-soc',
-      period: 3,
-      studentId: 'std-1003',
-      status: 'absent',
-      markedBy: 'Mrs. Elena Rostova',
-      markedAt: '2025-02-22T11:00:00.000Z',
-    },
-  ],
+  leaveApplications: [],
+  attendanceRecords: [],
   attendanceClearances: [],
-  studentLeaveClearanceApplications: [
-    {
-      id: 'slc-1',
-      studentId: 'std-1001',
-      studentName: 'Alice Johnson',
-      studentAdmissionNumber: '1001',
-      classId: 'class-8a',
-      className: 'Class 8A',
-      subjectId: 'sub-8a-eng',
-      subjectName: 'English Literature',
-      recordIds: ['att-1001-eng-p4-cl'],
-      dates: ['2025-02-18'],
-      periods: [1],
-      clearanceType: 'academic_leave',
-      reason: 'Represented institution at Inter-College Model UN debate session.',
-      status: 'pending',
-      appliedAt: '2025-02-18T16:00:00.000Z',
-    },
-    {
-      id: 'slc-2',
-      studentId: 'std-1002',
-      studentName: 'Bob Smith',
-      studentAdmissionNumber: '1002',
-      classId: 'class-8a',
-      className: 'Class 8A',
-      subjectId: 'sub-8a-soc',
-      subjectName: 'Social Science',
-      recordIds: ['att-1002-soc-p3-cl'],
-      dates: ['2025-02-22'],
-      periods: [3],
-      clearanceType: 'medical_leave',
-      reason: 'Hospital outpatient consultation with medical prescription attached.',
-      status: 'pending',
-      appliedAt: '2025-02-22T14:30:00.000Z',
-    },
-  ],
-  complaintsFeedback: [
-    {
-      id: 'cmp-1',
-      studentId: 'std-1001',
-      studentAdmissionNumber: '1001',
-      studentName: 'Alice Johnson',
-      classId: 'class-8a',
-      receiverType: 'principal',
-      category: 'academic',
-      title: 'Request for Additional Reference Books in Digital Library',
-      subject: 'Request for Additional Reference Books in Digital Library',
-      message: 'Respected Principal, our department currently has limited copies of the latest linguistics textbooks. Could we request additional digital access licenses?',
-      status: 'resolved',
-      response: 'Dear Alice, we have approved the requisition and added 15 digital licenses to the e-library portal.',
-      respondedBy: 'user-admin',
-      respondedByName: 'Ashiq CP Hudawi (Principal / Admin)',
-      respondedAt: '2025-02-15T14:00:00.000Z',
-      resolvedAt: '2025-02-15T14:00:00.000Z',
-      submittedAt: '2025-02-13T09:30:00.000Z',
-      createdAt: '2025-02-13T09:30:00.000Z',
-    },
-  ],
-  allowedReceiverTypes: [
-    'principal',
-    'academic_assistant',
-    'class_teacher',
-    'hod',
-    'hos',
-    'super_admin',
-  ],
+  studentLeaveClearanceApplications: [],
+  complaintsFeedback: [],
+  allowedReceiverTypes: ['super_admin', 'class_teacher', 'academic_assistant', 'principal', 'hod', 'hos'],
   attendanceRules: {
     maxOfficialLeavePercent: 10,
     maxCasualLeavePercent: 15,
@@ -1477,175 +152,20 @@ const INITIAL_STATE: DatabaseState = {
     maxOfficialCasualCombinedPercent: 15,
     minRequiredAttendancePercent: 85,
     academicLeaveCountedAsPresent: true,
-    clearanceAllowedRoles: ['super_admin', 'Principal', 'HoD', 'HoS', 'Academic Assistant'],
   },
-  timetablePeriods: [
-    { id: 'p-1', periodNumber: 1, name: 'Period 1', startTime: '07:45', endTime: '08:30' },
-    { id: 'p-2', periodNumber: 2, name: 'Period 2', startTime: '08:30', endTime: '09:15' },
-    { id: 'p-brk-1', periodNumber: 0, name: 'Interval', startTime: '09:15', endTime: '09:30', isBreak: true, breakLabel: 'Morning Interval' },
-    { id: 'p-3', periodNumber: 3, name: 'Period 3', startTime: '09:30', endTime: '10:15' },
-    { id: 'p-4', periodNumber: 4, name: 'Period 4', startTime: '10:15', endTime: '11:00' },
-    { id: 'p-5', periodNumber: 5, name: 'Period 5', startTime: '11:00', endTime: '11:45' },
-    { id: 'p-brk-2', periodNumber: 0, name: 'Prayer & Lunch', startTime: '11:45', endTime: '12:45', isBreak: true, breakLabel: 'Prayer & Lunch Break' },
-    { id: 'p-6', periodNumber: 6, name: 'Period 6', startTime: '12:45', endTime: '13:30' },
-    { id: 'p-7', periodNumber: 7, name: 'Period 7', startTime: '13:30', endTime: '14:15' },
-    { id: 'p-8', periodNumber: 8, name: 'Period 8', startTime: '14:15', endTime: '15:00' },
-    { id: 'p-9', periodNumber: 9, name: 'Period 9', startTime: '15:00', endTime: '15:45' },
-  ],
-  timetableSlots: [
-    // Class 8 A - Sunday
-    { id: 'tt-8a-sun-1', dayOfWeek: 'Sunday', periodNumber: 1, classId: 'class-8a', subjectId: 'sub-8a-eng', teacherId: 'teacher-1', room: 'Hall 8A' },
-    { id: 'tt-8a-sun-2', dayOfWeek: 'Sunday', periodNumber: 2, classId: 'class-8a', subjectId: 'sub-8a-mat', teacherId: 'teacher-2', room: 'Hall 8A' },
-    { id: 'tt-8a-sun-3', dayOfWeek: 'Sunday', periodNumber: 3, classId: 'class-8a', subjectId: 'sub-8a-sci', teacherId: 'teacher-3', room: 'Hall 8A' },
-    { id: 'tt-8a-sun-4', dayOfWeek: 'Sunday', periodNumber: 4, classId: 'class-8a', subjectId: 'sub-8a-soc', teacherId: 'teacher-4', room: 'Hall 8A' },
-    { id: 'tt-8a-sun-5', dayOfWeek: 'Sunday', periodNumber: 5, classId: 'class-8a', subjectId: 'sub-8a-eng', teacherId: 'teacher-1', room: 'Hall 8A' },
-    { id: 'tt-8a-sun-6', dayOfWeek: 'Sunday', periodNumber: 6, classId: 'class-8a', subjectId: 'sub-8a-mat', teacherId: 'teacher-2', room: 'Hall 8A' },
-    { id: 'tt-8a-sun-7', dayOfWeek: 'Sunday', periodNumber: 7, classId: 'class-8a', subjectId: 'sub-8a-sci', teacherId: 'teacher-3', room: 'Hall 8A' },
-    { id: 'tt-8a-sun-8', dayOfWeek: 'Sunday', periodNumber: 8, classId: 'class-8a', subjectId: 'sub-8a-soc', teacherId: 'teacher-4', room: 'Hall 8A' },
-    { id: 'tt-8a-sun-9', dayOfWeek: 'Sunday', periodNumber: 9, classId: 'class-8a', subjectId: 'sub-8a-eng', teacherId: 'teacher-1', room: 'Hall 8A' },
-
-    // Class 8 A - Monday
-    { id: 'tt-8a-mon-1', dayOfWeek: 'Monday', periodNumber: 1, classId: 'class-8a', subjectId: 'sub-8a-eng', teacherId: 'teacher-1', room: 'Hall 8A' },
-    { id: 'tt-8a-mon-2', dayOfWeek: 'Monday', periodNumber: 2, classId: 'class-8a', subjectId: 'sub-8a-mat', teacherId: 'teacher-2', room: 'Hall 8A' },
-    { id: 'tt-8a-mon-3', dayOfWeek: 'Monday', periodNumber: 3, classId: 'class-8a', subjectId: 'sub-8a-sci', teacherId: 'teacher-3', room: 'Hall 8A' },
-    { id: 'tt-8a-mon-4', dayOfWeek: 'Monday', periodNumber: 4, classId: 'class-8a', subjectId: 'sub-8a-soc', teacherId: 'teacher-4', room: 'Hall 8A' },
-    { id: 'tt-8a-mon-5', dayOfWeek: 'Monday', periodNumber: 5, classId: 'class-8a', subjectId: 'sub-8a-eng', teacherId: 'teacher-1', room: 'Hall 8A' },
-    { id: 'tt-8a-mon-6', dayOfWeek: 'Monday', periodNumber: 6, classId: 'class-8a', subjectId: 'sub-8a-mat', teacherId: 'teacher-2', room: 'Hall 8A' },
-    { id: 'tt-8a-mon-7', dayOfWeek: 'Monday', periodNumber: 7, classId: 'class-8a', subjectId: 'sub-8a-sci', teacherId: 'teacher-3', room: 'Hall 8A' },
-    { id: 'tt-8a-mon-8', dayOfWeek: 'Monday', periodNumber: 8, classId: 'class-8a', subjectId: 'sub-8a-soc', teacherId: 'teacher-4', room: 'Hall 8A' },
-    { id: 'tt-8a-mon-9', dayOfWeek: 'Monday', periodNumber: 9, classId: 'class-8a', subjectId: 'sub-8a-eng', teacherId: 'teacher-1', room: 'Hall 8A' },
-
-    // Class 8 A - Tuesday
-    { id: 'tt-8a-tue-1', dayOfWeek: 'Tuesday', periodNumber: 1, classId: 'class-8a', subjectId: 'sub-8a-sci', teacherId: 'teacher-3', room: 'Hall 8A' },
-    { id: 'tt-8a-tue-2', dayOfWeek: 'Tuesday', periodNumber: 2, classId: 'class-8a', subjectId: 'sub-8a-soc', teacherId: 'teacher-4', room: 'Hall 8A' },
-    { id: 'tt-8a-tue-3', dayOfWeek: 'Tuesday', periodNumber: 3, classId: 'class-8a', subjectId: 'sub-8a-eng', teacherId: 'teacher-1', room: 'Hall 8A' },
-    { id: 'tt-8a-tue-4', dayOfWeek: 'Tuesday', periodNumber: 4, classId: 'class-8a', subjectId: 'sub-8a-mat', teacherId: 'teacher-2', room: 'Hall 8A' },
-    { id: 'tt-8a-tue-5', dayOfWeek: 'Tuesday', periodNumber: 5, classId: 'class-8a', subjectId: 'sub-8a-sci', teacherId: 'teacher-3', room: 'Hall 8A' },
-    { id: 'tt-8a-tue-6', dayOfWeek: 'Tuesday', periodNumber: 6, classId: 'class-8a', subjectId: 'sub-8a-soc', teacherId: 'teacher-4', room: 'Hall 8A' },
-    { id: 'tt-8a-tue-7', dayOfWeek: 'Tuesday', periodNumber: 7, classId: 'class-8a', subjectId: 'sub-8a-eng', teacherId: 'teacher-1', room: 'Hall 8A' },
-    { id: 'tt-8a-tue-8', dayOfWeek: 'Tuesday', periodNumber: 8, classId: 'class-8a', subjectId: 'sub-8a-mat', teacherId: 'teacher-2', room: 'Hall 8A' },
-    { id: 'tt-8a-tue-9', dayOfWeek: 'Tuesday', periodNumber: 9, classId: 'class-8a', subjectId: 'sub-8a-sci', teacherId: 'teacher-3', room: 'Hall 8A' },
-
-    // Class 8 A - Wednesday
-    { id: 'tt-8a-wed-1', dayOfWeek: 'Wednesday', periodNumber: 1, classId: 'class-8a', subjectId: 'sub-8a-mat', teacherId: 'teacher-2', room: 'Hall 8A' },
-    { id: 'tt-8a-wed-2', dayOfWeek: 'Wednesday', periodNumber: 2, classId: 'class-8a', subjectId: 'sub-8a-eng', teacherId: 'teacher-1', room: 'Hall 8A' },
-    { id: 'tt-8a-wed-3', dayOfWeek: 'Wednesday', periodNumber: 3, classId: 'class-8a', subjectId: 'sub-8a-soc', teacherId: 'teacher-4', room: 'Hall 8A' },
-    { id: 'tt-8a-wed-4', dayOfWeek: 'Wednesday', periodNumber: 4, classId: 'class-8a', subjectId: 'sub-8a-sci', teacherId: 'teacher-3', room: 'Hall 8A' },
-    { id: 'tt-8a-wed-5', dayOfWeek: 'Wednesday', periodNumber: 5, classId: 'class-8a', subjectId: 'sub-8a-mat', teacherId: 'teacher-2', room: 'Hall 8A' },
-    { id: 'tt-8a-wed-6', dayOfWeek: 'Wednesday', periodNumber: 6, classId: 'class-8a', subjectId: 'sub-8a-eng', teacherId: 'teacher-1', room: 'Hall 8A' },
-    { id: 'tt-8a-wed-7', dayOfWeek: 'Wednesday', periodNumber: 7, classId: 'class-8a', subjectId: 'sub-8a-soc', teacherId: 'teacher-4', room: 'Hall 8A' },
-    { id: 'tt-8a-wed-8', dayOfWeek: 'Wednesday', periodNumber: 8, classId: 'class-8a', subjectId: 'sub-8a-sci', teacherId: 'teacher-3', room: 'Hall 8A' },
-    { id: 'tt-8a-wed-9', dayOfWeek: 'Wednesday', periodNumber: 9, classId: 'class-8a', subjectId: 'sub-8a-mat', teacherId: 'teacher-2', room: 'Hall 8A' },
-
-    // Class 8 A - Thursday
-    { id: 'tt-8a-thu-1', dayOfWeek: 'Thursday', periodNumber: 1, classId: 'class-8a', subjectId: 'sub-8a-eng', teacherId: 'teacher-1', room: 'Hall 8A' },
-    { id: 'tt-8a-thu-2', dayOfWeek: 'Thursday', periodNumber: 2, classId: 'class-8a', subjectId: 'sub-8a-sci', teacherId: 'teacher-3', room: 'Hall 8A' },
-    { id: 'tt-8a-thu-3', dayOfWeek: 'Thursday', periodNumber: 3, classId: 'class-8a', subjectId: 'sub-8a-mat', teacherId: 'teacher-2', room: 'Hall 8A' },
-    { id: 'tt-8a-thu-4', dayOfWeek: 'Thursday', periodNumber: 4, classId: 'class-8a', subjectId: 'sub-8a-soc', teacherId: 'teacher-4', room: 'Hall 8A' },
-    { id: 'tt-8a-thu-5', dayOfWeek: 'Thursday', periodNumber: 5, classId: 'class-8a', subjectId: 'sub-8a-eng', teacherId: 'teacher-1', room: 'Hall 8A' },
-    { id: 'tt-8a-thu-6', dayOfWeek: 'Thursday', periodNumber: 6, classId: 'class-8a', subjectId: 'sub-8a-sci', teacherId: 'teacher-3', room: 'Hall 8A' },
-    { id: 'tt-8a-thu-7', dayOfWeek: 'Thursday', periodNumber: 7, classId: 'class-8a', subjectId: 'sub-8a-mat', teacherId: 'teacher-2', room: 'Hall 8A' },
-    { id: 'tt-8a-thu-8', dayOfWeek: 'Thursday', periodNumber: 8, classId: 'class-8a', subjectId: 'sub-8a-soc', teacherId: 'teacher-4', room: 'Hall 8A' },
-    { id: 'tt-8a-thu-9', dayOfWeek: 'Thursday', periodNumber: 9, classId: 'class-8a', subjectId: 'sub-8a-eng', teacherId: 'teacher-1', room: 'Hall 8A' },
-
-    // Class 10 A - with Split Subjects in Period 4 (Computer Application vs Humanities)!
-    { id: 'tt-10a-sun-1', dayOfWeek: 'Sunday', periodNumber: 1, classId: 'class-10a', subjectId: 'sub-10a-mat', teacherId: 'teacher-2', room: 'Hall 10A' },
-    { id: 'tt-10a-sun-2', dayOfWeek: 'Sunday', periodNumber: 2, classId: 'class-10a', subjectId: 'sub-10a-eng', teacherId: 'teacher-1', room: 'Hall 10A' },
-    { id: 'tt-10a-sun-3', dayOfWeek: 'Sunday', periodNumber: 3, classId: 'class-10a', subjectId: 'sub-10a-sci', teacherId: 'teacher-3', room: 'Hall 10A' },
-    // Period 4 Split Slot
-    { id: 'tt-10a-sun-4-ca', dayOfWeek: 'Sunday', periodNumber: 4, classId: 'class-10a', subjectId: 'sub-10a-ca', teacherId: 'teacher-2', room: 'Lab A', isSplitSlot: true },
-    { id: 'tt-10a-sun-4-hum', dayOfWeek: 'Sunday', periodNumber: 4, classId: 'class-10a', subjectId: 'sub-10a-hum', teacherId: 'teacher-4', room: 'Room 12', isSplitSlot: true },
-    { id: 'tt-10a-sun-5', dayOfWeek: 'Sunday', periodNumber: 5, classId: 'class-10a', subjectId: 'sub-10a-mat', teacherId: 'teacher-2', room: 'Hall 10A' },
-    { id: 'tt-10a-sun-6', dayOfWeek: 'Sunday', periodNumber: 6, classId: 'class-10a', subjectId: 'sub-10a-sci', teacherId: 'teacher-3', room: 'Hall 10A' },
-    { id: 'tt-10a-sun-7', dayOfWeek: 'Sunday', periodNumber: 7, classId: 'class-10a', subjectId: 'sub-10a-eng', teacherId: 'teacher-1', room: 'Hall 10A' },
-    { id: 'tt-10a-sun-8', dayOfWeek: 'Sunday', periodNumber: 8, classId: 'class-10a', subjectId: 'sub-10a-ca', teacherId: 'teacher-2', room: 'Lab A', isSplitSlot: true },
-    { id: 'tt-10a-sun-8-hum', dayOfWeek: 'Sunday', periodNumber: 8, classId: 'class-10a', subjectId: 'sub-10a-hum', teacherId: 'teacher-4', room: 'Room 12', isSplitSlot: true },
-    { id: 'tt-10a-sun-9', dayOfWeek: 'Sunday', periodNumber: 9, classId: 'class-10a', subjectId: 'sub-10a-sci', teacherId: 'teacher-3', room: 'Hall 10A' },
-
-    // Class 10 A - Monday
-    { id: 'tt-10a-mon-1', dayOfWeek: 'Monday', periodNumber: 1, classId: 'class-10a', subjectId: 'sub-10a-mat', teacherId: 'teacher-2', room: 'Hall 10A' },
-    { id: 'tt-10a-mon-2', dayOfWeek: 'Monday', periodNumber: 2, classId: 'class-10a', subjectId: 'sub-10a-eng', teacherId: 'teacher-1', room: 'Hall 10A' },
-    { id: 'tt-10a-mon-3', dayOfWeek: 'Monday', periodNumber: 3, classId: 'class-10a', subjectId: 'sub-10a-sci', teacherId: 'teacher-3', room: 'Hall 10A' },
-    { id: 'tt-10a-mon-4-ca', dayOfWeek: 'Monday', periodNumber: 4, classId: 'class-10a', subjectId: 'sub-10a-ca', teacherId: 'teacher-2', room: 'Lab A', isSplitSlot: true },
-    { id: 'tt-10a-mon-4-hum', dayOfWeek: 'Monday', periodNumber: 4, classId: 'class-10a', subjectId: 'sub-10a-hum', teacherId: 'teacher-4', room: 'Room 12', isSplitSlot: true },
-    { id: 'tt-10a-mon-5', dayOfWeek: 'Monday', periodNumber: 5, classId: 'class-10a', subjectId: 'sub-10a-mat', teacherId: 'teacher-2', room: 'Hall 10A' },
-    { id: 'tt-10a-mon-6', dayOfWeek: 'Monday', periodNumber: 6, classId: 'class-10a', subjectId: 'sub-10a-sci', teacherId: 'teacher-3', room: 'Hall 10A' },
-    { id: 'tt-10a-mon-7', dayOfWeek: 'Monday', periodNumber: 7, classId: 'class-10a', subjectId: 'sub-10a-eng', teacherId: 'teacher-1', room: 'Hall 10A' },
-    { id: 'tt-10a-mon-8', dayOfWeek: 'Monday', periodNumber: 8, classId: 'class-10a', subjectId: 'sub-10a-ca', teacherId: 'teacher-2', room: 'Lab A', isSplitSlot: true },
-    { id: 'tt-10a-mon-8-hum', dayOfWeek: 'Monday', periodNumber: 8, classId: 'class-10a', subjectId: 'sub-10a-hum', teacherId: 'teacher-4', room: 'Room 12', isSplitSlot: true },
-    { id: 'tt-10a-mon-9', dayOfWeek: 'Monday', periodNumber: 9, classId: 'class-10a', subjectId: 'sub-10a-sci', teacherId: 'teacher-3', room: 'Hall 10A' },
-
-    // Class 10 A - Tuesday
-    { id: 'tt-10a-tue-1', dayOfWeek: 'Tuesday', periodNumber: 1, classId: 'class-10a', subjectId: 'sub-10a-eng', teacherId: 'teacher-1', room: 'Hall 10A' },
-    { id: 'tt-10a-tue-2', dayOfWeek: 'Tuesday', periodNumber: 2, classId: 'class-10a', subjectId: 'sub-10a-mat', teacherId: 'teacher-2', room: 'Hall 10A' },
-    { id: 'tt-10a-tue-3', dayOfWeek: 'Tuesday', periodNumber: 3, classId: 'class-10a', subjectId: 'sub-10a-sci', teacherId: 'teacher-3', room: 'Hall 10A' },
-    { id: 'tt-10a-tue-4-ca', dayOfWeek: 'Tuesday', periodNumber: 4, classId: 'class-10a', subjectId: 'sub-10a-ca', teacherId: 'teacher-2', room: 'Lab A', isSplitSlot: true },
-    { id: 'tt-10a-tue-4-hum', dayOfWeek: 'Tuesday', periodNumber: 4, classId: 'class-10a', subjectId: 'sub-10a-hum', teacherId: 'teacher-4', room: 'Room 12', isSplitSlot: true },
-    { id: 'tt-10a-tue-5', dayOfWeek: 'Tuesday', periodNumber: 5, classId: 'class-10a', subjectId: 'sub-10a-eng', teacherId: 'teacher-1', room: 'Hall 10A' },
-    { id: 'tt-10a-tue-6', dayOfWeek: 'Tuesday', periodNumber: 6, classId: 'class-10a', subjectId: 'sub-10a-mat', teacherId: 'teacher-2', room: 'Hall 10A' },
-    { id: 'tt-10a-tue-7', dayOfWeek: 'Tuesday', periodNumber: 7, classId: 'class-10a', subjectId: 'sub-10a-sci', teacherId: 'teacher-3', room: 'Hall 10A' },
-    { id: 'tt-10a-tue-8', dayOfWeek: 'Tuesday', periodNumber: 8, classId: 'class-10a', subjectId: 'sub-10a-eng', teacherId: 'teacher-1', room: 'Hall 10A' },
-    { id: 'tt-10a-tue-9', dayOfWeek: 'Tuesday', periodNumber: 9, classId: 'class-10a', subjectId: 'sub-10a-mat', teacherId: 'teacher-2', room: 'Hall 10A' },
-
-    // Class 10 A - Wednesday
-    { id: 'tt-10a-wed-1', dayOfWeek: 'Wednesday', periodNumber: 1, classId: 'class-10a', subjectId: 'sub-10a-sci', teacherId: 'teacher-3', room: 'Hall 10A' },
-    { id: 'tt-10a-wed-2', dayOfWeek: 'Wednesday', periodNumber: 2, classId: 'class-10a', subjectId: 'sub-10a-eng', teacherId: 'teacher-1', room: 'Hall 10A' },
-    { id: 'tt-10a-wed-3', dayOfWeek: 'Wednesday', periodNumber: 3, classId: 'class-10a', subjectId: 'sub-10a-mat', teacherId: 'teacher-2', room: 'Hall 10A' },
-    { id: 'tt-10a-wed-4-ca', dayOfWeek: 'Wednesday', periodNumber: 4, classId: 'class-10a', subjectId: 'sub-10a-ca', teacherId: 'teacher-2', room: 'Lab A', isSplitSlot: true },
-    { id: 'tt-10a-wed-4-hum', dayOfWeek: 'Wednesday', periodNumber: 4, classId: 'class-10a', subjectId: 'sub-10a-hum', teacherId: 'teacher-4', room: 'Room 12', isSplitSlot: true },
-    { id: 'tt-10a-wed-5', dayOfWeek: 'Wednesday', periodNumber: 5, classId: 'class-10a', subjectId: 'sub-10a-sci', teacherId: 'teacher-3', room: 'Hall 10A' },
-    { id: 'tt-10a-wed-6', dayOfWeek: 'Wednesday', periodNumber: 6, classId: 'class-10a', subjectId: 'sub-10a-eng', teacherId: 'teacher-1', room: 'Hall 10A' },
-    { id: 'tt-10a-wed-7', dayOfWeek: 'Wednesday', periodNumber: 7, classId: 'class-10a', subjectId: 'sub-10a-mat', teacherId: 'teacher-2', room: 'Hall 10A' },
-    { id: 'tt-10a-wed-8', dayOfWeek: 'Wednesday', periodNumber: 8, classId: 'class-10a', subjectId: 'sub-10a-sci', teacherId: 'teacher-3', room: 'Hall 10A' },
-    { id: 'tt-10a-wed-9', dayOfWeek: 'Wednesday', periodNumber: 9, classId: 'class-10a', subjectId: 'sub-10a-eng', teacherId: 'teacher-1', room: 'Hall 10A' },
-
-    // Class 10 A - Thursday
-    { id: 'tt-10a-thu-1', dayOfWeek: 'Thursday', periodNumber: 1, classId: 'class-10a', subjectId: 'sub-10a-mat', teacherId: 'teacher-2', room: 'Hall 10A' },
-    { id: 'tt-10a-thu-2', dayOfWeek: 'Thursday', periodNumber: 2, classId: 'class-10a', subjectId: 'sub-10a-eng', teacherId: 'teacher-1', room: 'Hall 10A' },
-    { id: 'tt-10a-thu-3', dayOfWeek: 'Thursday', periodNumber: 3, classId: 'class-10a', subjectId: 'sub-10a-sci', teacherId: 'teacher-3', room: 'Hall 10A' },
-    { id: 'tt-10a-thu-4-ca', dayOfWeek: 'Thursday', periodNumber: 4, classId: 'class-10a', subjectId: 'sub-10a-ca', teacherId: 'teacher-2', room: 'Lab A', isSplitSlot: true },
-    { id: 'tt-10a-thu-4-hum', dayOfWeek: 'Thursday', periodNumber: 4, classId: 'class-10a', subjectId: 'sub-10a-hum', teacherId: 'teacher-4', room: 'Room 12', isSplitSlot: true },
-    { id: 'tt-10a-thu-5', dayOfWeek: 'Thursday', periodNumber: 5, classId: 'class-10a', subjectId: 'sub-10a-mat', teacherId: 'teacher-2', room: 'Hall 10A' },
-    { id: 'tt-10a-thu-6', dayOfWeek: 'Thursday', periodNumber: 6, classId: 'class-10a', subjectId: 'sub-10a-sci', teacherId: 'teacher-3', room: 'Hall 10A' },
-    { id: 'tt-10a-thu-7', dayOfWeek: 'Thursday', periodNumber: 7, classId: 'class-10a', subjectId: 'sub-10a-eng', teacherId: 'teacher-1', room: 'Hall 10A' },
-    { id: 'tt-10a-thu-8', dayOfWeek: 'Thursday', periodNumber: 8, classId: 'class-10a', subjectId: 'sub-10a-mat', teacherId: 'teacher-2', room: 'Hall 10A' },
-    { id: 'tt-10a-thu-9', dayOfWeek: 'Thursday', periodNumber: 9, classId: 'class-10a', subjectId: 'sub-10a-sci', teacherId: 'teacher-3', room: 'Hall 10A' },
-
-    // Class 8 A - Friday
-    { id: 'tt-8a-fri-1', dayOfWeek: 'Friday', periodNumber: 1, classId: 'class-8a', subjectId: 'sub-8a-eng', teacherId: 'teacher-1', room: 'Hall 8A' },
-    { id: 'tt-8a-fri-2', dayOfWeek: 'Friday', periodNumber: 2, classId: 'class-8a', subjectId: 'sub-8a-mat', teacherId: 'teacher-2', room: 'Hall 8A' },
-    { id: 'tt-8a-fri-3', dayOfWeek: 'Friday', periodNumber: 3, classId: 'class-8a', subjectId: 'sub-8a-sci', teacherId: 'teacher-3', room: 'Hall 8A' },
-    { id: 'tt-8a-fri-4', dayOfWeek: 'Friday', periodNumber: 4, classId: 'class-8a', subjectId: 'sub-8a-soc', teacherId: 'teacher-4', room: 'Hall 8A' },
-
-    // Class 10 A - Friday
-    { id: 'tt-10a-fri-1', dayOfWeek: 'Friday', periodNumber: 1, classId: 'class-10a', subjectId: 'sub-10a-mat', teacherId: 'teacher-2', room: 'Hall 10A' },
-    { id: 'tt-10a-fri-2', dayOfWeek: 'Friday', periodNumber: 2, classId: 'class-10a', subjectId: 'sub-10a-eng', teacherId: 'teacher-1', room: 'Hall 10A' },
-    { id: 'tt-10a-fri-3', dayOfWeek: 'Friday', periodNumber: 3, classId: 'class-10a', subjectId: 'sub-10a-sci', teacherId: 'teacher-3', room: 'Hall 10A' },
-    { id: 'tt-10a-fri-4', dayOfWeek: 'Friday', periodNumber: 4, classId: 'class-10a', subjectId: 'sub-10a-ca', teacherId: 'teacher-2', room: 'Lab A', isSplitSlot: true },
-
-    // Class 8 A - Saturday
-    { id: 'tt-8a-sat-1', dayOfWeek: 'Saturday', periodNumber: 1, classId: 'class-8a', subjectId: 'sub-8a-sci', teacherId: 'teacher-3', room: 'Hall 8A' },
-    { id: 'tt-8a-sat-2', dayOfWeek: 'Saturday', periodNumber: 2, classId: 'class-8a', subjectId: 'sub-8a-soc', teacherId: 'teacher-4', room: 'Hall 8A' },
-    { id: 'tt-8a-sat-3', dayOfWeek: 'Saturday', periodNumber: 3, classId: 'class-8a', subjectId: 'sub-8a-eng', teacherId: 'teacher-1', room: 'Hall 8A' },
-    { id: 'tt-8a-sat-4', dayOfWeek: 'Saturday', periodNumber: 4, classId: 'class-8a', subjectId: 'sub-8a-mat', teacherId: 'teacher-2', room: 'Hall 8A' },
-
-    // Class 10 A - Saturday
-    { id: 'tt-10a-sat-1', dayOfWeek: 'Saturday', periodNumber: 1, classId: 'class-10a', subjectId: 'sub-10a-eng', teacherId: 'teacher-1', room: 'Hall 10A' },
-    { id: 'tt-10a-sat-2', dayOfWeek: 'Saturday', periodNumber: 2, classId: 'class-10a', subjectId: 'sub-10a-mat', teacherId: 'teacher-2', room: 'Hall 10A' },
-    { id: 'tt-10a-sat-3', dayOfWeek: 'Saturday', periodNumber: 3, classId: 'class-10a', subjectId: 'sub-10a-sci', teacherId: 'teacher-3', room: 'Hall 10A' },
-    { id: 'tt-10a-sat-4', dayOfWeek: 'Saturday', periodNumber: 4, classId: 'class-10a', subjectId: 'sub-10a-hum', teacherId: 'teacher-4', room: 'Room 12', isSplitSlot: true },
-  ],
+  timetablePeriods: INITIAL_TIMETABLE_PERIODS,
+  timetableSlots: [],
   roles: INITIAL_DEFAULT_ROLES,
-  showcaseCards: INITIAL_SHOWCASE_CARDS,
+  showcaseCards: [],
 };
 
 class DataService {
   private state: DatabaseState;
   private listeners: Set<() => void> = new Set();
-  private isSyncingWithFirestore = false;
   private syncStatus: 'connected' | 'syncing' | 'offline' | 'error' | 'connecting' = 'connecting';
   private lastSyncTime: string | null = null;
   private syncError: string | null = null;
+  private syncPromise: Promise<boolean> | null = null;
 
   constructor() {
     this.state = this.loadLocal();
@@ -1655,7 +175,10 @@ class DataService {
   private loadLocal(): DatabaseState {
     let state: DatabaseState;
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
+      const stored =
+        typeof window !== 'undefined' && window.localStorage
+          ? localStorage.getItem(STORAGE_KEY)
+          : null;
       if (stored) {
         const parsed = JSON.parse(stored);
         state = {
@@ -1703,40 +226,26 @@ class DataService {
           if (c.isAttendanceEnabled === undefined) c.isAttendanceEnabled = true;
         });
       }
-      // Ensure split subjects exist in subjects array if not present
       if (state.subjects) {
-        if (!state.subjects.some((s) => s.id === 'sub-10a-ca')) {
-          state.subjects.push({
-            id: 'sub-10a-ca',
-            name: 'Computer Application',
-            code: 'CA1001',
-            classId: 'class-10a',
-            assignedTeacherId: 'teacher-2',
-            additionalTeacherIds: ['teacher-1'],
-            status: 'active',
-            trackAttendance: true,
-            isSplitSubject: true,
-            splitGroupName: 'Computer Application',
-            enrolledStudentIds: ['std-2001', 'std-2002', 'std-2003'],
-          });
-        }
-        if (!state.subjects.some((s) => s.id === 'sub-10a-hum')) {
-          state.subjects.push({
-            id: 'sub-10a-hum',
-            name: 'Humanities',
-            code: 'HUM1001',
-            classId: 'class-10a',
-            assignedTeacherId: 'teacher-4',
-            additionalTeacherIds: ['teacher-3'],
-            status: 'active',
-            trackAttendance: true,
-            isSplitSubject: true,
-            splitGroupName: 'Humanities',
-            enrolledStudentIds: ['std-2004', 'std-2005', 'std-2006'],
-          });
-        }
         state.subjects.forEach((s) => {
           if (s.trackAttendance === undefined) s.trackAttendance = true;
+        });
+      }
+      // Ensure current academic year defaults to 2026-2027
+      if (!state.currentAcademicYear || state.currentAcademicYear === '2025-2026') {
+        state.currentAcademicYear = '2026-2027';
+      }
+      if (!state.academicYears) {
+        state.academicYears = [
+          { id: 'ay-2026-2027', year: '2026-2027', isCurrent: true },
+          { id: 'ay-2025-2026', year: '2025-2026', isCurrent: false },
+        ];
+      } else {
+        if (!state.academicYears.some((ay) => ay.year === '2026-2027')) {
+          state.academicYears.unshift({ id: 'ay-2026-2027', year: '2026-2027', isCurrent: true });
+        }
+        state.academicYears.forEach((ay) => {
+          ay.isCurrent = ay.year === state.currentAcademicYear;
         });
       }
     } catch (e) {
@@ -1838,7 +347,9 @@ class DataService {
 
   private saveLocal() {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(this.state));
+      if (typeof window !== 'undefined' && window.localStorage) {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(this.state));
+      }
     } catch (e) {
       console.error('Error saving local state:', e);
     }
@@ -1909,18 +420,31 @@ class DataService {
     }
   }
 
-  private async batchSetFirestoreItems(items: { collection: string; id: string; data: any }[]): Promise<void> {
-    if (!items || items.length === 0) return;
-    for (let i = 0; i < items.length; i += 400) {
-      const chunk = items.slice(i, i + 400);
+  public async batchSetFirestoreItems(items: { collection: string; id: string; data: any }[]): Promise<boolean> {
+    if (!items || items.length === 0) return true;
+    let success = true;
+    for (let i = 0; i < items.length; i += 300) {
+      const chunk = items.slice(i, i + 300);
       const batch = writeBatch(db);
-      chunk.forEach((item) => batch.set(doc(db, item.collection, item.id), item.data, { merge: true }));
+      chunk.forEach((item) => {
+        const cleaned = cleanForFirestore(item.data);
+        batch.set(doc(db, item.collection, item.id), cleaned, { merge: true });
+      });
       try {
         await batch.commit();
       } catch (e) {
-        console.warn('Batch set items error:', e);
+        console.warn('Batch set items in Firestore failed, retrying individually:', e);
+        success = false;
+        for (const item of chunk) {
+          try {
+            await setDoc(doc(db, item.collection, item.id), cleanForFirestore(item.data), { merge: true });
+          } catch (singleErr) {
+            console.error(`Individual set error in ${item.collection}/${item.id}:`, singleErr);
+          }
+        }
       }
     }
+    return success;
   }
 
   public async syncWithFirestore(): Promise<boolean> {
@@ -1929,8 +453,16 @@ class DataService {
 
   // Synchronize with Firestore in background or on user request
   public async initFirestoreSync(): Promise<boolean> {
-    if (this.isSyncingWithFirestore) return true;
-    this.isSyncingWithFirestore = true;
+    if (this.syncPromise) {
+      return this.syncPromise;
+    }
+    this.syncPromise = this.doFirestoreSync().finally(() => {
+      this.syncPromise = null;
+    });
+    return this.syncPromise;
+  }
+
+  private async doFirestoreSync(): Promise<boolean> {
     this.syncStatus = 'syncing';
     this.notify();
 
@@ -2097,45 +629,78 @@ class DataService {
           }
         }
 
-        if (!teachersSnap.empty) {
-          this.state.teachers = teachersSnap.docs.map((d) => d.data() as Teacher);
-        }
-        if (!subjectsSnap.empty) {
-          this.state.subjects = subjectsSnap.docs.map((d) => d.data() as Subject);
-        }
-        if (!evalSnap.empty) {
-          this.state.evaluationLevels = evalSnap.docs.map((d) => d.data() as EvaluationLevel);
-        }
-        if (!marksSnap.empty) {
-          this.state.marks = marksSnap.docs.map((d) => d.data() as Mark);
-        }
-        if (!logsSnap.empty) {
-          this.state.auditLogs = logsSnap.docs.map((d) => d.data() as AuditLog);
-        }
-        if (!achievementsSnap.empty) {
-          this.state.achievements = achievementsSnap.docs.map((d) => d.data() as Achievement);
-        }
-        if (!behaviorSnap.empty) {
-          this.state.behaviorRecords = behaviorSnap.docs.map((d) => d.data() as BehaviorRecord);
-        }
+        this.state.teachers = !teachersSnap.empty
+          ? teachersSnap.docs.map((d) => d.data() as Teacher)
+          : [];
+
+        this.state.subjects = !subjectsSnap.empty
+          ? subjectsSnap.docs.map((d) => d.data() as Subject)
+          : [];
+
+        this.state.evaluationLevels = !evalSnap.empty
+          ? evalSnap.docs.map((d) => d.data() as EvaluationLevel)
+          : [];
+
+        this.state.marks = !marksSnap.empty
+          ? marksSnap.docs.map((d) => {
+              const m = d.data() as Mark;
+              if (!m.academicYear) {
+                const c = this.state.classes.find((cl) => cl.id === m.classId);
+                m.academicYear = c?.academicYear || this.state.currentAcademicYear || '2026-2027';
+              }
+              return m;
+            })
+          : [];
+
+        this.state.auditLogs = !logsSnap.empty
+          ? logsSnap.docs.map((d) => d.data() as AuditLog)
+          : [];
+
+        this.state.achievements = !achievementsSnap.empty
+          ? achievementsSnap.docs.map((d) => d.data() as Achievement)
+          : [];
+
+        this.state.behaviorRecords = !behaviorSnap.empty
+          ? behaviorSnap.docs.map((d) => d.data() as BehaviorRecord)
+          : [];
+
         if (!slotsSnap.empty) {
           this.state.activeHourSlots = slotsSnap.docs.map((d) => d.data() as ActiveHourSlot);
         }
-        if (!leavesSnap.empty) {
-          this.state.leaveApplications = leavesSnap.docs.map((d) => d.data() as LeaveApplication);
-        }
-        if (!attSnap.empty) {
-          this.state.attendanceRecords = attSnap.docs.map((d) => d.data() as AttendanceRecord);
-        }
-        if (!clearanceSnap.empty) {
-          this.state.attendanceClearances = clearanceSnap.docs.map((d) => d.data() as AttendanceClearance);
-        }
-        if (!complaintsSnap.empty) {
-          this.state.complaintsFeedback = complaintsSnap.docs.map((d) => d.data() as ComplaintFeedback);
-        }
-        if (!showcaseCardsSnap.empty) {
-          this.state.showcaseCards = showcaseCardsSnap.docs.map((d) => d.data() as ShowcaseCard);
-        }
+
+        this.state.leaveApplications = !leavesSnap.empty
+          ? leavesSnap.docs.map((d) => {
+              const l = d.data() as LeaveApplication;
+              if (!l.academicYear) {
+                const c = this.state.classes.find((cl) => cl.id === l.classId);
+                l.academicYear = c?.academicYear || this.state.currentAcademicYear || '2026-2027';
+              }
+              return l;
+            })
+          : [];
+
+        this.state.attendanceRecords = !attSnap.empty
+          ? attSnap.docs.map((d) => {
+              const att = d.data() as AttendanceRecord;
+              if (!att.academicYear) {
+                const c = this.state.classes.find((cl) => cl.id === att.classId);
+                att.academicYear = c?.academicYear || this.state.currentAcademicYear || '2026-2027';
+              }
+              return att;
+            })
+          : [];
+
+        this.state.attendanceClearances = !clearanceSnap.empty
+          ? clearanceSnap.docs.map((d) => d.data() as AttendanceClearance)
+          : [];
+
+        this.state.complaintsFeedback = !complaintsSnap.empty
+          ? complaintsSnap.docs.map((d) => d.data() as ComplaintFeedback)
+          : [];
+
+        this.state.showcaseCards = !showcaseCardsSnap.empty
+          ? showcaseCardsSnap.docs.map((d) => d.data() as ShowcaseCard)
+          : [];
 
         // Timetable Periods Sync from Firestore
         if (ttPeriodsConfigSnap.exists && ttPeriodsConfigSnap.exists() && ttPeriodsConfigSnap.data()?.periods) {
@@ -2149,13 +714,39 @@ class DataService {
           this.state.timetableSlots = ttSlotsConfigSnap.data().slots;
         } else if (!ttSlotsSnap.empty) {
           this.state.timetableSlots = ttSlotsSnap.docs.map((d) => d.data() as TimetableSlot);
+        } else {
+          this.state.timetableSlots = [];
         }
 
-        // Ensure Ashiq CP Hudawi has a teacher profile in state.teachers
-        const hasAshiqTeacher = this.state.teachers.some(
-          (t) => t.id === 'teacher-admin' || t.username === 'admin' || t.name?.toLowerCase().includes('ashiq')
+        // Auto-detect and sync academic years from real classes in Firestore
+        const classYears = new Set<string>();
+        this.state.classes.forEach((c) => {
+          if (c.academicYear?.trim()) {
+            classYears.add(c.academicYear.trim());
+          }
+        });
+        if (classYears.size > 0) {
+          classYears.forEach((year) => {
+            if (!this.state.academicYears.some((ay) => ay.year === year)) {
+              this.state.academicYears.push({ id: `ay-${year}`, year, isCurrent: false });
+            }
+          });
+          if (classYears.has('2026-2027')) {
+            this.state.currentAcademicYear = '2026-2027';
+          } else {
+            this.state.currentAcademicYear = Array.from(classYears)[0];
+          }
+          this.state.academicYears.forEach((ay) => {
+            ay.isCurrent = ay.year === this.state.currentAcademicYear;
+          });
+        }
+
+        // Link Ashiq teacher profile if present without injecting fake demo IDs
+        const existingAshiqTeacher = this.state.teachers.find(
+          (t) => t.id === 'teacher-1788446643444' || t.username === 'ashiqhudawi' || t.name?.toLowerCase().includes('ashiq')
         );
-        if (!hasAshiqTeacher) {
+        if (!existingAshiqTeacher) {
+          // If no teacher profile found, add default without fake subjects
           this.state.teachers.unshift({
             id: 'teacher-admin',
             name: 'Ashiq CP Hudawi',
@@ -2163,10 +754,10 @@ class DataService {
             email: 'admin@school.edu',
             username: 'admin',
             status: 'active',
-            assignedSubjectIds: ['sub-8a-eng', 'sub-10a-eng'],
-            assignedClassIds: ['class-8a', 'class-10a'],
-            classTeacherOfClassIds: ['class-8a'],
-            createdDate: '2025-01-11',
+            assignedSubjectIds: [],
+            assignedClassIds: this.state.classes.map((c) => c.id),
+            classTeacherOfClassIds: this.state.classes.slice(0, 1).map((c) => c.id),
+            createdDate: '2026-09-01',
           });
         }
 
@@ -2185,8 +776,6 @@ class DataService {
       this.lastSyncTime = new Date().toLocaleTimeString();
       this.notify();
       return false;
-    } finally {
-      this.isSyncingWithFirestore = false;
     }
   }
 
@@ -3336,6 +1925,9 @@ class DataService {
     const today = now.split('T')[0];
 
     marksToSave.forEach((m) => {
+      const classObj = this.state.classes.find((c) => c.id === m.classId);
+      const targetAcademicYear = classObj?.academicYear || this.state.currentAcademicYear || '2026-2027';
+
       const existingIdx = this.state.marks.findIndex(
         (existing) =>
           existing.studentId === m.studentId &&
@@ -3351,6 +1943,7 @@ class DataService {
             obtainedMark: null,
             lastUpdated: now,
             enteredBy: actor.name,
+            academicYear: this.state.marks[existingIdx].academicYear || targetAcademicYear,
           };
         } else {
           this.state.marks[existingIdx] = {
@@ -3360,9 +1953,10 @@ class DataService {
             date: m.date || today,
             enteredBy: actor.name,
             lastUpdated: now,
+            academicYear: targetAcademicYear,
           };
         }
-        setDoc(doc(db, 'marks', this.state.marks[existingIdx].id), this.state.marks[existingIdx]).catch(() => {});
+        setDoc(doc(db, 'marks', this.state.marks[existingIdx].id), cleanForFirestore(this.state.marks[existingIdx])).catch(() => {});
       } else if (m.obtainedMark !== null) {
         const id = `mark-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
         const newMark: Mark = {
@@ -3376,9 +1970,10 @@ class DataService {
           date: m.date || today,
           enteredBy: actor.name,
           lastUpdated: now,
+          academicYear: targetAcademicYear,
         };
         this.state.marks.push(newMark);
-        setDoc(doc(db, 'marks', id), newMark).catch(() => {});
+        setDoc(doc(db, 'marks', id), cleanForFirestore(newMark)).catch(() => {});
       }
     });
 
@@ -3942,7 +2537,7 @@ class DataService {
 
     this.saveLocal();
     this.notify();
-    setDoc(doc(db, 'achievements', id), newAchievement).catch(() => {});
+    setDoc(doc(db, 'achievements', id), cleanForFirestore(newAchievement)).catch(() => {});
     return newAchievement;
   }
 
@@ -3969,7 +2564,7 @@ class DataService {
 
     this.saveLocal();
     this.notify();
-    setDoc(doc(db, 'achievements', id), this.state.achievements[idx], { merge: true }).catch(() => {});
+    setDoc(doc(db, 'achievements', id), cleanForFirestore(this.state.achievements[idx]), { merge: true }).catch(() => {});
     return true;
   }
 
@@ -4025,7 +2620,7 @@ class DataService {
 
     this.saveLocal();
     this.notify();
-    setDoc(doc(db, 'behavior_records', id), newRecord).catch(() => {});
+    setDoc(doc(db, 'behavior_records', id), cleanForFirestore(newRecord)).catch(() => {});
     return newRecord;
   }
 
@@ -4075,7 +2670,7 @@ class DataService {
 
     this.saveLocal();
     this.notify();
-    setDoc(doc(db, 'behavior_records', id), this.state.behaviorRecords[idx], { merge: true }).catch(() => {});
+    setDoc(doc(db, 'behavior_records', id), cleanForFirestore(this.state.behaviorRecords[idx]), { merge: true }).catch(() => {});
     return true;
   }
 
@@ -4234,6 +2829,12 @@ class DataService {
     const resolvedAdmissionNumber = app.studentAdmissionNumber || student?.admissionNumber || 'ADM000';
     const resolvedName = app.studentName || student?.name || 'Student';
     const resolvedClassId = app.classId || student?.classId || '';
+    const classObj = this.state.classes.find((c) => c.id === resolvedClassId);
+    const targetAcademicYear =
+      app.academicYear ||
+      classObj?.academicYear ||
+      this.state.currentAcademicYear ||
+      '2026-2027';
     const slots = app.slotsIncluded || app.activeHourSlotIds || [];
 
     // Calculate total active hours from selected slots or start/end times
@@ -4257,6 +2858,7 @@ class DataService {
       studentAdmissionNumber: resolvedAdmissionNumber,
       studentName: resolvedName,
       classId: resolvedClassId,
+      academicYear: targetAcademicYear,
       leaveType: app.leaveType,
       startDate: app.startDate,
       endDate: app.endDate,
@@ -4276,7 +2878,7 @@ class DataService {
     this.state.leaveApplications.unshift(newApp);
     this.saveLocal();
     this.notify();
-    setDoc(doc(db, 'leave_applications', id), newApp).catch(() => {});
+    setDoc(doc(db, 'leave_applications', id), cleanForFirestore(newApp)).catch(() => {});
     return newApp;
   }
 
@@ -4306,7 +2908,7 @@ class DataService {
 
     this.saveLocal();
     this.notify();
-    setDoc(doc(db, 'leave_applications', id), this.state.leaveApplications[idx], { merge: true }).catch(() => {});
+    setDoc(doc(db, 'leave_applications', id), cleanForFirestore(this.state.leaveApplications[idx]), { merge: true }).catch(() => {});
     return true;
   }
 
@@ -4325,7 +2927,7 @@ class DataService {
 
     this.saveLocal();
     this.notify();
-    setDoc(doc(db, 'leave_applications', id), this.state.leaveApplications[idx], { merge: true }).catch(() => {});
+    setDoc(doc(db, 'leave_applications', id), cleanForFirestore(this.state.leaveApplications[idx]), { merge: true }).catch(() => {});
     return true;
   }
 
@@ -4343,12 +2945,13 @@ class DataService {
   // ==========================================
   // 📋 MULTI-PERIOD ATTENDANCE (Periods 1 - 9)
   // ==========================================
-  public savePeriodAttendance(
+  public async savePeriodAttendance(
     params: {
       date: string;
       classId: string;
       subjectId: string;
       period: number;
+      academicYear?: string;
       records: {
         studentId: string;
         status: AttendanceStatus;
@@ -4359,9 +2962,15 @@ class DataService {
       markedBy?: string;
     } | any,
     actor?: { id: string; name: string; role: string }
-  ): { savedCount: number } {
+  ): Promise<{ savedCount: number }> {
     const itemsToSave: { collection: string; id: string; data: any }[] = [];
     const markedBy = params.markedBy || actor?.name || 'Staff';
+    const classObj = this.state.classes.find((c) => c.id === params.classId);
+    const targetAcademicYear =
+      params.academicYear ||
+      classObj?.academicYear ||
+      this.state.currentAcademicYear ||
+      '2026-2027';
 
     params.records.forEach((rec: any) => {
       // Deterministic key for exact period attendance
@@ -4377,16 +2986,17 @@ class DataService {
       const record: AttendanceRecord = {
         id: recordId,
         date: params.date,
+        academicYear: targetAcademicYear,
         classId: params.classId,
         subjectId: params.subjectId,
         period: params.period,
         studentId: rec.studentId,
         status: rec.status,
-        lateArrivalTime: rec.lateArrivalTime,
-        lateReason: rec.lateReason,
-        remarks: rec.remarks,
         markedBy,
         markedAt: new Date().toISOString(),
+        ...(rec.lateArrivalTime ? { lateArrivalTime: rec.lateArrivalTime } : {}),
+        ...(rec.lateReason ? { lateReason: rec.lateReason } : {}),
+        ...(rec.remarks ? { remarks: rec.remarks } : {}),
       };
 
       if (existingIdx >= 0) {
@@ -4402,7 +3012,7 @@ class DataService {
     this.notify();
 
     if (itemsToSave.length > 0) {
-      this.batchSetFirestoreItems(itemsToSave).catch(() => {});
+      await this.batchSetFirestoreItems(itemsToSave);
     }
 
     return { savedCount: params.records.length };
@@ -4439,13 +3049,14 @@ class DataService {
     const newClr: AttendanceClearance = {
       ...clearance,
       id,
+      academicYear: clearance.academicYear || this.state.currentAcademicYear || '2026-2027',
       clearedDate: new Date().toISOString(),
     };
 
     this.state.attendanceClearances.unshift(newClr);
     this.saveLocal();
     this.notify();
-    setDoc(doc(db, 'attendance_clearances', id), newClr).catch(() => {});
+    setDoc(doc(db, 'attendance_clearances', id), cleanForFirestore(newClr)).catch(() => {});
     return newClr;
   }
 
@@ -4478,7 +3089,7 @@ class DataService {
 
     this.saveLocal();
     this.notify();
-    setDoc(doc(db, 'attendance_records', recordId), this.state.attendanceRecords[idx], { merge: true }).catch(() => {});
+    setDoc(doc(db, 'attendance_records', recordId), cleanForFirestore(this.state.attendanceRecords[idx]), { merge: true }).catch(() => {});
     return true;
   }
 
@@ -4545,9 +3156,18 @@ class DataService {
     app: Omit<StudentLeaveClearanceApplication, 'id' | 'appliedAt' | 'status'>
   ): StudentLeaveClearanceApplication {
     const id = `slc-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+    const student = this.state.students.find((s) => s.id === app.studentId);
+    const classObj = this.state.classes.find((c) => c.id === (app.classId || student?.classId));
+    const targetAcademicYear =
+      app.academicYear ||
+      classObj?.academicYear ||
+      this.state.currentAcademicYear ||
+      '2026-2027';
+
     const newApp: StudentLeaveClearanceApplication = {
       ...app,
       id,
+      academicYear: targetAcademicYear,
       status: 'pending',
       appliedAt: new Date().toISOString(),
     };
@@ -4559,7 +3179,7 @@ class DataService {
 
     this.saveLocal();
     this.notify();
-    setDoc(doc(db, 'student_leave_clearance_applications', id), newApp).catch(() => {});
+    setDoc(doc(db, 'student_leave_clearance_applications', id), cleanForFirestore(newApp)).catch(() => {});
     return newApp;
   }
 
@@ -4606,7 +3226,7 @@ class DataService {
             remarks: `Cleared as ${statusLabel} by ${actorLabel}. Student reason: ${currentApp.reason}`,
             markedAt: new Date().toISOString(),
           };
-          setDoc(doc(db, 'attendance_records', recId), this.state.attendanceRecords[recIdx], { merge: true }).catch(() => {});
+          setDoc(doc(db, 'attendance_records', recId), cleanForFirestore(this.state.attendanceRecords[recIdx]), { merge: true }).catch(() => {});
         }
       });
 
@@ -4619,7 +3239,7 @@ class DataService {
           grantedByName: actor?.name || 'Authority',
           grantedByRole: actor?.role || 'Authority',
           reason: `Student clearance application approved: ${currentApp.reason}`,
-          academicYear: this.state.currentAcademicYear || '2025-2026',
+          academicYear: currentApp.academicYear || this.state.currentAcademicYear || '2026-2027',
           notes: `Cleared ${currentApp.recordIds.length} session(s) on dates: ${currentApp.dates.join(', ')} as ${statusLabel}`,
         },
         actor
@@ -4640,7 +3260,7 @@ class DataService {
 
     this.saveLocal();
     this.notify();
-    setDoc(doc(db, 'student_leave_clearance_applications', id), updatedApp, { merge: true }).catch(() => {});
+    setDoc(doc(db, 'student_leave_clearance_applications', id), cleanForFirestore(updatedApp), { merge: true }).catch(() => {});
     return true;
   }
 

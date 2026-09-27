@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   Calendar,
   Clock,
@@ -38,9 +38,15 @@ export const TimetableManagementView: React.FC = () => {
   const [dbState, setDbState] = useState(() => dataService.getState());
   const [activeTab, setActiveTab] = useState<'weekly-grid' | 'period-timings'>('weekly-grid');
   const [selectedClassId, setSelectedClassId] = useState<string>(
-    () => dbState.classes?.[0]?.id || 'class-8a'
+    () => dbState.classes?.[0]?.id || ''
   );
   const [selectedDay, setSelectedDay] = useState<DayOfWeek>('Monday');
+
+  useEffect(() => {
+    if (dbState.classes?.length > 0 && (!selectedClassId || !dbState.classes.some((c) => c.id === selectedClassId))) {
+      setSelectedClassId(dbState.classes[0].id);
+    }
+  }, [dbState.classes, selectedClassId]);
 
   // Edit slot modal/drawer
   const [editingSlot, setEditingSlot] = useState<{
