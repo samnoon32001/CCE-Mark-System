@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import {
   Calendar,
   CalendarCheck,
@@ -33,6 +33,8 @@ import {
   Activity,
   HeartPulse,
   Award,
+  BarChart2,
+  Eye,
 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { useAuth } from '../../context/AuthContext';
@@ -53,6 +55,24 @@ import { calculateStudentSubjectAttendance } from '../../utils/attendanceCalcula
 import { hasPermission } from '../../utils/permissions';
 import { AttendanceClearanceView } from './AttendanceClearanceView';
 import { StudentAttendanceClearanceView } from './StudentAttendanceClearanceView';
+import { StudentAttendanceStatsModal } from './StudentAttendanceStatsModal';
+
+export const normalizeRecordDate = (dateVal: any): string => {
+  if (!dateVal) return '';
+  if (typeof dateVal === 'string') {
+    return dateVal.split('T')[0].trim();
+  }
+  if (dateVal.toDate && typeof dateVal.toDate === 'function') {
+    return dateVal.toDate().toISOString().split('T')[0];
+  }
+  if (dateVal instanceof Date && !isNaN(dateVal.getTime())) {
+    return dateVal.toISOString().split('T')[0];
+  }
+  if (typeof dateVal.seconds === 'number') {
+    return new Date(dateVal.seconds * 1000).toISOString().split('T')[0];
+  }
+  return String(dateVal).split('T')[0].trim();
+};
 
 const DAYS_OF_WEEK: DayOfWeek[] = [
   'Sunday',
@@ -117,12 +137,16 @@ export const AttendanceLeaveView: React.FC = () => {
   // Attendance Submission Confirmation Alert Modal State
   const [showConfirmModal, setShowConfirmModal] = useState<boolean>(false);
 
+  // Student Attendance Statistics & Leave Days Modal Target
+  const [selectedStudentForStats, setSelectedStudentForStats] = useState<Student | null>(null);
+
   // Print view state
   const [isPrintMode, setIsPrintMode] = useState<boolean>(false);
   // Summary filter state
   const [summaryAcademicYear, setSummaryAcademicYear] = useState<string>(() => dbState.currentAcademicYear || '2026-2027');
   const [summaryClassId, setSummaryClassId] = useState<string>(() => dbState.classes?.[0]?.id || '');
   const [summarySubjectId, setSummarySubjectId] = useState<string>('ALL');
+  const [summaryFilterByDate, setSummaryFilterByDate] = useState<boolean>(false);
 
   useEffect(() => {
     return dataService.subscribe(() => {
@@ -162,9 +186,12 @@ export const AttendanceLeaveView: React.FC = () => {
     }
   }, [availableSummaryClasses, summaryClassId]);
 
-  // Filter attendance records by academic year for reports
+  // Filter attendance records by academic year and optional selectedDate for reports
   const recordsForSummaryYear = useMemo(() => {
     return attendanceRecords.filter((r) => {
+      if (summaryFilterByDate && r.date?.split('T')[0] !== selectedDate && r.date !== selectedDate) {
+        return false;
+      }
       if (summaryAcademicYear && r.academicYear) {
         return r.academicYear === summaryAcademicYear;
       }
@@ -174,7 +201,7 @@ export const AttendanceLeaveView: React.FC = () => {
       }
       return true;
     });
-  }, [attendanceRecords, summaryAcademicYear, classes]);
+  }, [attendanceRecords, summaryAcademicYear, summaryFilterByDate, selectedDate, classes]);
 
   const pendingClearanceAppsCount = useMemo(() => {
     return studentApplications.filter((a) => a.status === 'pending').length;
@@ -355,17 +382,102 @@ export const AttendanceLeaveView: React.FC = () => {
     );
   }, [currentSubjectStudents, studentSearchQuery]);
 
+  // All attendance records on this selectedDate across all classes
+  const allRecordsOnSelectedDate = useMemo(() => {
+    return attendanceRecords.filter((r) => normalizeRecordDate(r.date) === selectedDate);
+  }, [attendanceRecords, selectedDate]);
+
   // Attendance records for current session (date + class + subject + period)
   const currentSessionRecords = useMemo(() => {
     if (!currentSubject) return [];
     return attendanceRecords.filter(
       (r) =>
-        r.date === selectedDate &&
+        normalizeRecordDate(r.date) === selectedDate &&
         r.classId === currentSubject.classId &&
         r.subjectId === selectedSubjectId &&
-        r.period === selectedPeriod
+        Number(r.period) === Number(selectedPeriod)
     );
   }, [attendanceRecords, selectedDate, currentSubject, selectedSubjectId, selectedPeriod]);
+
+  // All attendance records on this selectedDate for current class
+  const classRecordsOnSelectedDate = useMemo(() => {
+    if (!currentClass) return [];
+    return allRecordsOnSelectedDate.filter((r) => r.classId === currentClass.id);
+  }, [allRecordsOnSelectedDate, currentClass]);
+
+  // Map of periods that have recorded attendance on this selectedDate
+  const recordedPeriodsOnSelectedDate = useMemo(() => {
+    const map = new Map<number, {
+      period: number;
+      total: number;
+      present: number;
+      casualLeave: number;
+      medicalLeave: number;
+      academicLeave: number;
+      subjectName: string;
+      subjectId: string;
+      markedBy?: string;
+      markedAt?: string;
+    }>();
+
+    const targetList = currentClass ? classRecordsOnSelectedDate : allRecordsOnSelectedDate;
+    targetList.forEach((r) => {
+      const pNum = Number(r.period);
+      const existing = map.get(pNum) || {
+        period: pNum,
+        total: 0,
+        present: 0,
+        casualLeave: 0,
+        medicalLeave: 0,
+        academicLeave: 0,
+        subjectName: subjects.find((s) => s.id === r.subjectId)?.name || 'Subject',
+        subjectId: r.subjectId,
+        markedBy: r.markedBy,
+        markedAt: r.markedAt,
+      };
+      existing.total++;
+      if (r.status === 'present' || r.status === 'academic_leave') {
+        existing.present++;
+        if (r.status === 'academic_leave') existing.academicLeave++;
+      } else if (r.status === 'medical_leave') {
+        existing.medicalLeave++;
+      } else {
+        existing.casualLeave++;
+      }
+      map.set(pNum, existing);
+    });
+    return Array.from(map.values()).sort((a, b) => a.period - b.period);
+  }, [classRecordsOnSelectedDate, allRecordsOnSelectedDate, currentClass, subjects]);
+
+  // When selectedDate changes, automatically switch to recorded period if available, or first slot
+  const prevDateRef = useRef(selectedDate);
+  useEffect(() => {
+    if (prevDateRef.current !== selectedDate) {
+      prevDateRef.current = selectedDate;
+      const dateRecords = attendanceRecords.filter((r) => normalizeRecordDate(r.date) === selectedDate);
+      if (dateRecords.length > 0) {
+        // If there's a record matching the current class or teacher, select that session
+        const matchingRecord =
+          dateRecords.find((r) => {
+            if (currentClass && r.classId === currentClass.id) return true;
+            if (visibleSubjectsToMark.some((s) => s.id === r.subjectId)) return true;
+            return false;
+          }) || dateRecords[0];
+
+        if (matchingRecord) {
+          setSelectedSubjectId(matchingRecord.subjectId);
+          setSelectedPeriod(Number(matchingRecord.period));
+          return;
+        }
+      }
+
+      // If no attendance records on that date, pick timetable slot if available
+      if (teacherTodayScheduledSlots.length > 0) {
+        setSelectedSubjectId(teacherTodayScheduledSlots[0].subjectId);
+        setSelectedPeriod(Number(teacherTodayScheduledSlots[0].periodNumber));
+      }
+    }
+  }, [selectedDate, attendanceRecords, currentClass, visibleSubjectsToMark, teacherTodayScheduledSlots]);
 
   // Initialize in-memory presentMap when session changes or records update
   useEffect(() => {
@@ -387,7 +499,7 @@ export const AttendanceLeaveView: React.FC = () => {
       });
     }
     setPresentMap(initialMap);
-  }, [selectedSubjectId, selectedPeriod, selectedDate, currentSubjectStudents.length, currentSessionRecords.length]);
+  }, [selectedSubjectId, selectedPeriod, selectedDate, currentSubjectStudents, currentSessionRecords]);
 
   // Clear success feedback when navigating away from subject/period/date
   useEffect(() => {
@@ -880,7 +992,7 @@ export const AttendanceLeaveView: React.FC = () => {
                   <BookOpen className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                   <span>
                     {!showAllSubjects
-                      ? `Today's Subjects (${currentDayOfWeek})`
+                      ? `Scheduled Subjects for ${selectedDate} (${currentDayOfWeek})`
                       : `All Assigned Subjects (${currentTeacherObj?.name || 'Teacher'})`}
                   </span>
                 </div>
@@ -1032,6 +1144,64 @@ export const AttendanceLeaveView: React.FC = () => {
                   <span className="text-slate-300 dark:text-slate-700 hidden sm:inline">•</span>
                   <span className="hidden sm:inline">Overall: <strong className="text-slate-800 dark:text-slate-200">{subjectSummaryStats.historicalRate}%</strong></span>
                 </div>
+                {/* Visual Session State Banner for selectedDate & selectedPeriod */}
+                {isSessionAlreadySaved ? (
+                  <div className="px-3.5 py-2.5 bg-emerald-50/90 dark:bg-emerald-950/40 rounded-xl border border-emerald-200 dark:border-emerald-800 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                      <div>
+                        <span className="font-bold text-emerald-950 dark:text-emerald-100">
+                          Saved in Database for {selectedDate} ({currentDayOfWeek}) • Period {selectedPeriod}
+                        </span>
+                        <span className="text-emerald-700 dark:text-emerald-300 ml-2 font-medium">
+                          ({currentSessionRecords.filter((r) => r.status === 'present' || r.status === 'academic_leave').length} Present,{' '}
+                          {currentSessionRecords.filter((r) => r.status !== 'present' && r.status !== 'academic_leave').length} Casual Leave)
+                        </span>
+                      </div>
+                    </div>
+                    <div className="text-[11px] text-emerald-700 dark:text-emerald-300 font-mono">
+                      {currentSessionRecords[0]?.markedBy ? `Recorded by ${currentSessionRecords[0].markedBy}` : 'Synced with Cloud'}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="px-3.5 py-2.5 bg-amber-50/80 dark:bg-amber-950/30 rounded-xl border border-amber-200 dark:border-amber-800 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                      <div>
+                        <span className="font-bold text-amber-950 dark:text-amber-100">
+                          Unsaved Session for {selectedDate} ({currentDayOfWeek}) • Period {selectedPeriod}
+                        </span>
+                        <span className="text-amber-700 dark:text-amber-400 ml-2 font-medium">
+                          No database records found for this date & period yet.
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const map: Record<string, boolean> = {};
+                          currentSubjectStudents.forEach((s) => (map[s.id] = true));
+                          setPresentMap(map);
+                        }}
+                        className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-white dark:bg-slate-800 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-700 hover:bg-amber-100 cursor-pointer shadow-2xs"
+                      >
+                        All Present
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const map: Record<string, boolean> = {};
+                          currentSubjectStudents.forEach((s) => (map[s.id] = false));
+                          setPresentMap(map);
+                        }}
+                        className="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700 hover:bg-slate-100 cursor-pointer shadow-2xs"
+                      >
+                        Clear All
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* STUDENT LIST & CHECKBOX TO TICK PRESENT (ONLY) */}
@@ -1076,14 +1246,17 @@ export const AttendanceLeaveView: React.FC = () => {
                     return (
                       <div
                         key={`mobile-${student.id}`}
-                        onClick={() => handleToggleStudentPresent(student.id)}
-                        className={`p-3 flex items-center justify-between gap-3 cursor-pointer transition-colors active:scale-[0.99] ${
+                        className={`p-3 flex items-center justify-between gap-3 transition-colors ${
                           isPresent
                             ? 'bg-emerald-50/50 dark:bg-emerald-950/20'
                             : 'bg-white dark:bg-slate-900 hover:bg-slate-50 dark:hover:bg-slate-800/50'
                         }`}
                       >
-                        <div className="flex items-center gap-2.5 min-w-0">
+                        <div
+                          className="flex items-center gap-2.5 min-w-0 cursor-pointer flex-1"
+                          onClick={() => setSelectedStudentForStats(student)}
+                          title="Click to view student attendance statistics and leave days"
+                        >
                           <span className="font-mono text-[11px] text-slate-400 w-5 text-center shrink-0">
                             {idx + 1}
                           </span>
@@ -1096,9 +1269,12 @@ export const AttendanceLeaveView: React.FC = () => {
                           >
                             {student.name.charAt(0)}
                           </div>
-                          <div className="min-w-0">
-                            <div className="font-bold text-slate-800 dark:text-slate-100 text-xs truncate">
-                              {student.name}
+                          <div className="min-w-0 flex-1">
+                            <div className="font-bold text-slate-800 dark:text-slate-100 text-xs truncate flex items-center gap-1.5">
+                              <span>{student.name}</span>
+                              <span className="text-[10px] text-indigo-600 dark:text-indigo-400 font-bold bg-indigo-50 dark:bg-indigo-950/60 px-1.5 py-0.2 rounded border border-indigo-200 dark:border-indigo-800">
+                                Stats & Leaves
+                              </span>
                             </div>
                             <div className="text-[10px] font-mono text-slate-500 dark:text-slate-400">
                               Adm #{student.admissionNumber}
@@ -1135,13 +1311,13 @@ export const AttendanceLeaveView: React.FC = () => {
                   })}
                 </div>
 
-                {/* Tablet & Desktop View: Clean 3-Column Table (No redundant Current Status column) */}
+                {/* Tablet & Desktop View: Clean 3-Column Table */}
                 <div className="hidden sm:block overflow-x-auto">
                   <table className="w-full text-left text-xs">
                     <thead>
                       <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40 text-slate-600 dark:text-slate-400 font-semibold">
                         <th className="py-3 px-4 w-12 text-center">#</th>
-                        <th className="py-3 px-4">Student Details</th>
+                        <th className="py-3 px-4">Student Details (Click to view statistics & leave days)</th>
                         <th className="py-3 px-4 text-right">Attendance Action</th>
                       </tr>
                     </thead>
@@ -1152,8 +1328,7 @@ export const AttendanceLeaveView: React.FC = () => {
                         return (
                           <tr
                             key={student.id}
-                            onClick={() => handleToggleStudentPresent(student.id)}
-                            className={`cursor-pointer transition-colors ${
+                            className={`transition-colors ${
                               isPresent
                                 ? 'bg-emerald-50/30 dark:bg-emerald-950/20 hover:bg-emerald-50/50 dark:hover:bg-emerald-950/30'
                                 : 'hover:bg-slate-50 dark:hover:bg-slate-800/40'
@@ -1162,30 +1337,52 @@ export const AttendanceLeaveView: React.FC = () => {
                             <td className="py-3 px-4 font-mono text-slate-400 dark:text-slate-500 text-center">
                               {idx + 1}
                             </td>
-                            <td className="py-3 px-4">
-                              <div className="flex items-center gap-3">
-                                <div
-                                  className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 ${
-                                    isPresent
-                                      ? 'bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300'
-                                      : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700'
-                                  }`}
+                            <td
+                              className="py-3 px-4 cursor-pointer group"
+                              onClick={() => setSelectedStudentForStats(student)}
+                              title="Click to view student attendance statistics and leave days"
+                            >
+                              <div className="flex items-center justify-between gap-3">
+                                <div className="flex items-center gap-3">
+                                  <div
+                                    className={`w-8 h-8 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 transition-transform group-hover:scale-105 ${
+                                      isPresent
+                                        ? 'bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300'
+                                        : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-slate-700'
+                                    }`}
+                                  >
+                                    {student.name.charAt(0)}
+                                  </div>
+                                  <div>
+                                    <div className="font-bold text-slate-800 dark:text-slate-200 text-sm flex items-center gap-2 group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
+                                      <span>{student.name}</span>
+                                      {isPresent ? (
+                                        <span className="inline-flex items-center gap-1 px-2 py-0.2 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300">
+                                          Present
+                                        </span>
+                                      ) : (
+                                        <span className="inline-flex items-center gap-1 px-2 py-0.2 rounded-full text-[10px] font-bold bg-amber-100 dark:bg-amber-950/80 text-amber-800 dark:text-amber-300">
+                                          Casual Leave
+                                        </span>
+                                      )}
+                                    </div>
+                                    <div className="text-[11px] font-mono text-slate-500 dark:text-slate-400">
+                                      Adm #{student.admissionNumber}
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedStudentForStats(student);
+                                  }}
+                                  className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 hover:bg-indigo-100 dark:hover:bg-indigo-900 transition-all cursor-pointer shadow-2xs shrink-0"
                                 >
-                                  {student.name.charAt(0)}
-                                </div>
-                                <div>
-                                  <div className="font-bold text-slate-800 dark:text-slate-200 text-sm flex items-center gap-2">
-                                    <span>{student.name}</span>
-                                    {isPresent && (
-                                      <span className="inline-flex items-center gap-1 px-2 py-0.2 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950/80 text-emerald-800 dark:text-emerald-300">
-                                        Present
-                                      </span>
-                                    )}
-                                  </div>
-                                  <div className="text-[11px] font-mono text-slate-500 dark:text-slate-400">
-                                    Adm #{student.admissionNumber}
-                                  </div>
-                                </div>
+                                  <BarChart2 className="w-3.5 h-3.5 text-indigo-500" />
+                                  <span>Stats & Leaves</span>
+                                </button>
                               </div>
                             </td>
                             <td
@@ -1309,6 +1506,33 @@ export const AttendanceLeaveView: React.FC = () => {
                       </option>
                     ))}
                 </select>
+              </div>
+
+              {/* Date Filter for Summary Report */}
+              <div className="flex items-center gap-2 border-l border-slate-200 dark:border-slate-700 pl-3">
+                <label className="flex items-center gap-1.5 cursor-pointer text-xs font-semibold text-slate-700 dark:text-slate-300">
+                  <input
+                    type="checkbox"
+                    checked={summaryFilterByDate}
+                    onChange={(e) => setSummaryFilterByDate(e.target.checked)}
+                    className="rounded text-emerald-600 focus:ring-emerald-500 w-4 h-4 cursor-pointer"
+                  />
+                  <span>Filter by Date</span>
+                </label>
+
+                {summaryFilterByDate && (
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      type="date"
+                      value={selectedDate}
+                      onChange={(e) => setSelectedDate(e.target.value)}
+                      className="text-xs font-medium py-1 px-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 rounded-xl focus:outline-none focus:border-emerald-600 text-slate-800 dark:text-slate-200"
+                    />
+                    <span className="text-[11px] font-bold text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-lg border border-emerald-200 dark:border-emerald-800">
+                      {currentDayOfWeek}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -2036,6 +2260,22 @@ export const AttendanceLeaveView: React.FC = () => {
             </div>
           </div>
         </div>
+      )}
+      {/* Student Attendance Statistics & Leave Days Modal */}
+      {selectedStudentForStats && (
+        <StudentAttendanceStatsModal
+          student={selectedStudentForStats}
+          isOpen={!!selectedStudentForStats}
+          onClose={() => setSelectedStudentForStats(null)}
+          academicYear={currentClass?.academicYear || dbState.currentAcademicYear || '2026-2027'}
+          attendanceRecords={attendanceRecords}
+          leaveApplications={dbState.leaveApplications || []}
+          subjects={subjects}
+          classes={classes}
+          clearances={clearances}
+          rules={rules}
+          currentSubjectId={selectedSubjectId}
+        />
       )}
     </div>
   );
