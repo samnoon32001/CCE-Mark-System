@@ -136,7 +136,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   return (
-    <header className="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-3 sm:px-6 lg:px-8 flex items-center justify-between shrink-0 z-20 transition-colors duration-200">
+    <header id="portal-navbar" className="h-16 bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-3 sm:px-6 lg:px-8 flex items-center justify-between shrink-0 z-20 transition-colors duration-200 no-print">
       {/* Mobile Hamburger & Breadcrumb Hierarchy */}
       <div className="flex items-center gap-2 sm:gap-2.5 text-sm font-medium text-slate-500 dark:text-slate-400 min-w-0">
         {onToggleSidebar && (

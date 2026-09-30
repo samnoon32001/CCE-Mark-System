@@ -115,7 +115,7 @@ export const StudentMarksView: React.FC = () => {
   return (
     <div className="space-y-6 animate-fadeIn">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 print:hidden">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-2">
             <Award className="w-6 h-6 text-emerald-600" />
@@ -131,7 +131,7 @@ export const StudentMarksView: React.FC = () => {
           <div className="bg-slate-100 dark:bg-slate-800 p-1 rounded-xl flex items-center text-xs font-semibold">
             <button
               onClick={() => setViewMode('matrix')}
-              className={`px-3 py-1.5 rounded-lg transition ${
+              className={`px-3 py-1.5 rounded-lg transition cursor-pointer ${
                 viewMode === 'matrix'
                   ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs'
                   : 'text-slate-500'
@@ -141,7 +141,7 @@ export const StudentMarksView: React.FC = () => {
             </button>
             <button
               onClick={() => setViewMode('dossier')}
-              className={`px-3 py-1.5 rounded-lg transition ${
+              className={`px-3 py-1.5 rounded-lg transition cursor-pointer ${
                 viewMode === 'dossier'
                   ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs'
                   : 'text-slate-500'
@@ -151,7 +151,7 @@ export const StudentMarksView: React.FC = () => {
             </button>
             <button
               onClick={() => setViewMode('report-card')}
-              className={`px-3 py-1.5 rounded-lg transition ${
+              className={`px-3 py-1.5 rounded-lg transition cursor-pointer ${
                 viewMode === 'report-card'
                   ? 'bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs'
                   : 'text-slate-500'
@@ -162,17 +162,24 @@ export const StudentMarksView: React.FC = () => {
           </div>
 
           <button
-            onClick={() => window.print()}
-            className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 rounded-xl shadow-xs transition"
+            onClick={() => {
+              if (viewMode !== 'report-card') {
+                setViewMode('report-card');
+                setTimeout(() => window.print(), 100);
+              } else {
+                window.print();
+              }
+            }}
+            className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 rounded-xl shadow-xs transition cursor-pointer"
           >
             <Printer className="w-4 h-4" />
-            Print
+            Print Report Card
           </button>
         </div>
       </div>
 
       {/* Summary Highlight Metrics */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 print:hidden">
         <div className="bg-white dark:bg-slate-800/80 p-5 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-xs">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-medium text-slate-500">Total CCE Marks</span>

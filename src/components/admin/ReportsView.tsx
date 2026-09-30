@@ -166,10 +166,10 @@ export const ReportsView: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-2 flex-wrap print:hidden">
           <button
             onClick={handleExportInstitutionalReport}
-            className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-xs transition"
+            className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-xs transition cursor-pointer"
             title="Export class cohort averages and pass rates"
           >
             <Download className="w-4 h-4" />
@@ -177,7 +177,7 @@ export const ReportsView: React.FC = () => {
           </button>
           <button
             onClick={handleExportStudentObservations}
-            className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-xs transition"
+            className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl shadow-xs transition cursor-pointer"
             title="Export student grades and class teacher observations register"
           >
             <Download className="w-4 h-4" />
@@ -185,16 +185,16 @@ export const ReportsView: React.FC = () => {
           </button>
           <button
             onClick={() => window.print()}
-            className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 rounded-xl shadow-xs transition"
+            className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-slate-700 dark:text-slate-200 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 hover:bg-slate-50 rounded-xl shadow-xs transition cursor-pointer"
           >
             <Printer className="w-4 h-4" />
-            Print
+            Print Report
           </button>
         </div>
       </div>
 
       {/* Filter Bar */}
-      <div className="bg-white dark:bg-slate-800/80 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-xs flex items-center justify-between">
+      <div className="bg-white dark:bg-slate-800/80 p-4 rounded-2xl border border-slate-200/80 dark:border-slate-700/80 shadow-xs flex items-center justify-between print:hidden">
         <div className="flex items-center gap-3 text-xs">
           <span className="font-semibold text-slate-700 dark:text-slate-300">
             Filter by Class Cohort:

@@ -403,12 +403,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
             active={currentSection === 'student-marks'}
             onClick={() => handleSelect('student-marks')}
           />
-          <NavItem
-            icon={<FileText className="w-5 h-5" />}
-            label="Reports"
-            active={currentSection === 'reports'}
-            onClick={() => handleSelect('reports')}
-          />
         </>
       );
     }
@@ -482,13 +476,13 @@ export const Sidebar: React.FC<SidebarProps> = ({
   return (
     <>
       {/* Desktop Persistent Sidebar */}
-      <aside className="hidden md:flex w-64 bg-slate-900 border-r border-slate-800 flex-col shrink-0 min-h-screen text-slate-300">
+      <aside id="portal-sidebar" className="hidden md:flex w-64 bg-slate-900 border-r border-slate-800 flex-col shrink-0 min-h-screen text-slate-300 no-print">
         {sidebarBody}
       </aside>
 
       {/* Mobile Slide-over Drawer with Backdrop */}
       {isOpenMobile && (
-        <div className="fixed inset-0 z-50 md:hidden flex" role="dialog" aria-modal="true">
+        <div id="mobile-sidebar-drawer" className="fixed inset-0 z-50 md:hidden flex no-print" role="dialog" aria-modal="true">
           <div
             className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs transition-opacity"
             onClick={onCloseMobile}
