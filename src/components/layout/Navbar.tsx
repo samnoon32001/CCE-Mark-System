@@ -96,6 +96,22 @@ export const Navbar: React.FC<NavbarProps> = ({
         return 'Institutional Analytics & Reports';
       case 'audit-logs':
         return 'System Audit Trail';
+      case 'timetable':
+        return 'Timetable & Schedule Management';
+      case 'attendance':
+        return 'Attendance Management (Hajar)';
+      case 'leaves':
+        return 'Leave Applications';
+      case 'achievements':
+        return 'Achievements & Recognition';
+      case 'discipline':
+        return 'Behavior & Discipline Registry';
+      case 'feedback':
+        return 'Complaints & Feedback';
+      case 'attendance-settings':
+        return 'Attendance Rules & Settings';
+      case 'settings':
+        return 'Portal & Institutional Settings';
       case 'teacher-dashboard':
         return 'Faculty Workspace';
       case 'teacher-classes':

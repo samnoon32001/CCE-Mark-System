@@ -157,6 +157,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
             onClick={() => handleSelect('leaves')}
           />
           <NavItem
+            icon={<Calendar className="w-5 h-5" />}
+            label="Timetable & Schedule"
+            active={currentSection === 'timetable'}
+            onClick={() => handleSelect('timetable')}
+          />
+          <NavItem
             icon={<Trophy className="w-5 h-5" />}
             label="Achievements"
             active={currentSection === 'achievements'}

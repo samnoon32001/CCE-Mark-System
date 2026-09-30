@@ -17,6 +17,7 @@ import {
   UserPlus,
   FileSpreadsheet,
   AlertCircle,
+  Calendar,
 } from 'lucide-react';
 import type { NavSection } from '../layout/Sidebar';
 
@@ -135,6 +136,14 @@ export const AdminDashboard: React.FC<{ onNavigate: (section: NavSection) => voi
           </span>
         </div>
         <div className="flex items-center gap-2">
+          <button
+            id="dashboard-quick-timetable-btn"
+            onClick={() => onNavigate('timetable')}
+            className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold bg-amber-600 hover:bg-amber-700 text-white shadow-xs transition active:scale-95 cursor-pointer"
+          >
+            <Calendar className="w-3.5 h-3.5" />
+            <span>Timetable & Schedule</span>
+          </button>
           <button
             id="dashboard-quick-add-student-btn"
             onClick={handleOpenAddStudent}
