@@ -704,11 +704,32 @@ class DataService {
           ? showcaseCardsSnap.docs.map((d) => d.data() as ShowcaseCard)
           : [];
 
-        // Timetable Periods Sync from Firestore
-        if (ttPeriodsConfigSnap.exists && ttPeriodsConfigSnap.exists() && ttPeriodsConfigSnap.data()?.periods) {
-          this.state.timetablePeriods = ttPeriodsConfigSnap.data().periods;
+        // Timetable Periods Sync from Firestore (Strictly preserving user customized timings)
+        let incomingPeriods: TimetablePeriodDefinition[] = [];
+        if (ttPeriodsConfigSnap.exists && ttPeriodsConfigSnap.exists() && Array.isArray(ttPeriodsConfigSnap.data()?.periods)) {
+          incomingPeriods = ttPeriodsConfigSnap.data().periods;
         } else if (!ttPeriodsSnap.empty) {
-          this.state.timetablePeriods = ttPeriodsSnap.docs.map((d) => d.data() as TimetablePeriodDefinition);
+          incomingPeriods = ttPeriodsSnap.docs.map((d) => d.data() as TimetablePeriodDefinition);
+        }
+
+        if (incomingPeriods.length > 0) {
+          if (!this.state.timetablePeriods || this.state.timetablePeriods.length === 0) {
+            this.state.timetablePeriods = incomingPeriods;
+          } else {
+            // Intelligent merge by id: prioritize currently saved timings unless remote has periods not present locally
+            const mergedMap = new Map<string, TimetablePeriodDefinition>();
+            // Keep local user-saved periods first
+            this.state.timetablePeriods.forEach((p) => {
+              if (p?.id) mergedMap.set(p.id, p);
+            });
+            // Add any remote period that does not exist in local
+            incomingPeriods.forEach((rp) => {
+              if (rp?.id && !mergedMap.has(rp.id)) {
+                mergedMap.set(rp.id, rp);
+              }
+            });
+            this.state.timetablePeriods = Array.from(mergedMap.values());
+          }
         }
 
         // Timetable Slots Sync from Firestore

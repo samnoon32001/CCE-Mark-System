@@ -18,6 +18,7 @@ import {
   Award,
   LogOut,
   Settings,
+  Database,
   X,
   Calendar,
   CalendarCheck,
@@ -204,7 +205,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           />
           <NavItem
             icon={<Settings className="w-5 h-5" />}
-            label="Portal Settings"
+            label="Settings"
             active={currentSection === 'settings'}
             onClick={() => handleSelect('settings')}
           />

@@ -111,7 +111,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       case 'attendance-settings':
         return 'Attendance Rules & Settings';
       case 'settings':
-        return 'Portal & Institutional Settings';
+        return 'Settings';
       case 'teacher-dashboard':
         return 'Faculty Workspace';
       case 'teacher-classes':
