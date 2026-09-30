@@ -957,11 +957,21 @@ export const AttendanceLeaveView: React.FC = () => {
                       onChange={(e) => setSelectedPeriod(Number(e.target.value))}
                       className="px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 cursor-pointer focus:outline-none"
                     >
-                      {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((p) => (
-                        <option key={p} value={p}>
-                          Period {p}
-                        </option>
-                      ))}
+                      {periods.filter((p) => !p.isBreak).length > 0 ? (
+                        periods
+                          .filter((p) => !p.isBreak)
+                          .map((p) => (
+                            <option key={p.id || p.periodNumber} value={p.periodNumber}>
+                              {p.name || `Period ${p.periodNumber}`} ({p.startTime} - {p.endTime})
+                            </option>
+                          ))
+                      ) : (
+                        [1, 2, 3, 4, 5, 6, 7, 8, 9].map((p) => (
+                          <option key={p} value={p}>
+                            Period {p}
+                          </option>
+                        ))
+                      )}
                     </select>
                     <h2 className="text-base font-bold text-slate-800 dark:text-white">
                       {currentSubject.name}{' '}

@@ -91,12 +91,14 @@ export function cleanForFirestore<T>(obj: T): T {
 export const INITIAL_SHOWCASE_CARDS: ShowcaseCard[] = [];
 
 export const INITIAL_TIMETABLE_PERIODS: TimetablePeriodDefinition[] = [
-  { id: 'p-1', periodNumber: 1, name: 'Period 1', startTime: '07:00', endTime: '08:00', isBreak: false },
-  { id: 'p-2', periodNumber: 2, name: 'Period 2', startTime: '08:00', endTime: '09:00', isBreak: false },
-  { id: 'p-3', periodNumber: 3, name: 'Period 3', startTime: '09:00', endTime: '09:45', isBreak: false },
-  { id: 'p-4', periodNumber: 4, name: 'Period 4', startTime: '10:00', endTime: '10:50', isBreak: false },
-  { id: 'p-5', periodNumber: 5, name: 'Period 5', startTime: '10:50', endTime: '11:40', isBreak: false },
-  { id: 'p-6', periodNumber: 6, name: 'Period 6', startTime: '11:40', endTime: '12:30', isBreak: false },
+  { id: 'p-1', periodNumber: 1, name: 'Period 1', startTime: '07:45', endTime: '08:30', isBreak: false },
+  { id: 'p-2', periodNumber: 2, name: 'Period 2', startTime: '08:30', endTime: '09:15', isBreak: false },
+  { id: 'p-3', periodNumber: 3, name: 'Period 3', startTime: '09:15', endTime: '10:00', isBreak: false },
+  { id: 'p-break-1', periodNumber: 4, name: 'Morning Interval', startTime: '10:00', endTime: '10:15', isBreak: true, breakLabel: 'Morning Interval' },
+  { id: 'p-4', periodNumber: 4, name: 'Period 4', startTime: '10:15', endTime: '11:00', isBreak: false },
+  { id: 'p-5', periodNumber: 5, name: 'Period 5', startTime: '11:00', endTime: '11:45', isBreak: false },
+  { id: 'p-6', periodNumber: 6, name: 'Period 6', startTime: '11:45', endTime: '12:30', isBreak: false },
+  { id: 'p-break-2', periodNumber: 7, name: 'Lunch & Dhuhr Prayer Break', startTime: '12:30', endTime: '14:00', isBreak: true, breakLabel: 'Lunch & Dhuhr Prayer Break' },
   { id: 'p-7', periodNumber: 7, name: 'Period 7', startTime: '14:00', endTime: '14:45', isBreak: false },
   { id: 'p-8', periodNumber: 8, name: 'Period 8', startTime: '14:45', endTime: '15:30', isBreak: false },
   { id: 'p-9', periodNumber: 9, name: 'Period 9', startTime: '15:30', endTime: '16:15', isBreak: false },
@@ -3462,14 +3464,30 @@ class DataService {
   }
 
   public getTimetablePeriods(): TimetablePeriodDefinition[] {
-    return (this.state.timetablePeriods || []).slice().sort((a, b) => a.periodNumber - b.periodNumber);
+    return (this.state.timetablePeriods || []).slice().sort((a, b) => {
+      if (a.startTime && b.startTime) {
+        const cmp = a.startTime.localeCompare(b.startTime);
+        if (cmp !== 0) return cmp;
+      }
+      return (a.periodNumber || 0) - (b.periodNumber || 0);
+    });
   }
 
   public saveTimetablePeriods(periods: TimetablePeriodDefinition[]): void {
-    this.state.timetablePeriods = periods;
+    this.state.timetablePeriods = periods.slice().sort((a, b) => {
+      if (a.startTime && b.startTime) {
+        const cmp = a.startTime.localeCompare(b.startTime);
+        if (cmp !== 0) return cmp;
+      }
+      return (a.periodNumber || 0) - (b.periodNumber || 0);
+    });
     this.saveLocal();
     this.notify();
-    setDoc(doc(db, 'system_config', 'timetable_periods'), { periods }, { merge: true }).catch(() => {});
+    const allCleaned = this.state.timetablePeriods.map((p) => cleanForFirestore(p));
+    setDoc(doc(db, 'system_config', 'timetable_periods'), { periods: allCleaned }, { merge: true }).catch(() => {});
+    periods.forEach((p) => {
+      setDoc(doc(db, 'timetable_periods', p.id), cleanForFirestore(p), { merge: true }).catch(() => {});
+    });
   }
 
   public addTimetablePeriod(period: TimetablePeriodDefinition): TimetablePeriodDefinition {
@@ -3479,9 +3497,19 @@ class DataService {
       id: period.id || `period-${Date.now()}`,
     };
     this.state.timetablePeriods.push(newPeriod);
+    this.state.timetablePeriods.sort((a, b) => {
+      if (a.startTime && b.startTime) {
+        const cmp = a.startTime.localeCompare(b.startTime);
+        if (cmp !== 0) return cmp;
+      }
+      return (a.periodNumber || 0) - (b.periodNumber || 0);
+    });
     this.saveLocal();
     this.notify();
-    setDoc(doc(db, 'timetable_periods', newPeriod.id), newPeriod).catch(() => {});
+    const cleaned = cleanForFirestore(newPeriod);
+    setDoc(doc(db, 'timetable_periods', newPeriod.id), cleaned, { merge: true }).catch(() => {});
+    const allCleaned = this.state.timetablePeriods.map((p) => cleanForFirestore(p));
+    setDoc(doc(db, 'system_config', 'timetable_periods'), { periods: allCleaned }, { merge: true }).catch(() => {});
     return newPeriod;
   }
 
@@ -3494,9 +3522,19 @@ class DataService {
       ...this.state.timetablePeriods[idx],
       ...updates,
     };
+    this.state.timetablePeriods.sort((a, b) => {
+      if (a.startTime && b.startTime) {
+        const cmp = a.startTime.localeCompare(b.startTime);
+        if (cmp !== 0) return cmp;
+      }
+      return (a.periodNumber || 0) - (b.periodNumber || 0);
+    });
     this.saveLocal();
     this.notify();
-    setDoc(doc(db, 'timetable_periods', id), this.state.timetablePeriods[idx], { merge: true }).catch(() => {});
+    const cleaned = cleanForFirestore(this.state.timetablePeriods[idx]);
+    setDoc(doc(db, 'timetable_periods', id), cleaned, { merge: true }).catch(() => {});
+    const allCleaned = this.state.timetablePeriods.map((p) => cleanForFirestore(p));
+    setDoc(doc(db, 'system_config', 'timetable_periods'), { periods: allCleaned }, { merge: true }).catch(() => {});
     return true;
   }
 
@@ -3509,7 +3547,27 @@ class DataService {
     this.saveLocal();
     this.notify();
     deleteDoc(doc(db, 'timetable_periods', id)).catch(() => {});
+    const allCleaned = this.state.timetablePeriods.map((p) => cleanForFirestore(p));
+    setDoc(doc(db, 'system_config', 'timetable_periods'), { periods: allCleaned }, { merge: true }).catch(() => {});
     return true;
+  }
+
+  public resetTimetablePeriodsToDefault(): TimetablePeriodDefinition[] {
+    const defaults: TimetablePeriodDefinition[] = [
+      { id: 'p-1', periodNumber: 1, name: 'Period 1', startTime: '07:45', endTime: '08:30', isBreak: false },
+      { id: 'p-2', periodNumber: 2, name: 'Period 2', startTime: '08:30', endTime: '09:15', isBreak: false },
+      { id: 'p-3', periodNumber: 3, name: 'Period 3', startTime: '09:15', endTime: '10:00', isBreak: false },
+      { id: 'p-break-1', periodNumber: 4, name: 'Morning Interval', startTime: '10:00', endTime: '10:15', isBreak: true, breakLabel: 'Morning Interval' },
+      { id: 'p-4', periodNumber: 4, name: 'Period 4', startTime: '10:15', endTime: '11:00', isBreak: false },
+      { id: 'p-5', periodNumber: 5, name: 'Period 5', startTime: '11:00', endTime: '11:45', isBreak: false },
+      { id: 'p-6', periodNumber: 6, name: 'Period 6', startTime: '11:45', endTime: '12:30', isBreak: false },
+      { id: 'p-break-2', periodNumber: 7, name: 'Lunch & Dhuhr Prayer Break', startTime: '12:30', endTime: '14:00', isBreak: true, breakLabel: 'Lunch & Dhuhr Prayer Break' },
+      { id: 'p-7', periodNumber: 7, name: 'Period 7', startTime: '14:00', endTime: '14:45', isBreak: false },
+      { id: 'p-8', periodNumber: 8, name: 'Period 8', startTime: '14:45', endTime: '15:30', isBreak: false },
+      { id: 'p-9', periodNumber: 9, name: 'Period 9', startTime: '15:30', endTime: '16:15', isBreak: false },
+    ];
+    this.saveTimetablePeriods(defaults);
+    return defaults;
   }
 
   public getTimetableSlots(): TimetableSlot[] {
@@ -3520,7 +3578,7 @@ class DataService {
     this.state.timetableSlots = slots;
     this.saveLocal();
     this.notify();
-    setDoc(doc(db, 'system_config', 'timetable_slots'), { slots }, { merge: true }).catch(() => {});
+    setDoc(doc(db, 'system_config', 'timetable_slots'), cleanForFirestore({ slots }), { merge: true }).catch(() => {});
   }
 
   public saveTimetableSlot(slot: TimetableSlot): TimetableSlot {
@@ -3537,7 +3595,7 @@ class DataService {
 
     this.saveLocal();
     this.notify();
-    setDoc(doc(db, 'timetable_slots', id), fullSlot).catch(() => {});
+    setDoc(doc(db, 'timetable_slots', id), cleanForFirestore(fullSlot), { merge: true }).catch(() => {});
     return fullSlot;
   }
 

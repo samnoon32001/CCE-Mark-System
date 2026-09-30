@@ -135,6 +135,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
             onClick={() => handleSelect('subjects')}
           />
           <NavItem
+            icon={<Calendar className="w-5 h-5 text-indigo-400" />}
+            label="Timetable & Schedule"
+            active={currentSection === 'timetable'}
+            onClick={() => handleSelect('timetable')}
+          />
+          <NavItem
             icon={<Sparkles className="w-5 h-5 text-amber-500" />}
             label="Spotlight & Toppers"
             active={currentSection === 'spotlight-toppers'}
