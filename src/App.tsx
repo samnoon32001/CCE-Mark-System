@@ -4,6 +4,8 @@ import { ThemeProvider } from './context/ThemeContext';
 import { Navbar } from './components/layout/Navbar';
 import { Sidebar, type NavSection } from './components/layout/Sidebar';
 import { LoginView } from './components/auth/LoginView';
+import { dataService } from './services/db';
+import { AlertTriangle } from 'lucide-react';
 
 // Admin Views
 import { AdminDashboard } from './components/admin/AdminDashboard';
@@ -46,6 +48,14 @@ const MainLayout: React.FC = () => {
   const { currentUser, role } = useAuth();
   const [currentSection, setCurrentSection] = useState<NavSection>('admin-dashboard');
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [syncError, setSyncError] = useState<string | null>(dataService.getSyncError());
+
+  useEffect(() => {
+    const unsub = dataService.subscribe(() => {
+      setSyncError(dataService.getSyncError());
+    });
+    return unsub;
+  }, []);
 
   // Sync default section when role changes
   useEffect(() => {
@@ -79,6 +89,27 @@ const MainLayout: React.FC = () => {
           currentSection={currentSection}
           onToggleSidebar={() => setIsMobileSidebarOpen((prev) => !prev)}
         />
+
+        {/* Real-time Cloud Quota / Sync Status Notice Ribbon */}
+        {syncError && (
+          <div className="bg-amber-500/10 dark:bg-amber-950/70 border-b border-amber-300 dark:border-amber-800/80 px-4 py-2 text-xs flex items-center justify-between gap-3 text-amber-900 dark:text-amber-200 shrink-0 print:hidden animate-fadeIn">
+            <div className="flex items-center gap-2.5 overflow-hidden">
+              <span className="p-1 rounded-md bg-amber-200 dark:bg-amber-900 text-amber-900 dark:text-amber-100 shrink-0">
+                <AlertTriangle className="w-3.5 h-3.5" />
+              </span>
+              <span className="font-medium text-[11px] truncate">
+                <strong>Google Cloud Firestore Daily Read Quota Exceeded:</strong> Stored data is safe in Cloud & local cache. Reads will resume when quota resets, or you can manage/upgrade in Settings.
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => setCurrentSection('settings')}
+              className="text-[11px] font-bold underline text-amber-900 dark:text-amber-100 hover:text-amber-950 shrink-0 cursor-pointer"
+            >
+              Settings & Backup
+            </button>
+          </div>
+        )}
 
         {/* Scrollable Dynamic Main Content Area */}
         <main className="flex-1 overflow-y-auto p-3.5 sm:p-6 lg:p-8 pb-24 md:pb-8 bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100">

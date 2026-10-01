@@ -32,6 +32,7 @@ import {
   ExternalLink,
   ShieldCheck,
   Archive,
+  Upload,
 } from 'lucide-react';
 import { ConfirmDialog } from '../common/ConfirmDialog';
 
@@ -51,9 +52,13 @@ export const SettingsView: React.FC = () => {
   const [, setRerender] = useState(0);
 
   // Sync state tracking
-  const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'connected' | 'error'>('connected');
+  const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'connected' | 'error' | 'offline' | 'connecting'>(
+    dataService.getSyncStatus()
+  );
   const [lastSyncTime, setLastSyncTime] = useState<string>(dataService.getLastSyncTime() || new Date().toLocaleTimeString());
   const [syncMessage, setSyncMessage] = useState<string | null>(null);
+  const [restoreMessage, setRestoreMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const restoreFileInputRef = React.useRef<HTMLInputElement | null>(null);
 
   // Collections Explorer state
   const [collectionSearch, setCollectionSearch] = useState('');
@@ -150,15 +155,43 @@ export const SettingsView: React.FC = () => {
     setSyncStatus('syncing');
     setSyncMessage(null);
     try {
-      await dataService.syncWithFirestore();
-      setSyncStatus('connected');
-      setLastSyncTime(new Date().toLocaleTimeString());
-      setSyncMessage('Firestore database successfully synchronized and connected!');
-      setTimeout(() => setSyncMessage(null), 4000);
+      const ok = await dataService.syncWithFirestore();
+      const info = dataService.getFirebaseInfo();
+      setSyncStatus(info.status);
+      setLastSyncTime(info.lastSyncTime || new Date().toLocaleTimeString());
+      if (ok) {
+        setSyncMessage('Firestore database successfully synchronized and connected!');
+        setTimeout(() => setSyncMessage(null), 4000);
+      } else {
+        setSyncMessage(`Sync status: ${info.error || 'Connection or daily quota issue'}`);
+      }
     } catch (err: any) {
       setSyncStatus('error');
       setSyncMessage(`Sync warning: ${err?.message || 'Check network connection'}`);
     }
+  };
+
+  const handleRestoreFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const text = event.target?.result as string;
+        const parsed = JSON.parse(text);
+        const res = dataService.restoreFullBackup(parsed);
+        if (res.success) {
+          setRestoreMessage({ type: 'success', text: res.message });
+          setSyncMessage(res.message);
+        } else {
+          setRestoreMessage({ type: 'error', text: res.message });
+        }
+      } catch (err: any) {
+        setRestoreMessage({ type: 'error', text: `Failed to parse JSON backup: ${err?.message}` });
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
   };
 
   // Build Collections Metadata
@@ -465,21 +498,76 @@ export const SettingsView: React.FC = () => {
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={handleExportFullBackup}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-sm transition active:scale-95 cursor-pointer self-start sm:self-auto"
-        >
-          <Archive className="w-4 h-4" />
-          <span>Export Entire Database (All Collections JSON)</span>
-        </button>
+        <div className="flex items-center gap-2 flex-wrap self-start sm:self-auto">
+          {/* Hidden File Input for Restoring Full Database Backup */}
+          <input
+            ref={restoreFileInputRef}
+            type="file"
+            accept=".json,application/json"
+            onChange={handleRestoreFileChange}
+            className="hidden"
+          />
+
+          <button
+            type="button"
+            onClick={() => restoreFileInputRef.current?.click()}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold shadow-xs transition active:scale-95 cursor-pointer"
+            title="Upload and restore all collections from a JSON backup file"
+          >
+            <Upload className="w-4 h-4" />
+            <span>Restore From Backup JSON</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleExportFullBackup}
+            className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-bold shadow-xs transition active:scale-95 cursor-pointer"
+            title="Download full JSON snapshot of all collections"
+          >
+            <Archive className="w-4 h-4" />
+            <span>Export Entire Database (All Collections JSON)</span>
+          </button>
+        </div>
       </div>
 
+      {restoreMessage && (
+        <div
+          className={`p-4 text-xs rounded-2xl flex items-start gap-3 border animate-fadeIn ${
+            restoreMessage.type === 'success'
+              ? 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800'
+              : 'bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 border-rose-200 dark:border-rose-800'
+          }`}
+        >
+          {restoreMessage.type === 'success' ? (
+            <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+          ) : (
+            <AlertTriangle className="w-5 h-5 text-rose-600 shrink-0 mt-0.5" />
+          )}
+          <div className="flex-1">
+            <span className="font-bold block">
+              {restoreMessage.type === 'success' ? 'Backup Restored Successfully' : 'Restore Failed'}
+            </span>
+            <span className="text-[11px] mt-0.5 block">{restoreMessage.text}</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => setRestoreMessage(null)}
+            className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 font-bold"
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       {/* 1. Firebase Cloud Firestore Live Connection Card */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-xs space-y-5">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-5">
           <div className="flex items-start gap-3.5">
-            <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0 shadow-inner">
+            <div className={`w-12 h-12 rounded-2xl border flex items-center justify-center shrink-0 shadow-inner ${
+              syncStatus === 'error'
+                ? 'bg-amber-50 dark:bg-amber-950/50 border-amber-200 dark:border-amber-800 text-amber-600 dark:text-amber-400'
+                : 'bg-emerald-50 dark:bg-emerald-950/50 border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400'
+            }`}>
               <Database className="w-6 h-6" />
             </div>
             <div>
@@ -487,19 +575,33 @@ export const SettingsView: React.FC = () => {
                 <h2 className="text-base font-bold text-slate-900 dark:text-white">
                   Google Cloud Firestore Database
                 </h2>
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
-                  <span className="relative flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                {syncStatus === 'connected' && (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                    </span>
+                    Active & Connected
                   </span>
-                  Active & Connected
-                </span>
+                )}
+                {syncStatus === 'syncing' && (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-100 dark:bg-blue-900/60 text-blue-800 dark:text-blue-300 border border-blue-300 dark:border-blue-800">
+                    <RefreshCw className="w-3 h-3 animate-spin text-blue-600" />
+                    Syncing with Cloud...
+                  </span>
+                )}
+                {syncStatus === 'error' && (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 border border-amber-300 dark:border-amber-800">
+                    <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
+                    Cloud Quota Limit / Paused
+                  </span>
+                )}
                 <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
                   Dual-Persistence Shielded
                 </span>
               </div>
               <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                Yes, this application is directly connected with Google Cloud Firestore. Every change you make to timetable periods, classes, marks, and attendance is saved locally and synced with cloud collections without automatic overwrites.
+                This institutional portal is directly integrated with Google Cloud Firestore (<code className="font-mono text-[11px] text-indigo-600 dark:text-indigo-400 font-bold">ai-studio-studentmarkmanag-a28635d8-791b-4e42-96e4-02e2dcc4ecd6</code>) and caches every record in browser storage without automatic overwrites.
               </p>
             </div>
           </div>
@@ -511,13 +613,71 @@ export const SettingsView: React.FC = () => {
               className="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl shadow-xs transition disabled:opacity-50 cursor-pointer"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${syncStatus === 'syncing' ? 'animate-spin' : ''}`} />
-              {syncStatus === 'syncing' ? 'Syncing...' : 'Sync Firestore Now'}
+              {syncStatus === 'syncing' ? 'Syncing...' : 'Retry Cloud Sync'}
             </button>
           </div>
         </div>
 
-        {syncMessage && (
-          <div className="mt-4 p-3 text-xs rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 flex items-center gap-2 animate-fadeIn">
+        {/* Quota Exceeded / Diagnostic Notice Banner */}
+        {dataService.getSyncError() && (
+          <div className="p-4 rounded-2xl bg-amber-50/90 dark:bg-amber-950/40 border-2 border-amber-200 dark:border-amber-800/80 text-xs space-y-3">
+            <div className="flex items-start gap-3">
+              <div className="p-2 rounded-xl bg-amber-100 dark:bg-amber-900/60 text-amber-700 dark:text-amber-300 shrink-0">
+                <AlertTriangle className="w-5 h-5" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="font-bold text-amber-900 dark:text-amber-200 text-sm">
+                  Google Cloud Firestore Daily Read Quota Exceeded
+                </h3>
+                <p className="text-amber-800 dark:text-amber-300 leading-relaxed">
+                  Your Google Cloud Firestore database has reached its daily free-tier read limit:
+                  <span className="font-mono font-bold block mt-1 p-2 bg-amber-100/80 dark:bg-amber-900/80 rounded-lg text-amber-950 dark:text-amber-100 text-[11px]">
+                    {dataService.getSyncError()}
+                  </span>
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 text-slate-700 dark:text-slate-300 text-[11px]">
+              <div className="p-3 bg-white/80 dark:bg-slate-900/80 rounded-xl border border-amber-200/60 dark:border-amber-900/40">
+                <strong className="block text-slate-900 dark:text-white font-bold mb-1">1. Is my data lost?</strong>
+                No! All documents you entered into classes, students, marks, and attendance remain stored in your Google Cloud database and in your browser's local cache. They are not erased.
+              </div>
+              <div className="p-3 bg-white/80 dark:bg-slate-900/80 rounded-xl border border-amber-200/60 dark:border-amber-900/40">
+                <strong className="block text-slate-900 dark:text-white font-bold mb-1">2. Why does it look empty here?</strong>
+                Because Google Cloud paused reads for today, opening the app in a new window, browser, or URL cannot pull data from the cloud until the quota resets.
+              </div>
+              <div className="p-3 bg-white/80 dark:bg-slate-900/80 rounded-xl border border-amber-200/60 dark:border-amber-900/40">
+                <strong className="block text-slate-900 dark:text-white font-bold mb-1">3. When does it reset?</strong>
+                Daily free quotas reset every 24 hours at midnight Pacific Time (~12:30 PM IST). You can also upgrade your project in the Firebase Console.
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 pt-2 flex-wrap">
+              <a
+                href="https://console.firebase.google.com/project/astute-runway-96shk/firestore/databases/ai-studio-studentmarkmanag-a28635d8-791b-4e42-96e4-02e2dcc4ecd6/data?openUpgradeDialog=true"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-amber-600 hover:bg-amber-700 text-white rounded-lg font-bold text-xs shadow-xs transition"
+              >
+                <span>Open Firebase Console Database</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+              <a
+                href="https://firebase.google.com/pricing#cloud-firestore"
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-50 border border-slate-300 dark:border-slate-700 rounded-lg font-semibold text-xs transition"
+              >
+                <span>Firestore Quota Limits Documentation</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+            </div>
+          </div>
+        )}
+
+        {syncMessage && !dataService.getSyncError() && (
+          <div className="p-3 text-xs rounded-xl bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800/60 flex items-center gap-2 animate-fadeIn">
             <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
             <span>{syncMessage}</span>
           </div>

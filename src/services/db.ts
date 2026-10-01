@@ -631,78 +631,78 @@ class DataService {
           }
         }
 
-        this.state.teachers = !teachersSnap.empty
-          ? teachersSnap.docs.map((d) => d.data() as Teacher)
-          : [];
+        if (!teachersSnap.empty) {
+          this.state.teachers = teachersSnap.docs.map((d) => d.data() as Teacher);
+        }
 
-        this.state.subjects = !subjectsSnap.empty
-          ? subjectsSnap.docs.map((d) => d.data() as Subject)
-          : [];
+        if (!subjectsSnap.empty) {
+          this.state.subjects = subjectsSnap.docs.map((d) => d.data() as Subject);
+        }
 
-        this.state.evaluationLevels = !evalSnap.empty
-          ? evalSnap.docs.map((d) => d.data() as EvaluationLevel)
-          : [];
+        if (!evalSnap.empty) {
+          this.state.evaluationLevels = evalSnap.docs.map((d) => d.data() as EvaluationLevel);
+        }
 
-        this.state.marks = !marksSnap.empty
-          ? marksSnap.docs.map((d) => {
-              const m = d.data() as Mark;
-              if (!m.academicYear) {
-                const c = this.state.classes.find((cl) => cl.id === m.classId);
-                m.academicYear = c?.academicYear || this.state.currentAcademicYear || '2026-2027';
-              }
-              return m;
-            })
-          : [];
+        if (!marksSnap.empty) {
+          this.state.marks = marksSnap.docs.map((d) => {
+            const m = d.data() as Mark;
+            if (!m.academicYear) {
+              const c = this.state.classes.find((cl) => cl.id === m.classId);
+              m.academicYear = c?.academicYear || this.state.currentAcademicYear || '2026-2027';
+            }
+            return m;
+          });
+        }
 
-        this.state.auditLogs = !logsSnap.empty
-          ? logsSnap.docs.map((d) => d.data() as AuditLog)
-          : [];
+        if (!logsSnap.empty) {
+          this.state.auditLogs = logsSnap.docs.map((d) => d.data() as AuditLog);
+        }
 
-        this.state.achievements = !achievementsSnap.empty
-          ? achievementsSnap.docs.map((d) => d.data() as Achievement)
-          : [];
+        if (!achievementsSnap.empty) {
+          this.state.achievements = achievementsSnap.docs.map((d) => d.data() as Achievement);
+        }
 
-        this.state.behaviorRecords = !behaviorSnap.empty
-          ? behaviorSnap.docs.map((d) => d.data() as BehaviorRecord)
-          : [];
+        if (!behaviorSnap.empty) {
+          this.state.behaviorRecords = behaviorSnap.docs.map((d) => d.data() as BehaviorRecord);
+        }
 
         if (!slotsSnap.empty) {
           this.state.activeHourSlots = slotsSnap.docs.map((d) => d.data() as ActiveHourSlot);
         }
 
-        this.state.leaveApplications = !leavesSnap.empty
-          ? leavesSnap.docs.map((d) => {
-              const l = d.data() as LeaveApplication;
-              if (!l.academicYear) {
-                const c = this.state.classes.find((cl) => cl.id === l.classId);
-                l.academicYear = c?.academicYear || this.state.currentAcademicYear || '2026-2027';
-              }
-              return l;
-            })
-          : [];
+        if (!leavesSnap.empty) {
+          this.state.leaveApplications = leavesSnap.docs.map((d) => {
+            const l = d.data() as LeaveApplication;
+            if (!l.academicYear) {
+              const c = this.state.classes.find((cl) => cl.id === l.classId);
+              l.academicYear = c?.academicYear || this.state.currentAcademicYear || '2026-2027';
+            }
+            return l;
+          });
+        }
 
-        this.state.attendanceRecords = !attSnap.empty
-          ? attSnap.docs.map((d) => {
-              const att = d.data() as AttendanceRecord;
-              if (!att.academicYear) {
-                const c = this.state.classes.find((cl) => cl.id === att.classId);
-                att.academicYear = c?.academicYear || this.state.currentAcademicYear || '2026-2027';
-              }
-              return att;
-            })
-          : [];
+        if (!attSnap.empty) {
+          this.state.attendanceRecords = attSnap.docs.map((d) => {
+            const att = d.data() as AttendanceRecord;
+            if (!att.academicYear) {
+              const c = this.state.classes.find((cl) => cl.id === att.classId);
+              att.academicYear = c?.academicYear || this.state.currentAcademicYear || '2026-2027';
+            }
+            return att;
+          });
+        }
 
-        this.state.attendanceClearances = !clearanceSnap.empty
-          ? clearanceSnap.docs.map((d) => d.data() as AttendanceClearance)
-          : [];
+        if (!clearanceSnap.empty) {
+          this.state.attendanceClearances = clearanceSnap.docs.map((d) => d.data() as AttendanceClearance);
+        }
 
-        this.state.complaintsFeedback = !complaintsSnap.empty
-          ? complaintsSnap.docs.map((d) => d.data() as ComplaintFeedback)
-          : [];
+        if (!complaintsSnap.empty) {
+          this.state.complaintsFeedback = complaintsSnap.docs.map((d) => d.data() as ComplaintFeedback);
+        }
 
-        this.state.showcaseCards = !showcaseCardsSnap.empty
-          ? showcaseCardsSnap.docs.map((d) => d.data() as ShowcaseCard)
-          : [];
+        if (!showcaseCardsSnap.empty) {
+          this.state.showcaseCards = showcaseCardsSnap.docs.map((d) => d.data() as ShowcaseCard);
+        }
 
         // Timetable Periods Sync from Firestore (Strictly preserving user customized timings)
         let incomingPeriods: TimetablePeriodDefinition[] = [];
@@ -794,11 +794,113 @@ class DataService {
       return true;
     } catch (e: any) {
       console.warn('Firestore sync note:', e);
-      this.syncStatus = 'connected';
-      this.syncError = e?.message || null;
+      this.syncStatus = 'error';
+      this.syncError = e?.message || 'Firestore connection or quota issue';
       this.lastSyncTime = new Date().toLocaleTimeString();
       this.notify();
       return false;
+    }
+  }
+
+  public getSyncStatus() {
+    return this.syncStatus;
+  }
+
+  public getSyncError() {
+    return this.syncError;
+  }
+
+  // Restore complete state from exported JSON backup
+  public restoreFullBackup(backupData: any): { success: boolean; message: string } {
+    try {
+      if (!backupData || typeof backupData !== 'object') {
+        return { success: false, message: 'Invalid backup file structure.' };
+      }
+      const source = backupData.collections ? backupData.collections : backupData;
+
+      let restoredCount = 0;
+      if (Array.isArray(source.users) && source.users.length > 0) {
+        this.state.users = source.users;
+        restoredCount += source.users.length;
+      }
+      if (Array.isArray(source.classes)) {
+        this.state.classes = source.classes;
+        restoredCount += source.classes.length;
+      }
+      if (Array.isArray(source.students)) {
+        this.state.students = source.students;
+        restoredCount += source.students.length;
+      }
+      if (Array.isArray(source.teachers)) {
+        this.state.teachers = source.teachers;
+        restoredCount += source.teachers.length;
+      }
+      if (Array.isArray(source.subjects)) {
+        this.state.subjects = source.subjects;
+        restoredCount += source.subjects.length;
+      }
+      const evalLevels = source.evaluation_levels || source.evaluationLevels;
+      if (Array.isArray(evalLevels)) {
+        this.state.evaluationLevels = evalLevels;
+        restoredCount += evalLevels.length;
+      }
+      if (Array.isArray(source.marks)) {
+        this.state.marks = source.marks;
+        restoredCount += source.marks.length;
+      }
+      const attRecords = source.attendance_records || source.attendanceRecords;
+      if (Array.isArray(attRecords)) {
+        this.state.attendanceRecords = attRecords;
+        restoredCount += attRecords.length;
+      }
+      const leaves = source.leave_applications || source.leaveApplications;
+      if (Array.isArray(leaves)) {
+        this.state.leaveApplications = leaves;
+        restoredCount += leaves.length;
+      }
+      if (Array.isArray(source.achievements)) {
+        this.state.achievements = source.achievements;
+        restoredCount += source.achievements.length;
+      }
+      const behavior = source.behavior_records || source.behaviorRecords;
+      if (Array.isArray(behavior)) {
+        this.state.behaviorRecords = behavior;
+        restoredCount += behavior.length;
+      }
+      const complaints = source.complaints_feedback || source.complaintsFeedback;
+      if (Array.isArray(complaints)) {
+        this.state.complaintsFeedback = complaints;
+        restoredCount += complaints.length;
+      }
+      const periods = source.timetable_periods || source.timetablePeriods;
+      if (Array.isArray(periods) && periods.length > 0) {
+        this.state.timetablePeriods = periods;
+        restoredCount += periods.length;
+      }
+      const slots = source.timetable_slots || source.timetableSlots;
+      if (Array.isArray(slots)) {
+        this.state.timetableSlots = slots;
+        restoredCount += slots.length;
+      }
+      const years = source.academic_years || source.academicYears;
+      if (Array.isArray(years) && years.length > 0) {
+        this.state.academicYears = years;
+      }
+      const cards = source.showcase_cards || source.showcaseCards;
+      if (Array.isArray(cards)) {
+        this.state.showcaseCards = cards;
+        restoredCount += cards.length;
+      }
+
+      this.saveLocal();
+      this.notify();
+      return {
+        success: true,
+        message: `Successfully restored ${restoredCount} records from backup.`,
+      };
+    } catch (e: any) {
+      console.error('Error restoring backup:', e);
+      return { success: false, message: e?.message || 'Failed to restore backup.' };
     }
   }
 
